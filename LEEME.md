@@ -5,6 +5,11 @@ Equipo: Roberto Orozco Ramírez (184595), Adam Del Pozo Ontiveros (185611) y Enr
 **Qué es:** una mochila electrónica de menos de 3 g que convierte a una cucaracha de Madagascar en un
 buscador de personas atrapadas. Detecta calor, decide sola cuándo estimular al insecto y avisa por radio.
 
+**Repositorio:** https://github.com/AdamPark7014/biobot-rescue (privado, rama `main`). La carpeta de OneDrive
+es la copia de trabajo: después de cambiar algo, `git add`, `git commit` y `git push`; para traer lo que se
+hizo en otra máquina o en la nube, `git pull`. Las compilaciones intermedias de Quartus, LaTeX e Icarus no se
+suben (ver `.gitignore`); los `.sof` y los PDF sí.
+
 **Qué hay aquí:** la investigación con fuentes, el modelo completo con su simulación, el circuito en Verilog
 ya verificado y sintetizado, el esquema de investigación en PDF y la presentación.
 
