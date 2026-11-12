@@ -1,0 +1,807 @@
+Analysis & Synthesis report for biobot_insecto
+Wed Nov 11 18:17:18 2026
+Quartus Prime Version 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Analysis & Synthesis Summary
+  3. Analysis & Synthesis Settings
+  4. Parallel Compilation
+  5. Analysis & Synthesis Source Files Read
+  6. Analysis & Synthesis Resource Usage Summary
+  7. Analysis & Synthesis Resource Utilization by Entity
+  8. Analysis & Synthesis DSP Block Usage Summary
+  9. State Machine - |top_insecto_de10lite|fase
+ 10. Registers Removed During Synthesis
+ 11. General Register Statistics
+ 12. Inverted Register Statistics
+ 13. Multiplexer Restructuring Statistics (Restructuring Performed)
+ 14. Parameter Settings for User Entity Instance: Top-level Entity: |top_insecto_de10lite
+ 15. Parameter Settings for User Entity Instance: insecto_sim:u_insecto
+ 16. Parameter Settings for User Entity Instance: uart_tx:u_tx
+ 17. Parameter Settings for User Entity Instance: uart_rx:u_rx
+ 18. Parameter Settings for Inferred Entity Instance: lpm_mult:Mult0
+ 19. Parameter Settings for Inferred Entity Instance: insecto_sim:u_insecto|lpm_mult:Mult0
+ 20. Parameter Settings for Inferred Entity Instance: insecto_sim:u_insecto|lpm_mult:Mult1
+ 21. lpm_mult Parameter Settings by Entity Instance
+ 22. Port Connectivity Checks: "hex7seg:u_h5"
+ 23. Port Connectivity Checks: "hex7seg:u_h3"
+ 24. Port Connectivity Checks: "hex7seg:u_h0"
+ 25. Port Connectivity Checks: "insecto_sim:u_insecto"
+ 26. Post-Synthesis Netlist Statistics for Top Partition
+ 27. Elapsed Time Per Partition
+ 28. Analysis & Synthesis Messages
+ 29. Analysis & Synthesis Suppressed Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2025  Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+
+
+
++--------------------------------------------------------------------------------------+
+; Analysis & Synthesis Summary                                                         ;
++------------------------------------+-------------------------------------------------+
+; Analysis & Synthesis Status        ; Successful - Wed Nov 11 18:17:18 2026           ;
+; Quartus Prime Version              ; 24.1std.0 Build 1077 03/04/2025 SC Lite Edition ;
+; Revision Name                      ; biobot_insecto                                  ;
+; Top-level Entity Name              ; top_insecto_de10lite                            ;
+; Family                             ; MAX 10                                          ;
+; Total logic elements               ; 818                                             ;
+;     Total combinational functions  ; 781                                             ;
+;     Dedicated logic registers      ; 307                                             ;
+; Total registers                    ; 307                                             ;
+; Total pins                         ; 66                                              ;
+; Total virtual pins                 ; 0                                               ;
+; Total memory bits                  ; 0                                               ;
+; Embedded Multiplier 9-bit elements ; 3                                               ;
+; Total PLLs                         ; 0                                               ;
+; UFM blocks                         ; 0                                               ;
+; ADC blocks                         ; 0                                               ;
++------------------------------------+-------------------------------------------------+
+
+
++--------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Settings                                                                                ;
++------------------------------------------------------------------+----------------------+--------------------+
+; Option                                                           ; Setting              ; Default Value      ;
++------------------------------------------------------------------+----------------------+--------------------+
+; Device                                                           ; 10M50DAF484C7G       ;                    ;
+; Top-level entity name                                            ; top_insecto_de10lite ; biobot_insecto     ;
+; Family name                                                      ; MAX 10               ; Cyclone V          ;
+; Maximum processors allowed for parallel compilation              ; All                  ;                    ;
+; Use smart compilation                                            ; Off                  ; Off                ;
+; Enable parallel Assembler and Timing Analyzer during compilation ; On                   ; On                 ;
+; Enable compact report table                                      ; Off                  ; Off                ;
+; Restructure Multiplexers                                         ; Auto                 ; Auto               ;
+; Create Debugging Nodes for IP Cores                              ; Off                  ; Off                ;
+; Preserve fewer node names                                        ; On                   ; On                 ;
+; Intel FPGA IP Evaluation Mode                                    ; Enable               ; Enable             ;
+; Verilog Version                                                  ; Verilog_2001         ; Verilog_2001       ;
+; VHDL Version                                                     ; VHDL_1993            ; VHDL_1993          ;
+; State Machine Processing                                         ; Auto                 ; Auto               ;
+; Safe State Machine                                               ; Off                  ; Off                ;
+; Extract Verilog State Machines                                   ; On                   ; On                 ;
+; Extract VHDL State Machines                                      ; On                   ; On                 ;
+; Ignore Verilog initial constructs                                ; Off                  ; Off                ;
+; Iteration limit for constant Verilog loops                       ; 5000                 ; 5000               ;
+; Iteration limit for non-constant Verilog loops                   ; 250                  ; 250                ;
+; Add Pass-Through Logic to Inferred RAMs                          ; On                   ; On                 ;
+; Infer RAMs from Raw Logic                                        ; On                   ; On                 ;
+; Parallel Synthesis                                               ; On                   ; On                 ;
+; DSP Block Balancing                                              ; Auto                 ; Auto               ;
+; NOT Gate Push-Back                                               ; On                   ; On                 ;
+; Power-Up Don't Care                                              ; On                   ; On                 ;
+; Remove Redundant Logic Cells                                     ; Off                  ; Off                ;
+; Remove Duplicate Registers                                       ; On                   ; On                 ;
+; Ignore CARRY Buffers                                             ; Off                  ; Off                ;
+; Ignore CASCADE Buffers                                           ; Off                  ; Off                ;
+; Ignore GLOBAL Buffers                                            ; Off                  ; Off                ;
+; Ignore ROW GLOBAL Buffers                                        ; Off                  ; Off                ;
+; Ignore LCELL Buffers                                             ; Off                  ; Off                ;
+; Ignore SOFT Buffers                                              ; On                   ; On                 ;
+; Limit AHDL Integers to 32 Bits                                   ; Off                  ; Off                ;
+; Optimization Technique                                           ; Balanced             ; Balanced           ;
+; Carry Chain Length                                               ; 70                   ; 70                 ;
+; Auto Carry Chains                                                ; On                   ; On                 ;
+; Auto Open-Drain Pins                                             ; On                   ; On                 ;
+; Perform WYSIWYG Primitive Resynthesis                            ; Off                  ; Off                ;
+; Auto ROM Replacement                                             ; On                   ; On                 ;
+; Auto RAM Replacement                                             ; On                   ; On                 ;
+; Auto DSP Block Replacement                                       ; On                   ; On                 ;
+; Auto Shift Register Replacement                                  ; Auto                 ; Auto               ;
+; Allow Shift Register Merging across Hierarchies                  ; Auto                 ; Auto               ;
+; Auto Clock Enable Replacement                                    ; On                   ; On                 ;
+; Strict RAM Replacement                                           ; Off                  ; Off                ;
+; Allow Synchronous Control Signals                                ; On                   ; On                 ;
+; Force Use of Synchronous Clear Signals                           ; Off                  ; Off                ;
+; Auto RAM Block Balancing                                         ; On                   ; On                 ;
+; Auto RAM to Logic Cell Conversion                                ; Off                  ; Off                ;
+; Auto Resource Sharing                                            ; Off                  ; Off                ;
+; Allow Any RAM Size For Recognition                               ; Off                  ; Off                ;
+; Allow Any ROM Size For Recognition                               ; Off                  ; Off                ;
+; Allow Any Shift Register Size For Recognition                    ; Off                  ; Off                ;
+; Use LogicLock Constraints during Resource Balancing              ; On                   ; On                 ;
+; Ignore translate_off and synthesis_off directives                ; Off                  ; Off                ;
+; Timing-Driven Synthesis                                          ; On                   ; On                 ;
+; Report Parameter Settings                                        ; On                   ; On                 ;
+; Report Source Assignments                                        ; On                   ; On                 ;
+; Report Connectivity Checks                                       ; On                   ; On                 ;
+; Ignore Maximum Fan-Out Assignments                               ; Off                  ; Off                ;
+; Synchronization Register Chain Length                            ; 2                    ; 2                  ;
+; Power Optimization During Synthesis                              ; Normal compilation   ; Normal compilation ;
+; HDL message level                                                ; Level2               ; Level2             ;
+; Suppress Register Optimization Related Messages                  ; Off                  ; Off                ;
+; Number of Removed Registers Reported in Synthesis Report         ; 5000                 ; 5000               ;
+; Number of Swept Nodes Reported in Synthesis Report               ; 5000                 ; 5000               ;
+; Number of Inverted Registers Reported in Synthesis Report        ; 100                  ; 100                ;
+; Clock MUX Protection                                             ; On                   ; On                 ;
+; Auto Gated Clock Conversion                                      ; Off                  ; Off                ;
+; Block Design Naming                                              ; Auto                 ; Auto               ;
+; SDC constraint protection                                        ; Off                  ; Off                ;
+; Synthesis Effort                                                 ; Auto                 ; Auto               ;
+; Shift Register Replacement - Allow Asynchronous Clear Signal     ; On                   ; On                 ;
+; Pre-Mapping Resynthesis Optimization                             ; Off                  ; Off                ;
+; Analysis & Synthesis Message Level                               ; Medium               ; Medium             ;
+; Disable Register Merging Across Hierarchies                      ; Auto                 ; Auto               ;
+; Resource Aware Inference For Block RAM                           ; On                   ; On                 ;
++------------------------------------------------------------------+----------------------+--------------------+
+
+
++------------------------------------------+
+; Parallel Compilation                     ;
++----------------------------+-------------+
+; Processors                 ; Number      ;
++----------------------------+-------------+
+; Number detected on machine ; 24          ;
+; Maximum allowed            ; 16          ;
+;                            ;             ;
+; Average used               ; 1.00        ;
+; Maximum used               ; 16          ;
+;                            ;             ;
+; Usage by Processor         ; % Time Used ;
+;     Processor 1            ; 100.0%      ;
+;     Processor 2            ;   0.0%      ;
+;     Processor 3            ;   0.0%      ;
+;     Processor 4            ;   0.0%      ;
+;     Processor 5            ;   0.0%      ;
+;     Processor 6            ;   0.0%      ;
+;     Processor 7            ;   0.0%      ;
+;     Processor 8            ;   0.0%      ;
+;     Processors 9-16        ;   0.0%      ;
++----------------------------+-------------+
+
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Source Files Read                                                                                                                                                                                                                                  ;
++----------------------------------+-----------------+------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------+
+; File Name with User-Entered Path ; Used in Netlist ; File Type                    ; File Name with Absolute Path                                                                                                                                              ; Library ;
++----------------------------------+-----------------+------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------+
+; ../hdl/uart_rx.v                 ; yes             ; User Verilog HDL File        ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_rx.v                      ;         ;
+; ../hdl/uart_tx.v                 ; yes             ; User Verilog HDL File        ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_tx.v                      ;         ;
+; ../hdl/insecto_sim.v             ; yes             ; User Verilog HDL File        ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/insecto_sim.v                  ;         ;
+; ../hdl/top_biobot_de10lite.v     ; yes             ; User Verilog HDL File        ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v          ;         ;
+; ../hdl/top_insecto_de10lite.v    ; yes             ; User Verilog HDL File        ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v         ;         ;
+; lpm_mult.tdf                     ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/lpm_mult.tdf                                                                                                    ;         ;
+; aglobal241.inc                   ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/aglobal241.inc                                                                                                  ;         ;
+; lpm_add_sub.inc                  ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/lpm_add_sub.inc                                                                                                 ;         ;
+; multcore.inc                     ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/multcore.inc                                                                                                    ;         ;
+; bypassff.inc                     ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/bypassff.inc                                                                                                    ;         ;
+; altshift.inc                     ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/altshift.inc                                                                                                    ;         ;
+; multcore.tdf                     ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/multcore.tdf                                                                                                    ;         ;
+; csa_add.inc                      ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/csa_add.inc                                                                                                     ;         ;
+; mpar_add.inc                     ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/mpar_add.inc                                                                                                    ;         ;
+; muleabz.inc                      ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/muleabz.inc                                                                                                     ;         ;
+; mul_lfrg.inc                     ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/mul_lfrg.inc                                                                                                    ;         ;
+; mul_boothc.inc                   ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/mul_boothc.inc                                                                                                  ;         ;
+; alt_ded_mult.inc                 ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/alt_ded_mult.inc                                                                                                ;         ;
+; alt_ded_mult_y.inc               ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/alt_ded_mult_y.inc                                                                                              ;         ;
+; dffpipe.inc                      ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/dffpipe.inc                                                                                                     ;         ;
+; mpar_add.tdf                     ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/mpar_add.tdf                                                                                                    ;         ;
+; lpm_add_sub.tdf                  ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/lpm_add_sub.tdf                                                                                                 ;         ;
+; addcore.inc                      ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/addcore.inc                                                                                                     ;         ;
+; look_add.inc                     ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/look_add.inc                                                                                                    ;         ;
+; alt_stratix_add_sub.inc          ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/alt_stratix_add_sub.inc                                                                                         ;         ;
+; db/add_sub_9rg.tdf               ; yes             ; Auto-Generated Megafunction  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus_insecto/db/add_sub_9rg.tdf ;         ;
+; db/add_sub_drg.tdf               ; yes             ; Auto-Generated Megafunction  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus_insecto/db/add_sub_drg.tdf ;         ;
+; altshift.tdf                     ; yes             ; Megafunction                 ; c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/altshift.tdf                                                                                                    ;         ;
+; db/mult_bgs.tdf                  ; yes             ; Auto-Generated Megafunction  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus_insecto/db/mult_bgs.tdf    ;         ;
+; db/mult_hds.tdf                  ; yes             ; Auto-Generated Megafunction  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus_insecto/db/mult_hds.tdf    ;         ;
++----------------------------------+-----------------+------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------+
+
+
++--------------------------------------------------------------+
+; Analysis & Synthesis Resource Usage Summary                  ;
++---------------------------------------------+----------------+
+; Resource                                    ; Usage          ;
++---------------------------------------------+----------------+
+; Estimated Total logic elements              ; 818            ;
+;                                             ;                ;
+; Total combinational functions               ; 781            ;
+; Logic element usage by number of LUT inputs ;                ;
+;     -- 4 input functions                    ; 310            ;
+;     -- 3 input functions                    ; 125            ;
+;     -- <=2 input functions                  ; 346            ;
+;                                             ;                ;
+; Logic elements by mode                      ;                ;
+;     -- normal mode                          ; 481            ;
+;     -- arithmetic mode                      ; 300            ;
+;                                             ;                ;
+; Total registers                             ; 307            ;
+;     -- Dedicated logic registers            ; 307            ;
+;     -- I/O registers                        ; 0              ;
+;                                             ;                ;
+; I/O pins                                    ; 66             ;
+;                                             ;                ;
+; Embedded Multiplier 9-bit elements          ; 3              ;
+;                                             ;                ;
+; Maximum fan-out node                        ; CLOCK_50~input ;
+; Maximum fan-out                             ; 307            ;
+; Total fan-out                               ; 3817           ;
+; Average fan-out                             ; 3.12           ;
++---------------------------------------------+----------------+
+
+
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Resource Utilization by Entity                                                                                                                                                                                                                                                                                                                                      ;
++------------------------------------------------+---------------------+---------------------------+-------------+------------+--------------+---------+-----------+------+--------------+------------+----------------------------------------------------------------------------------------------------------------------------------------------+----------------------+--------------+
+; Compilation Hierarchy Node                     ; Combinational ALUTs ; Dedicated Logic Registers ; Memory Bits ; UFM Blocks ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; Pins ; Virtual Pins ; ADC blocks ; Full Hierarchy Name                                                                                                                          ; Entity Name          ; Library Name ;
++------------------------------------------------+---------------------+---------------------------+-------------+------------+--------------+---------+-----------+------+--------------+------------+----------------------------------------------------------------------------------------------------------------------------------------------+----------------------+--------------+
+; |top_insecto_de10lite                          ; 781 (251)           ; 307 (175)                 ; 0           ; 0          ; 3            ; 1       ; 1         ; 66   ; 0            ; 0          ; |top_insecto_de10lite                                                                                                                        ; top_insecto_de10lite ; work         ;
+;    |hex7seg:u_h0|                              ; 7 (7)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|hex7seg:u_h0                                                                                                           ; hex7seg              ; work         ;
+;    |hex7seg:u_h1|                              ; 7 (7)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|hex7seg:u_h1                                                                                                           ; hex7seg              ; work         ;
+;    |hex7seg:u_h2|                              ; 7 (7)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|hex7seg:u_h2                                                                                                           ; hex7seg              ; work         ;
+;    |hex7seg:u_h3|                              ; 7 (7)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|hex7seg:u_h3                                                                                                           ; hex7seg              ; work         ;
+;    |hex7seg:u_h4|                              ; 7 (7)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|hex7seg:u_h4                                                                                                           ; hex7seg              ; work         ;
+;    |hex7seg:u_h5|                              ; 1 (1)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|hex7seg:u_h5                                                                                                           ; hex7seg              ; work         ;
+;    |insecto_sim:u_insecto|                     ; 358 (358)           ; 61 (61)                   ; 0           ; 0          ; 3            ; 1       ; 1         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|insecto_sim:u_insecto                                                                                                  ; insecto_sim          ; work         ;
+;       |lpm_mult:Mult0|                         ; 0 (0)               ; 0 (0)                     ; 0           ; 0          ; 2            ; 0       ; 1         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|insecto_sim:u_insecto|lpm_mult:Mult0                                                                                   ; lpm_mult             ; work         ;
+;          |mult_bgs:auto_generated|             ; 0 (0)               ; 0 (0)                     ; 0           ; 0          ; 2            ; 0       ; 1         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|insecto_sim:u_insecto|lpm_mult:Mult0|mult_bgs:auto_generated                                                           ; mult_bgs             ; work         ;
+;       |lpm_mult:Mult1|                         ; 0 (0)               ; 0 (0)                     ; 0           ; 0          ; 1            ; 1       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|insecto_sim:u_insecto|lpm_mult:Mult1                                                                                   ; lpm_mult             ; work         ;
+;          |mult_hds:auto_generated|             ; 0 (0)               ; 0 (0)                     ; 0           ; 0          ; 1            ; 1       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|insecto_sim:u_insecto|lpm_mult:Mult1|mult_hds:auto_generated                                                           ; mult_hds             ; work         ;
+;    |lpm_mult:Mult0|                            ; 40 (0)              ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|lpm_mult:Mult0                                                                                                         ; lpm_mult             ; work         ;
+;       |multcore:mult_core|                     ; 40 (20)             ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|lpm_mult:Mult0|multcore:mult_core                                                                                      ; multcore             ; work         ;
+;          |mpar_add:padder|                     ; 20 (0)              ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder                                                                      ; mpar_add             ; work         ;
+;             |lpm_add_sub:adder[0]|             ; 10 (0)              ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[0]                                                 ; lpm_add_sub          ; work         ;
+;                |add_sub_9rg:auto_generated|    ; 10 (10)             ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[0]|add_sub_9rg:auto_generated                      ; add_sub_9rg          ; work         ;
+;             |mpar_add:sub_par_add|             ; 10 (0)              ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|mpar_add:sub_par_add                                                 ; mpar_add             ; work         ;
+;                |lpm_add_sub:adder[0]|          ; 10 (0)              ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|mpar_add:sub_par_add|lpm_add_sub:adder[0]                            ; lpm_add_sub          ; work         ;
+;                   |add_sub_drg:auto_generated| ; 10 (10)             ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|mpar_add:sub_par_add|lpm_add_sub:adder[0]|add_sub_drg:auto_generated ; add_sub_drg          ; work         ;
+;    |uart_rx:u_rx|                              ; 53 (53)             ; 40 (40)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|uart_rx:u_rx                                                                                                           ; uart_rx              ; work         ;
+;    |uart_tx:u_tx|                              ; 43 (43)             ; 31 (31)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_insecto_de10lite|uart_tx:u_tx                                                                                                           ; uart_tx              ; work         ;
++------------------------------------------------+---------------------+---------------------------+-------------+------------+--------------+---------+-----------+------+--------------+------------+----------------------------------------------------------------------------------------------------------------------------------------------+----------------------+--------------+
+Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
+
+
++-----------------------------------------------------+
+; Analysis & Synthesis DSP Block Usage Summary        ;
++---------------------------------------+-------------+
+; Statistic                             ; Number Used ;
++---------------------------------------+-------------+
+; Simple Multipliers (9-bit)            ; 1           ;
+; Simple Multipliers (18-bit)           ; 1           ;
+; Embedded Multiplier Blocks            ; --          ;
+; Embedded Multiplier 9-bit elements    ; 3           ;
+; Signed Embedded Multipliers           ; 2           ;
+; Unsigned Embedded Multipliers         ; 0           ;
+; Mixed Sign Embedded Multipliers       ; 0           ;
+; Variable Sign Embedded Multipliers    ; 0           ;
+; Dedicated Input Shift Register Chains ; 0           ;
++---------------------------------------+-------------+
+Note: number of Embedded Multiplier Blocks used is only available after a successful fit.
+
+
+Encoding Type:  One-Hot
++-------------------------------------------------+
+; State Machine - |top_insecto_de10lite|fase      ;
++---------+---------+---------+---------+---------+
+; Name    ; fase.11 ; fase.10 ; fase.01 ; fase.00 ;
++---------+---------+---------+---------+---------+
+; fase.00 ; 0       ; 0       ; 0       ; 0       ;
+; fase.01 ; 0       ; 0       ; 1       ; 1       ;
+; fase.10 ; 0       ; 1       ; 0       ; 1       ;
+; fase.11 ; 1       ; 0       ; 0       ; 1       ;
++---------+---------+---------+---------+---------+
+
+
++-----------------------------------------------------------------------------------+
+; Registers Removed During Synthesis                                                ;
++------------------------------------------+----------------------------------------+
+; Register name                            ; Reason for Removal                     ;
++------------------------------------------+----------------------------------------+
+; uart_tx:u_tx|tx_shift[9]                 ; Stuck at VCC due to stuck port data_in ;
+; fase~8                                   ; Lost fanout                            ;
+; fase~9                                   ; Lost fanout                            ;
+; insecto_sim:u_insecto|n_obedecidos[4..7] ; Lost fanout                            ;
+; Total Number of Removed Registers = 7    ;                                        ;
++------------------------------------------+----------------------------------------+
+
+
++------------------------------------------------------+
+; General Register Statistics                          ;
++----------------------------------------------+-------+
+; Statistic                                    ; Value ;
++----------------------------------------------+-------+
+; Total registers                              ; 307   ;
+; Number of registers using Synchronous Clear  ; 102   ;
+; Number of registers using Synchronous Load   ; 90    ;
+; Number of registers using Asynchronous Clear ; 307   ;
+; Number of registers using Asynchronous Load  ; 0     ;
+; Number of registers using Clock Enable       ; 233   ;
+; Number of registers using Preset             ; 0     ;
++----------------------------------------------+-------+
+
+
++---------------------------------------------------+
+; Inverted Register Statistics                      ;
++-----------------------------------------+---------+
+; Inverted Register                       ; Fan out ;
++-----------------------------------------+---------+
+; uart_tx:u_tx|tx                         ; 1       ;
+; insecto_sim:u_insecto|actividad[5]      ; 16      ;
+; insecto_sim:u_insecto|dist[5]           ; 13      ;
+; insecto_sim:u_insecto|dist[4]           ; 14      ;
+; insecto_sim:u_insecto|dist[7]           ; 25      ;
+; insecto_sim:u_insecto|dist[3]           ; 12      ;
+; insecto_sim:u_insecto|dist[8]           ; 25      ;
+; insecto_sim:u_insecto|dist[11]          ; 20      ;
+; insecto_sim:u_insecto|dist[9]           ; 23      ;
+; uart_tx:u_tx|tx_shift[0]                ; 1       ;
+; insecto_sim:u_insecto|azar[11]          ; 3       ;
+; insecto_sim:u_insecto|azar[10]          ; 4       ;
+; insecto_sim:u_insecto|azar[12]          ; 4       ;
+; insecto_sim:u_insecto|azar[8]           ; 3       ;
+; uart_tx:u_tx|tx_shift[1]                ; 1       ;
+; insecto_sim:u_insecto|azar[0]           ; 5       ;
+; insecto_sim:u_insecto|azar[1]           ; 6       ;
+; insecto_sim:u_insecto|azar[3]           ; 7       ;
+; insecto_sim:u_insecto|azar[5]           ; 7       ;
+; uart_tx:u_tx|tx_shift[2]                ; 1       ;
+; uart_rx:u_rx|rx_sync                    ; 12      ;
+; uart_tx:u_tx|tx_shift[3]                ; 1       ;
+; uart_rx:u_rx|rx_meta                    ; 1       ;
+; uart_tx:u_tx|tx_shift[4]                ; 1       ;
+; uart_tx:u_tx|tx_shift[5]                ; 1       ;
+; uart_tx:u_tx|tx_shift[6]                ; 1       ;
+; uart_tx:u_tx|tx_shift[7]                ; 1       ;
+; uart_tx:u_tx|tx_shift[8]                ; 1       ;
+; Total number of inverted registers = 28 ;         ;
++-----------------------------------------+---------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Multiplexer Restructuring Statistics (Restructuring Performed)                                                                                                            ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-------------------------------------------------------------+
+; Multiplexer Inputs ; Bus Width ; Baseline Area ; Area if Restructured ; Saving if Restructured ; Registered ; Example Multiplexer Output                                  ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-------------------------------------------------------------+
+; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |top_insecto_de10lite|uart_tx:u_tx|bit_index[3]             ;
+; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |top_insecto_de10lite|insecto_sim:u_insecto|n_obedecidos[6] ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; Yes        ; |top_insecto_de10lite|espera[1]                             ;
+; 3:1                ; 7 bits    ; 14 LEs        ; 7 LEs                ; 7 LEs                  ; Yes        ; |top_insecto_de10lite|n_byte[6]                             ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; Yes        ; |top_insecto_de10lite|tx_dato[7]                            ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |top_insecto_de10lite|t_enlace[21]                          ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |top_insecto_de10lite|t_led[27]                             ;
+; 4:1                ; 6 bits    ; 12 LEs        ; 12 LEs               ; 0 LEs                  ; Yes        ; |top_insecto_de10lite|insecto_sim:u_insecto|impulso[0]      ;
+; 4:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |top_insecto_de10lite|hueco[0]                              ;
+; 4:1                ; 16 bits   ; 32 LEs        ; 16 LEs               ; 16 LEs                 ; Yes        ; |top_insecto_de10lite|uart_tx:u_tx|clk_count[15]            ;
+; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |top_insecto_de10lite|uart_rx:u_rx|clk_count[15]            ;
+; 4:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; Yes        ; |top_insecto_de10lite|led_canal[0]                          ;
+; 5:1                ; 9 bits    ; 27 LEs        ; 18 LEs               ; 9 LEs                  ; Yes        ; |top_insecto_de10lite|insecto_sim:u_insecto|pausa[0]        ;
+; 5:1                ; 3 bits    ; 9 LEs         ; 3 LEs                ; 6 LEs                  ; Yes        ; |top_insecto_de10lite|uart_rx:u_rx|bit_index[3]             ;
+; 15:1               ; 2 bits    ; 20 LEs        ; 16 LEs               ; 4 LEs                  ; Yes        ; |top_insecto_de10lite|insecto_sim:u_insecto|rumbo[3]        ;
+; 15:1               ; 6 bits    ; 60 LEs        ; 48 LEs               ; 12 LEs                 ; Yes        ; |top_insecto_de10lite|insecto_sim:u_insecto|rumbo[2]        ;
+; 3:1                ; 7 bits    ; 14 LEs        ; 7 LEs                ; 7 LEs                  ; Yes        ; |top_insecto_de10lite|uart_tx:u_tx|tx_shift[7]              ;
+; 8:1                ; 4 bits    ; 20 LEs        ; 16 LEs               ; 4 LEs                  ; Yes        ; |top_insecto_de10lite|insecto_sim:u_insecto|dist[4]         ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 32 LEs               ; 8 LEs                  ; Yes        ; |top_insecto_de10lite|insecto_sim:u_insecto|dist[10]        ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |top_insecto_de10lite|fase                                  ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-------------------------------------------------------------+
+
+
++--------------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: Top-level Entity: |top_insecto_de10lite ;
++----------------+----------+----------------------------------------------------------+
+; Parameter Name ; Value    ; Type                                                     ;
++----------------+----------+----------------------------------------------------------+
+; CLK_FREQ       ; 50000000 ; Signed Integer                                           ;
+; BAUD_RATE      ; 9600     ; Signed Integer                                           ;
++----------------+----------+----------------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++--------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: insecto_sim:u_insecto ;
++----------------+------------------+--------------------------------+
+; Parameter Name ; Value            ; Type                           ;
++----------------+------------------+--------------------------------+
+; SEMILLA        ; 0001110100101011 ; Unsigned Binary                ;
++----------------+------------------+--------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++-----------------------------------------------------------+
+; Parameter Settings for User Entity Instance: uart_tx:u_tx ;
++----------------+----------+-------------------------------+
+; Parameter Name ; Value    ; Type                          ;
++----------------+----------+-------------------------------+
+; CLK_FREQ       ; 50000000 ; Signed Integer                ;
+; BAUD_RATE      ; 9600     ; Signed Integer                ;
++----------------+----------+-------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++-----------------------------------------------------------+
+; Parameter Settings for User Entity Instance: uart_rx:u_rx ;
++----------------+----------+-------------------------------+
+; Parameter Name ; Value    ; Type                          ;
++----------------+----------+-------------------------------+
+; CLK_FREQ       ; 50000000 ; Signed Integer                ;
+; BAUD_RATE      ; 9600     ; Signed Integer                ;
++----------------+----------+-------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++---------------------------------------------------------------------------------+
+; Parameter Settings for Inferred Entity Instance: lpm_mult:Mult0                 ;
++------------------------------------------------+----------+---------------------+
+; Parameter Name                                 ; Value    ; Type                ;
++------------------------------------------------+----------+---------------------+
+; AUTO_CARRY_CHAINS                              ; ON       ; AUTO_CARRY          ;
+; IGNORE_CARRY_BUFFERS                           ; OFF      ; IGNORE_CARRY        ;
+; AUTO_CASCADE_CHAINS                            ; ON       ; AUTO_CASCADE        ;
+; IGNORE_CASCADE_BUFFERS                         ; OFF      ; IGNORE_CASCADE      ;
+; LPM_WIDTHA                                     ; 12       ; Untyped             ;
+; LPM_WIDTHB                                     ; 6        ; Untyped             ;
+; LPM_WIDTHP                                     ; 18       ; Untyped             ;
+; LPM_WIDTHR                                     ; 18       ; Untyped             ;
+; LPM_WIDTHS                                     ; 1        ; Untyped             ;
+; LPM_REPRESENTATION                             ; UNSIGNED ; Untyped             ;
+; LPM_PIPELINE                                   ; 0        ; Untyped             ;
+; LATENCY                                        ; 0        ; Untyped             ;
+; INPUT_A_IS_CONSTANT                            ; NO       ; Untyped             ;
+; INPUT_B_IS_CONSTANT                            ; YES      ; Untyped             ;
+; USE_EAB                                        ; OFF      ; Untyped             ;
+; MAXIMIZE_SPEED                                 ; 5        ; Untyped             ;
+; DEVICE_FAMILY                                  ; MAX 10   ; Untyped             ;
+; CARRY_CHAIN                                    ; MANUAL   ; Untyped             ;
+; APEX20K_TECHNOLOGY_MAPPER                      ; LUT      ; TECH_MAPPER_APEX20K ;
+; DEDICATED_MULTIPLIER_CIRCUITRY                 ; AUTO     ; Untyped             ;
+; DEDICATED_MULTIPLIER_MIN_INPUT_WIDTH_FOR_AUTO  ; 0        ; Untyped             ;
+; DEDICATED_MULTIPLIER_MIN_OUTPUT_WIDTH_FOR_AUTO ; 0        ; Untyped             ;
+; CBXI_PARAMETER                                 ; NOTHING  ; Untyped             ;
+; INPUT_A_FIXED_VALUE                            ; Bx       ; Untyped             ;
+; INPUT_B_FIXED_VALUE                            ; Bx       ; Untyped             ;
+; USE_AHDL_IMPLEMENTATION                        ; OFF      ; Untyped             ;
++------------------------------------------------+----------+---------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++---------------------------------------------------------------------------------------+
+; Parameter Settings for Inferred Entity Instance: insecto_sim:u_insecto|lpm_mult:Mult0 ;
++------------------------------------------------+----------+---------------------------+
+; Parameter Name                                 ; Value    ; Type                      ;
++------------------------------------------------+----------+---------------------------+
+; AUTO_CARRY_CHAINS                              ; ON       ; AUTO_CARRY                ;
+; IGNORE_CARRY_BUFFERS                           ; OFF      ; IGNORE_CARRY              ;
+; AUTO_CASCADE_CHAINS                            ; ON       ; AUTO_CASCADE              ;
+; IGNORE_CASCADE_BUFFERS                         ; OFF      ; IGNORE_CASCADE            ;
+; LPM_WIDTHA                                     ; 10       ; Untyped                   ;
+; LPM_WIDTHB                                     ; 10       ; Untyped                   ;
+; LPM_WIDTHP                                     ; 20       ; Untyped                   ;
+; LPM_WIDTHR                                     ; 20       ; Untyped                   ;
+; LPM_WIDTHS                                     ; 1        ; Untyped                   ;
+; LPM_REPRESENTATION                             ; SIGNED   ; Untyped                   ;
+; LPM_PIPELINE                                   ; 0        ; Untyped                   ;
+; LATENCY                                        ; 0        ; Untyped                   ;
+; INPUT_A_IS_CONSTANT                            ; NO       ; Untyped                   ;
+; INPUT_B_IS_CONSTANT                            ; NO       ; Untyped                   ;
+; USE_EAB                                        ; OFF      ; Untyped                   ;
+; MAXIMIZE_SPEED                                 ; 6        ; Untyped                   ;
+; DEVICE_FAMILY                                  ; MAX 10   ; Untyped                   ;
+; CARRY_CHAIN                                    ; MANUAL   ; Untyped                   ;
+; APEX20K_TECHNOLOGY_MAPPER                      ; LUT      ; TECH_MAPPER_APEX20K       ;
+; DEDICATED_MULTIPLIER_CIRCUITRY                 ; AUTO     ; Untyped                   ;
+; DEDICATED_MULTIPLIER_MIN_INPUT_WIDTH_FOR_AUTO  ; 0        ; Untyped                   ;
+; DEDICATED_MULTIPLIER_MIN_OUTPUT_WIDTH_FOR_AUTO ; 0        ; Untyped                   ;
+; CBXI_PARAMETER                                 ; mult_bgs ; Untyped                   ;
+; INPUT_A_FIXED_VALUE                            ; Bx       ; Untyped                   ;
+; INPUT_B_FIXED_VALUE                            ; Bx       ; Untyped                   ;
+; USE_AHDL_IMPLEMENTATION                        ; OFF      ; Untyped                   ;
++------------------------------------------------+----------+---------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++---------------------------------------------------------------------------------------+
+; Parameter Settings for Inferred Entity Instance: insecto_sim:u_insecto|lpm_mult:Mult1 ;
++------------------------------------------------+----------+---------------------------+
+; Parameter Name                                 ; Value    ; Type                      ;
++------------------------------------------------+----------+---------------------------+
+; AUTO_CARRY_CHAINS                              ; ON       ; AUTO_CARRY                ;
+; IGNORE_CARRY_BUFFERS                           ; OFF      ; IGNORE_CARRY              ;
+; AUTO_CASCADE_CHAINS                            ; ON       ; AUTO_CASCADE              ;
+; IGNORE_CASCADE_BUFFERS                         ; OFF      ; IGNORE_CASCADE            ;
+; LPM_WIDTHA                                     ; 5        ; Untyped                   ;
+; LPM_WIDTHB                                     ; 5        ; Untyped                   ;
+; LPM_WIDTHP                                     ; 10       ; Untyped                   ;
+; LPM_WIDTHR                                     ; 10       ; Untyped                   ;
+; LPM_WIDTHS                                     ; 1        ; Untyped                   ;
+; LPM_REPRESENTATION                             ; SIGNED   ; Untyped                   ;
+; LPM_PIPELINE                                   ; 0        ; Untyped                   ;
+; LATENCY                                        ; 0        ; Untyped                   ;
+; INPUT_A_IS_CONSTANT                            ; NO       ; Untyped                   ;
+; INPUT_B_IS_CONSTANT                            ; NO       ; Untyped                   ;
+; USE_EAB                                        ; OFF      ; Untyped                   ;
+; MAXIMIZE_SPEED                                 ; 5        ; Untyped                   ;
+; DEVICE_FAMILY                                  ; MAX 10   ; Untyped                   ;
+; CARRY_CHAIN                                    ; MANUAL   ; Untyped                   ;
+; APEX20K_TECHNOLOGY_MAPPER                      ; LUT      ; TECH_MAPPER_APEX20K       ;
+; DEDICATED_MULTIPLIER_CIRCUITRY                 ; AUTO     ; Untyped                   ;
+; DEDICATED_MULTIPLIER_MIN_INPUT_WIDTH_FOR_AUTO  ; 0        ; Untyped                   ;
+; DEDICATED_MULTIPLIER_MIN_OUTPUT_WIDTH_FOR_AUTO ; 0        ; Untyped                   ;
+; CBXI_PARAMETER                                 ; mult_hds ; Untyped                   ;
+; INPUT_A_FIXED_VALUE                            ; Bx       ; Untyped                   ;
+; INPUT_B_FIXED_VALUE                            ; Bx       ; Untyped                   ;
+; USE_AHDL_IMPLEMENTATION                        ; OFF      ; Untyped                   ;
++------------------------------------------------+----------+---------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++------------------------------------------------------------------------------+
+; lpm_mult Parameter Settings by Entity Instance                               ;
++---------------------------------------+--------------------------------------+
+; Name                                  ; Value                                ;
++---------------------------------------+--------------------------------------+
+; Number of entity instances            ; 3                                    ;
+; Entity Instance                       ; lpm_mult:Mult0                       ;
+;     -- LPM_WIDTHA                     ; 12                                   ;
+;     -- LPM_WIDTHB                     ; 6                                    ;
+;     -- LPM_WIDTHP                     ; 18                                   ;
+;     -- LPM_REPRESENTATION             ; UNSIGNED                             ;
+;     -- INPUT_A_IS_CONSTANT            ; NO                                   ;
+;     -- INPUT_B_IS_CONSTANT            ; YES                                  ;
+;     -- USE_EAB                        ; OFF                                  ;
+;     -- DEDICATED_MULTIPLIER_CIRCUITRY ; AUTO                                 ;
+;     -- INPUT_A_FIXED_VALUE            ; Bx                                   ;
+;     -- INPUT_B_FIXED_VALUE            ; Bx                                   ;
+; Entity Instance                       ; insecto_sim:u_insecto|lpm_mult:Mult0 ;
+;     -- LPM_WIDTHA                     ; 10                                   ;
+;     -- LPM_WIDTHB                     ; 10                                   ;
+;     -- LPM_WIDTHP                     ; 20                                   ;
+;     -- LPM_REPRESENTATION             ; SIGNED                               ;
+;     -- INPUT_A_IS_CONSTANT            ; NO                                   ;
+;     -- INPUT_B_IS_CONSTANT            ; NO                                   ;
+;     -- USE_EAB                        ; OFF                                  ;
+;     -- DEDICATED_MULTIPLIER_CIRCUITRY ; AUTO                                 ;
+;     -- INPUT_A_FIXED_VALUE            ; Bx                                   ;
+;     -- INPUT_B_FIXED_VALUE            ; Bx                                   ;
+; Entity Instance                       ; insecto_sim:u_insecto|lpm_mult:Mult1 ;
+;     -- LPM_WIDTHA                     ; 5                                    ;
+;     -- LPM_WIDTHB                     ; 5                                    ;
+;     -- LPM_WIDTHP                     ; 10                                   ;
+;     -- LPM_REPRESENTATION             ; SIGNED                               ;
+;     -- INPUT_A_IS_CONSTANT            ; NO                                   ;
+;     -- INPUT_B_IS_CONSTANT            ; NO                                   ;
+;     -- USE_EAB                        ; OFF                                  ;
+;     -- DEDICATED_MULTIPLIER_CIRCUITRY ; AUTO                                 ;
+;     -- INPUT_A_FIXED_VALUE            ; Bx                                   ;
+;     -- INPUT_B_FIXED_VALUE            ; Bx                                   ;
++---------------------------------------+--------------------------------------+
+
+
++------------------------------------------+
+; Port Connectivity Checks: "hex7seg:u_h5" ;
++------+-------+----------+----------------+
+; Port ; Type  ; Severity ; Details        ;
++------+-------+----------+----------------+
+; x[3] ; Input ; Info     ; Stuck at GND   ;
++------+-------+----------+----------------+
+
+
++------------------------------------------+
+; Port Connectivity Checks: "hex7seg:u_h3" ;
++------+-------+----------+----------------+
+; Port ; Type  ; Severity ; Details        ;
++------+-------+----------+----------------+
+; x[3] ; Input ; Info     ; Stuck at GND   ;
++------+-------+----------+----------------+
+
+
++------------------------------------------+
+; Port Connectivity Checks: "hex7seg:u_h0" ;
++------+-------+----------+----------------+
+; Port ; Type  ; Severity ; Details        ;
++------+-------+----------+----------------+
+; x[3] ; Input ; Info     ; Stuck at GND   ;
++------+-------+----------+----------------+
+
+
++------------------------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "insecto_sim:u_insecto"                                                                            ;
++--------------------+--------+----------+-------------------------------------------------------------------------------------+
+; Port               ; Type   ; Severity ; Details                                                                             ;
++--------------------+--------+----------+-------------------------------------------------------------------------------------+
+; rumbo              ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
+; n_obedecidos[7..4] ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
++--------------------+--------+----------+-------------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------+
+; Post-Synthesis Netlist Statistics for Top Partition ;
++-----------------------+-----------------------------+
+; Type                  ; Count                       ;
++-----------------------+-----------------------------+
+; boundary_port         ; 66                          ;
+; cycloneiii_ff         ; 307                         ;
+;     CLR               ; 39                          ;
+;     CLR SCLR          ; 34                          ;
+;     CLR SLD           ; 1                           ;
+;     ENA CLR           ; 85                          ;
+;     ENA CLR SCLR      ; 59                          ;
+;     ENA CLR SCLR SLD  ; 9                           ;
+;     ENA CLR SLD       ; 80                          ;
+; cycloneiii_lcell_comb ; 788                         ;
+;     arith             ; 300                         ;
+;         2 data inputs ; 254                         ;
+;         3 data inputs ; 46                          ;
+;     normal            ; 488                         ;
+;         0 data inputs ; 1                           ;
+;         1 data inputs ; 41                          ;
+;         2 data inputs ; 57                          ;
+;         3 data inputs ; 79                          ;
+;         4 data inputs ; 310                         ;
+; cycloneiii_mac_mult   ; 2                           ;
+; cycloneiii_mac_out    ; 2                           ;
+;                       ;                             ;
+; Max LUT depth         ; 10.30                       ;
+; Average LUT depth     ; 4.89                        ;
++-----------------------+-----------------------------+
+
+
++-------------------------------+
+; Elapsed Time Per Partition    ;
++----------------+--------------+
+; Partition Name ; Elapsed Time ;
++----------------+--------------+
+; Top            ; 00:00:02     ;
++----------------+--------------+
+
+
++-------------------------------+
+; Analysis & Synthesis Messages ;
++-------------------------------+
+Info: *******************************************************************
+Info: Running Quartus Prime Analysis & Synthesis
+    Info: Version 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+    Info: Processing started: Wed Nov 11 18:17:04 2026
+Info: Command: quartus_map --read_settings_files=on --write_settings_files=off biobot_insecto -c biobot_insecto
+Info (20030): Parallel compilation is enabled and will use 16 of the 16 processors detected
+Info (12021): Found 1 design units, including 1 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/uart_rx.v
+    Info (12023): Found entity 1: uart_rx File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_rx.v Line: 31
+Info (12021): Found 1 design units, including 1 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/uart_tx.v
+    Info (12023): Found entity 1: uart_tx File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_tx.v Line: 19
+Warning (10463): Verilog HDL Declaration warning at insecto_sim.v(51): "dist" is SystemVerilog-2005 keyword File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/insecto_sim.v Line: 51
+Info (12021): Found 1 design units, including 1 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/insecto_sim.v
+    Info (12023): Found entity 1: insecto_sim File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/insecto_sim.v Line: 39
+Info (12021): Found 2 design units, including 2 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/top_biobot_de10lite.v
+    Info (12023): Found entity 1: top_biobot_de10lite File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v Line: 24
+    Info (12023): Found entity 2: hex7seg File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v Line: 118
+Warning (10463): Verilog HDL Declaration warning at top_insecto_de10lite.v(81): "dist" is SystemVerilog-2005 keyword File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 81
+Info (12021): Found 1 design units, including 1 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/top_insecto_de10lite.v
+    Info (12023): Found entity 1: top_insecto_de10lite File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 37
+Info (12127): Elaborating entity "top_insecto_de10lite" for the top level hierarchy
+Info (10264): Verilog HDL Case Statement information at top_insecto_de10lite.v(191): all case item expressions in this case statement are onehot File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 191
+Warning (10230): Verilog HDL assignment warning at top_insecto_de10lite.v(234): truncated value with size 7 to match size of target (6) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 234
+Info (12128): Elaborating entity "insecto_sim" for hierarchy "insecto_sim:u_insecto" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 92
+Info (10264): Verilog HDL Case Statement information at insecto_sim.v(148): all case item expressions in this case statement are onehot File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/insecto_sim.v Line: 148
+Info (10264): Verilog HDL Case Statement information at insecto_sim.v(208): all case item expressions in this case statement are onehot File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/insecto_sim.v Line: 208
+Info (12128): Elaborating entity "uart_tx" for hierarchy "uart_tx:u_tx" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 151
+Warning (10230): Verilog HDL assignment warning at uart_tx.v(60): truncated value with size 32 to match size of target (16) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_tx.v Line: 60
+Warning (10230): Verilog HDL assignment warning at uart_tx.v(67): truncated value with size 32 to match size of target (4) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_tx.v Line: 67
+Info (12128): Elaborating entity "uart_rx" for hierarchy "uart_rx:u_rx" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 159
+Warning (10230): Verilog HDL assignment warning at uart_rx.v(88): truncated value with size 32 to match size of target (16) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_rx.v Line: 88
+Warning (10230): Verilog HDL assignment warning at uart_rx.v(94): truncated value with size 32 to match size of target (16) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_rx.v Line: 94
+Warning (10230): Verilog HDL assignment warning at uart_rx.v(109): truncated value with size 32 to match size of target (4) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_rx.v Line: 109
+Info (12128): Elaborating entity "hex7seg" for hierarchy "hex7seg:u_h0" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 237
+Info (278001): Inferred 3 megafunctions from design logic
+    Info (278003): Inferred multiplier megafunction ("lpm_mult") from the following logic: "Mult0" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 230
+    Info (278003): Inferred multiplier megafunction ("lpm_mult") from the following logic: "insecto_sim:u_insecto|Mult0" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/insecto_sim.v Line: 108
+    Info (278003): Inferred multiplier megafunction ("lpm_mult") from the following logic: "insecto_sim:u_insecto|Mult1" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/insecto_sim.v Line: 108
+Info (12130): Elaborated megafunction instantiation "lpm_mult:Mult0" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 230
+Info (12133): Instantiated megafunction "lpm_mult:Mult0" with the following parameter: File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 230
+    Info (12134): Parameter "LPM_WIDTHA" = "12"
+    Info (12134): Parameter "LPM_WIDTHB" = "6"
+    Info (12134): Parameter "LPM_WIDTHP" = "18"
+    Info (12134): Parameter "LPM_WIDTHR" = "18"
+    Info (12134): Parameter "LPM_WIDTHS" = "1"
+    Info (12134): Parameter "LPM_REPRESENTATION" = "UNSIGNED"
+    Info (12134): Parameter "INPUT_A_IS_CONSTANT" = "NO"
+    Info (12134): Parameter "INPUT_B_IS_CONSTANT" = "YES"
+    Info (12134): Parameter "MAXIMIZE_SPEED" = "5"
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|multcore:mult_core", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/lpm_mult.tdf Line: 309
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|multcore:mult_core|mpar_add:padder", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/multcore.tdf Line: 229
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[0]", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/mpar_add.tdf Line: 78
+Info (12021): Found 1 design units, including 1 entities, in source file db/add_sub_9rg.tdf
+    Info (12023): Found entity 1: add_sub_9rg File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus_insecto/db/add_sub_9rg.tdf Line: 23
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|mpar_add:sub_par_add", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/mpar_add.tdf Line: 138
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|mpar_add:sub_par_add|lpm_add_sub:adder[0]", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/mpar_add.tdf Line: 78
+Info (12021): Found 1 design units, including 1 entities, in source file db/add_sub_drg.tdf
+    Info (12023): Found entity 1: add_sub_drg File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus_insecto/db/add_sub_drg.tdf Line: 23
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|altshift:external_latency_ffs", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/24.1std/quartus/libraries/megafunctions/lpm_mult.tdf Line: 352
+Info (12130): Elaborated megafunction instantiation "insecto_sim:u_insecto|lpm_mult:Mult0" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/insecto_sim.v Line: 108
+Info (12133): Instantiated megafunction "insecto_sim:u_insecto|lpm_mult:Mult0" with the following parameter: File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/insecto_sim.v Line: 108
+    Info (12134): Parameter "LPM_WIDTHA" = "10"
+    Info (12134): Parameter "LPM_WIDTHB" = "10"
+    Info (12134): Parameter "LPM_WIDTHP" = "20"
+    Info (12134): Parameter "LPM_WIDTHR" = "20"
+    Info (12134): Parameter "LPM_WIDTHS" = "1"
+    Info (12134): Parameter "LPM_REPRESENTATION" = "SIGNED"
+    Info (12134): Parameter "INPUT_A_IS_CONSTANT" = "NO"
+    Info (12134): Parameter "INPUT_B_IS_CONSTANT" = "NO"
+    Info (12134): Parameter "MAXIMIZE_SPEED" = "6"
+Info (12021): Found 1 design units, including 1 entities, in source file db/mult_bgs.tdf
+    Info (12023): Found entity 1: mult_bgs File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus_insecto/db/mult_bgs.tdf Line: 29
+Info (12130): Elaborated megafunction instantiation "insecto_sim:u_insecto|lpm_mult:Mult1" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/insecto_sim.v Line: 108
+Info (12133): Instantiated megafunction "insecto_sim:u_insecto|lpm_mult:Mult1" with the following parameter: File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/insecto_sim.v Line: 108
+    Info (12134): Parameter "LPM_WIDTHA" = "5"
+    Info (12134): Parameter "LPM_WIDTHB" = "5"
+    Info (12134): Parameter "LPM_WIDTHP" = "10"
+    Info (12134): Parameter "LPM_WIDTHR" = "10"
+    Info (12134): Parameter "LPM_WIDTHS" = "1"
+    Info (12134): Parameter "LPM_REPRESENTATION" = "SIGNED"
+    Info (12134): Parameter "INPUT_A_IS_CONSTANT" = "NO"
+    Info (12134): Parameter "INPUT_B_IS_CONSTANT" = "NO"
+    Info (12134): Parameter "MAXIMIZE_SPEED" = "5"
+Info (12021): Found 1 design units, including 1 entities, in source file db/mult_hds.tdf
+    Info (12023): Found entity 1: mult_hds File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus_insecto/db/mult_hds.tdf Line: 29
+Info (13000): Registers with preset signals will power-up high File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_tx.v Line: 27
+Info (13003): DEV_CLRn pin will set, and not reset, register with preset signal due to NOT Gate Push-Back
+Info (286030): Timing-Driven Synthesis is running
+Info (17049): 6 registers lost all their fanouts during netlist optimizations.
+Info (144001): Generated suppressed messages file C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus_insecto/output_files/biobot_insecto.map.smsg
+Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
+    Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
+Warning (21074): Design contains 8 input pin(s) that do not drive logic
+    Warning (15610): No output dependent on input pin "SW[0]" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 43
+    Warning (15610): No output dependent on input pin "SW[3]" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 43
+    Warning (15610): No output dependent on input pin "SW[4]" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 43
+    Warning (15610): No output dependent on input pin "SW[5]" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 43
+    Warning (15610): No output dependent on input pin "SW[6]" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 43
+    Warning (15610): No output dependent on input pin "SW[7]" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 43
+    Warning (15610): No output dependent on input pin "SW[8]" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 43
+    Warning (15610): No output dependent on input pin "SW[9]" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_insecto_de10lite.v Line: 43
+Info (21057): Implemented 892 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 13 input pins
+    Info (21059): Implemented 53 output pins
+    Info (21061): Implemented 823 logic cells
+    Info (21062): Implemented 3 DSP elements
+Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 17 warnings
+    Info: Peak virtual memory: 4883 megabytes
+    Info: Processing ended: Wed Nov 11 18:17:18 2026
+    Info: Elapsed time: 00:00:14
+    Info: Total CPU time (on all processors): 00:00:30
+
+
++------------------------------------------+
+; Analysis & Synthesis Suppressed Messages ;
++------------------------------------------+
+The suppressed messages can be found in C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus_insecto/output_files/biobot_insecto.map.smsg.
+
+

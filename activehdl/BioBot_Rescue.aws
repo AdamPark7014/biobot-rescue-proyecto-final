@@ -1,0 +1,11 @@
+[Version]
+Version=17.0
+[Designs]
+biobot_rescue=.\BioBot_Rescue\BioBot_Rescue\BioBot_Rescue.adf
+[Browser]
+sort=order
+mode=none
+[Order]
+order=1
+[Expand]
+biobot_rescue=1

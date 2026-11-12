@@ -1,0 +1,152 @@
+% =====================================================================
+%  BioBot-Rescue -- Esquema de investigacion del proyecto final
+%  O26-LRT3032-2 Sistemas Embebidos -- UDLAP
+%  Roberto Orozco Ramirez (184595), Adam Del Pozo Ontiveros (185611) y
+%  Enrique Bernal Martin Prieto (184878)
+%
+%  Compilar con ..\compilar.ps1 (dos pasadas de pdflatex; latexmk no sirve:
+%  este MiKTeX no trae Perl). Las figuras de figs\ las genera
+%  ..\modelo\figuras.py a partir de la simulacion y de los datos citados.
+% =====================================================================
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[spanish,es-tabla,es-noshorthands]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=2.1cm,top=2.4cm,bottom=2.3cm]{geometry}
+\usepackage{setspace}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{siunitx}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage[table]{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{ragged2e}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,shapes.geometric,automata}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{needspace}
+\usepackage{xurl}
+\usepackage{lastpage}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black,citecolor=blue!50!black]{hyperref}
+\usepackage{bookmark}
+
+\sisetup{output-decimal-marker={.},group-separator={\,},range-phrase={--},range-units=single}
+\setstretch{1.08}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlength{\headheight}{26pt}
+\setlength{\emergencystretch}{3em}
+\raggedbottom
+\renewcommand{\arraystretch}{1.15}
+\captionsetup{font=small,labelfont={bf,color=Primary},skip=4pt}
+
+% ---- paleta (la de los reportes de práctica) ----
+\definecolor{Primary}{HTML}{0E2A47}
+\definecolor{Secondary}{HTML}{1D6FA5}
+\definecolor{Accent}{HTML}{D98B12}
+\definecolor{AccentSoft}{HTML}{FFF2DD}
+\definecolor{SoftBlue}{HTML}{ECF3FA}
+\definecolor{SoftGray}{HTML}{F5F7FA}
+\definecolor{SoftMint}{HTML}{EAF8F1}
+\definecolor{Good}{HTML}{1D7A46}
+\definecolor{Bad}{HTML}{B03A2E}
+\definecolor{TableHead}{HTML}{D7E7F7}
+\definecolor{TextDark}{HTML}{1E293B}
+
+\titleformat{\section}
+  {\Large\bfseries\color{Primary}}
+  {\colorbox{Primary}{\color{white}\strut\hspace{0.5em}\thesection\hspace{0.5em}}}{0.7em}{}
+  [\vspace{0.1em}\color{Secondary}\titlerule]
+\titleformat{\subsection}
+  {\large\bfseries\color{Secondary}}
+  {\colorbox{Secondary!15}{\color{Primary}\strut\hspace{0.4em}\thesubsection\hspace{0.4em}}}{0.6em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{Primary}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{1.0em}{0.6em}
+\titlespacing*{\subsection}{0pt}{0.8em}{0.4em}
+\titlespacing*{\subsubsection}{0pt}{0.6em}{0.2em}
+
+\newtcolorbox{infobox}[1][]{colback=SoftBlue,colframe=Secondary,boxrule=0.9pt,
+  arc=2.2mm,left=2mm,right=2mm,top=1.5mm,bottom=1.5mm,breakable,#1}
+\newtcolorbox{alertbox}[1][]{colback=AccentSoft,colframe=Accent,boxrule=0.9pt,
+  arc=2.2mm,left=2mm,right=2mm,top=1.5mm,bottom=1.5mm,breakable,#1}
+\newtcolorbox{goodbox}[1][]{colback=SoftMint,colframe=Good,boxrule=0.9pt,
+  arc=2.2mm,left=2mm,right=2mm,top=1.5mm,bottom=1.5mm,breakable,#1}
+
+\newcommand{\sig}[1]{\texttt{#1}}
+\newcommand{\especie}{\textit{Gromphadorhina portentosa}}
+\newcommand{\Gp}{\textit{G.~portentosa}}
+% Etiqueta de origen de un parámetro: F fuente publicada, D derivado, S supuesto
+\newcommand{\orig}[1]{\textsuperscript{\textsf{\scriptsize[#1]}}}
+
+\tikzset{
+  arr/.style={-{Stealth[length=2mm]},thick,draw=Primary},
+  blk/.style={draw=Primary,fill=SoftBlue,thick,rounded corners=2pt,
+              align=center,font=\small,inner sep=3pt},
+  ext/.style={draw=Accent,fill=AccentSoft,thick,rounded corners=2pt,
+              align=center,font=\small,inner sep=3pt},
+  est/.style={draw=Primary,fill=SoftBlue,thick,rounded corners=6pt,
+              align=center,font=\footnotesize,inner sep=3pt,minimum height=0.9cm},
+  lbl/.style={font=\scriptsize,text=TextDark},
+}
+
+% ---- datos del documento ----
+\newcommand{\autorA}{Roberto Orozco Ramírez}
+\newcommand{\idA}{184595}
+\newcommand{\autorB}{Adam Del Pozo Ontiveros}
+\newcommand{\idB}{185611}
+\newcommand{\autorC}{Enrique Bernal Martín Prieto}
+\newcommand{\idC}{184878}
+\newcommand{\materia}{Sistemas Embebidos}
+\newcommand{\clave}{O26-LRT3032-2}
+\newcommand{\fechadoc}{9 de noviembre de 2026}
+\newcommand{\titulo}{BioBot-Rescue}
+\newcommand{\subtitulo}{Modelo bio-híbrido guiado por estímulos para búsqueda y rescate con
+  \especie{} y una mochila embebida ultraligera}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textcolor{Primary}{\footnotesize \materia\ (\clave)}}
+\rhead{\textcolor{Primary}{\footnotesize \titulo\ --- Esquema de investigación}}
+\fancyfoot[L]{\textcolor{Primary}{\scriptsize \autorA\ (\idA) \,$\cdot$\, \autorB\ (\idB) \,$\cdot$\, \autorC\ (\idC)}}
+\fancyfoot[R]{\textcolor{Primary}{\footnotesize \thepage\ / \pageref*{LastPage}}}
+\renewcommand{\headrulewidth}{0.7pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\setlist[itemize]{leftmargin=1.3em,itemsep=1pt,topsep=2pt,
+                  label=\textcolor{Secondary}{$\bullet$}}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=1pt,topsep=2pt}
+
+% Números de la simulación: los escribe ..\modelo\figuras.py a partir de resultados.json
+\input{figs/numeros}
+
+\begin{document}
+
+\input{sections/00_portada}
+
+\hypersetup{pageanchor=true}
+\setcounter{page}{1}
+
+\input{sections/01_problema}
+\input{sections/02_estado_del_arte}
+\input{sections/03_portador}
+\input{sections/04_modelo}
+\input{sections/05_arquitectura}
+\input{sections/06_resultados}
+\input{sections/07_costos_practicidad}
+\input{sections/08_etica}
+\input{sections/09_plan}
+\input{sections/10_referencias}
+
+\end{document}

@@ -1,0 +1,6 @@
+<section id="fpga" data-transition="fade" style="background:#F6F3EC;color:#0B1E33;font-family:'Inter', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#8A5200">El sistema embebido</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:64px;font-weight:600;line-height:1.1">El núcleo digital: siete módulos en Verilog</h2>
+<img src="/_blob/0af8a50aa41ba7d9b9fd45733a579b85" alt="Diagrama de bloques. El ESP32 manda la matriz térmica y la actividad por UART. Dentro del núcleo, ventana_termica cuenta píxeles calientes, media_movil4 promedia cuatro cuadros, detector_presencia compara con 2 y 8 píxeles, detector_quietud avisa si el insecto lleva un segundo sin moverse y lfsr16 genera los giros al azar. Todo llega a fsm_politica, que ordena a gen_estimulo y reporta el estado." style="width:1560px;height:600px;object-fit:contain;align-self:center">
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6B7A">Prototipo: el ESP32 lee la matriz y la DE10-Lite corre el núcleo. Mochila final: FPGA de 2 mg o chip propio.</p>
+</section>

@@ -1,0 +1,16 @@
+Analysis & Synthesis Status : Successful - Wed Nov 11 19:31:35 2026
+Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+Revision Name : red_rb
+Top-level Entity Name : top_lab_red_rb
+Family : MAX 10
+Total logic elements : 1,367
+    Total combinational functions : 1,111
+    Dedicated logic registers : 801
+Total registers : 801
+Total pins : 69
+Total virtual pins : 0
+Total memory bits : 0
+Embedded Multiplier 9-bit elements : 0
+Total PLLs : 0
+UFM blocks : 0
+ADC blocks : 0

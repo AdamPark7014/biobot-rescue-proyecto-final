@@ -1,0 +1,16 @@
+Analysis & Synthesis Status : Successful - Mon Nov  9 19:30:45 2026
+Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+Revision Name : biobot
+Top-level Entity Name : top_biobot_de10lite
+Family : MAX 10
+Total logic elements : 748
+    Total combinational functions : 687
+    Dedicated logic registers : 372
+Total registers : 372
+Total pins : 43
+Total virtual pins : 0
+Total memory bits : 0
+Embedded Multiplier 9-bit elements : 0
+Total PLLs : 0
+UFM blocks : 0
+ADC blocks : 0

@@ -1,0 +1,69 @@
+\section{Estado del arte}
+
+\subsection{Cómo se busca hoy}
+
+Las guías de INSARAG dividen la búsqueda en cinco niveles; el biobot corresponde al
+nivel~4, la búsqueda secundaria en todos los huecos donde alguien podría seguir vivo, después
+de que el perro marca una zona y antes de mover losas~\cite{insarag}. La
+tabla~\ref{tab:tecnologias} compara las herramientas disponibles.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Tecnologías de búsqueda en estructuras colapsadas.}
+\label{tab:tecnologias}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{2.35cm} >{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{3.1cm} >{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{TableHead} Tecnología & Costo por unidad & Movilidad en rendijas & Sensor & Límite principal \\
+\midrule
+Binomio canino & 50\,000 a 75\,000 USD por equipo~\cite{sdf} & Trabaja la superficie & Olfato & Ciclos de 20 a 45~min; falla con fuego, lluvia o calor~\cite{murphy2004} \\
+Cámara en poste & Sin dato & 2 a 5.5~m en línea casi recta & Video y audio & No dobla esquinas~\cite{murphy2021} \\
+Radar FINDER & Sin dato & No entra: ve a través de 9~m de escombro & Microondas (latido) & Ubica con $\pm1.5$~m; no dice por dónde llegar~\cite{jpl2015} \\
+Robot de orugas & 50\,000 a 150\,000 USD~\cite{murphy2021} & Huecos de más de $6\times17$~cm, con cable & Cámara y audio & Cero personas vivas halladas hasta 2021 \\
+Robot serpiente & Prototipo & 5~cm de diámetro, con cable & Cámara & Una misión real, sin hallazgos~\cite{whitman2018} \\
+Biobot (cucaracha con mochila) & Sin dato publicado & Rendijas de unos 2~cm; trepa 1.5~cm & Matriz térmica & 3 a 6~cm/s; 2 a 4~h; un despliegue real, sin hallazgos~\cite{tranngoc2023,htx2025} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Insectos cíborg}
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Trabajos de referencia con \Gp{} (salvo donde se indica).}
+\label{tab:grupos}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{TableHead} Grupo y año & Estímulo & Resultado \\
+\midrule
+NC State, 2012~\cite{latif2012} & Electrodo implantado en la antena, 3~V & Sigue una línea por control remoto; mochila de 4~g; solo el 10~\% de los recorridos se completa \\
+Bowdoin, 2015~\cite{erickson2015} & Antena y cercos, bifásico, 2~V, 50~Hz & 56~\% de los individuos responde bien; el pulso monofásico habitúa, el bifásico no \\
+Texas A\&M, 2015~\cite{sanchez2015} & Ganglio protorácico (otra especie) & 60~\% de éxito en giros; se recupera con 10~min de descanso \\
+NC State, 2017~\cite{dirafzoon2017} & Comandos al azar & El insecto se mueve más (37 a 64~\% del tiempo) y se suelta de la pared diez veces más \\
+RIKEN, 2022~\cite{kakei2022} & Cercos & Celda solar de 4~$\mu$m y 17.2~mW sobre el abdomen sin estorbar la marcha \\
+NTU, 2023~\cite{tranngoc2023} & Cercos, 40~Hz & Navegación con 94~\% de éxito entre muros; detección de personas con matriz térmica de $32\times32$: 87~\% de exactitud \\
+NTU, 2023~\cite{lin2023} & Electrodos sobre la antena y el abdomen, sin cirugía & 81~\% de éxito por estímulo en giro y 74~\% en avance \\
+HIT, 2023~\cite{ma2023} & Antena y cerco, pulso unipolar & La respuesta cae 57~\% tras diez estímulos; alternar el sitio la sostiene más de 100 giros \\
+NTU y Osaka, 2025~\cite{bai2025} & Antenas y cercos & Enjambre de 20 insectos con la mitad de estímulos y 85~\% menos enredos \\
+NTU, 2025~\cite{lin2025} & Electrodo torácico & Ensamble robotizado en 68~s por insecto; mochila de 2.3~g \\
+Osaka, 2025~\cite{refat2025} & Luz ultravioleta en un casco & Sin cirugía ni electricidad; sin habituación en 150 ensayos \\
+UDLAP, 2026~\cite{gracidas2026} & Temperatura y luz (sin estímulo eléctrico) & Actividad máxima cerca de 30~\textdegree C; la luz ultravioleta aumenta la locomoción \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Lo que nadie ha resuelto}
+
+La revisión deja cinco vacíos que orientan este proyecto:
+\begin{enumerate}
+  \item \textbf{Nadie cierra el lazo solo con lo que va en la mochila.} Toda la navegación publicada
+        depende de cámaras externas o de una computadora~\cite{tranngoc2023,bai2025}.
+  \item \textbf{No hay probabilidad de detección ni tiempo a la detección} medidos para biobots, ni en
+        escombro real ni en simulación.
+  \item \textbf{La habituación se maneja caso por caso}; no hay una regla simple que una mochila pueda aplicar.
+  \item \textbf{No hay alcance de radio publicado} para una mochila dentro de escombro.
+  \item \textbf{La crítica operativa sigue vigente}: soltar un enjambre que reporta a un solo operador se
+        consideró «físicamente impráctico»~\cite{murphy2004}. La respuesta que aquí se propone es que
+        nadie pilotee: cada mochila decide sola y solo habla cuando encuentra algo.
+\end{enumerate}

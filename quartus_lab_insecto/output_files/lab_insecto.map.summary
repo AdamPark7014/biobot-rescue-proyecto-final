@@ -1,0 +1,16 @@
+Analysis & Synthesis Status : Successful - Wed Nov 11 18:36:07 2026
+Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+Revision Name : lab_insecto
+Top-level Entity Name : top_lab_insecto
+Family : MAX 10
+Total logic elements : 1,039
+    Total combinational functions : 983
+    Dedicated logic registers : 454
+Total registers : 454
+Total pins : 66
+Total virtual pins : 0
+Total memory bits : 0
+Embedded Multiplier 9-bit elements : 3
+Total PLLs : 0
+UFM blocks : 0
+ADC blocks : 0

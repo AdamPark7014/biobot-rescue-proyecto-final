@@ -1,0 +1,49 @@
+{
+  "v": 4,
+  "createdOnFiles": {"v": 1, "at": "2026-11-10T01:35:00Z"},
+  "lists": "css",
+  "title": "BioBot-Rescue",
+  "cover": "portada",
+  "order": [
+    "portada",
+    "problema",
+    "practica-actual",
+    "antecedentes",
+    "pregunta",
+    "portador",
+    "carga",
+    "estimulos",
+    "respuesta",
+    "marco",
+    "mochila",
+    "hardware",
+    "deteccion",
+    "localizacion",
+    "politica",
+    "simulacion",
+    "resultados",
+    "enjambre",
+    "dosis",
+    "sensibilidad",
+    "fpga",
+    "verificacion",
+    "costos",
+    "practicidad",
+    "etica",
+    "metodologia",
+    "limites",
+    "cierre",
+    "referencias"
+  ],
+  "sections": {
+    "s1": {"description": "El problema de localizar personas bajo escombros y lo que ya se ha intentado.", "start": "portada"},
+    "s2": {"description": "Qué puede cargar y hacer la cucaracha de Madagascar y cómo se le dirige con estímulos.", "start": "portador"},
+    "s3": {"description": "El modelo completo: mochila, detección, localización, política a bordo y simulación de la misión.", "start": "marco"},
+    "s4": {"description": "Cómo se construye y se prueba, cuánto cuesta, qué tan práctico es, con qué límites éticos y qué queda por resolver.", "start": "fpga"}
+  },
+  "faces": {
+    "space-grotesk": {"family": "Space Grotesk", "href": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap"},
+    "inter": {"family": "Inter", "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"}
+  },
+  "designSystems": []
+}

@@ -1,0 +1,80 @@
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\centering
+\vspace*{-0.4cm}
+
+\begin{tcolorbox}[colback=Primary,colframe=Primary,boxrule=0pt,arc=2.5mm,
+  width=\textwidth,left=2.5mm,right=2.5mm,top=2.5mm,bottom=2.5mm]
+\centering{\color{white}\bfseries\large UNIVERSIDAD DE LAS AMÉRICAS PUEBLA}
+\end{tcolorbox}
+
+\vspace{0.1cm}
+\IfFileExists{images/logo.png}{\includegraphics[width=0.15\textwidth]{images/logo.png}}{}
+\vspace{0.1cm}
+
+\begin{tcolorbox}[colback=SoftGray,colframe=Primary,boxrule=1pt,arc=2.5mm,
+  width=\textwidth,left=3mm,right=3mm,top=3mm,bottom=3mm]
+\centering
+{\Large\bfseries\color{Secondary} SISTEMAS EMBEBIDOS}\par
+\vspace{0.08cm}
+{\normalsize\color{TextDark}\clave\ \,$\cdot$\,\ Proyecto final}\par
+\vspace{0.2cm}
+\begin{tcolorbox}[colback=white,colframe=Secondary,boxrule=1pt,arc=2mm,
+  width=0.95\textwidth,left=2.4mm,right=2.4mm,top=2.4mm,bottom=2.4mm]
+\centering{\LARGE\bfseries\color{Primary}\titulo\\[4pt]
+\normalsize\mdseries\color{TextDark}\subtitulo\\[4pt]
+\small\bfseries\color{Secondary}Esquema de investigación}
+\end{tcolorbox}
+\end{tcolorbox}
+
+\vspace{0.25cm}
+
+\begin{minipage}[t]{0.56\textwidth}
+\begin{tcolorbox}[colback=SoftBlue,colframe=Secondary,boxrule=1pt,arc=2mm,
+  title=\textbf{Integrantes}]
+\small
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}l l@{}}
+\autorA & ID: \idA \\
+\autorB & ID: \idB \\
+\autorC & ID: \idC \\[2pt]
+\multicolumn{2}{@{}l}{\textbf{Fecha:} \fechadoc}
+\end{tabular}
+\end{tcolorbox}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.41\textwidth}
+\begin{tcolorbox}[colback=AccentSoft,colframe=Accent,boxrule=1pt,arc=2mm,
+  title=\textbf{El proyecto en una frase}]
+\small\raggedright
+Una mochila electrónica de menos de 3~g que convierte a una cucaracha de Madagascar
+en un buscador de personas atrapadas: detecta calor, decide sola cuándo estimular al
+insecto y avisa por radio.
+\end{tcolorbox}
+\end{minipage}
+
+\vfill
+\begin{tcolorbox}[colback=white,colframe=Primary,boxrule=0.9pt,arc=2mm,
+  width=\textwidth,title=\textbf{Resumen},colbacktitle=Primary,coltitle=white,
+  left=2mm,right=2mm,top=1mm,bottom=1mm]
+\footnotesize\justifying
+Tras un sismo, las personas atrapadas quedan en huecos de centímetros donde no entran
+perros, cámaras ni robots. Este trabajo modela y prototipa un sistema bio-híbrido: la
+cucaracha silbadora de Madagascar (\especie) aporta la locomoción y una mochila
+electrónica aporta la detección y la guía. El modelo tiene cinco partes encadenadas (el
+insecto, el estímulo, la mochila, la detección y la misión) y una capa ética y normativa que
+las acota. Con datos publicados se fija una carga útil de 2 a 3~g, muy por debajo de los
+15~g que suele citarse, y se elige un estímulo sin cirugía (luz ultravioleta o electrodos de
+superficie) dosificado por un presupuesto que evita la habituación. La detección cuenta
+píxeles calientes de una matriz térmica en lugar de comparar contra un umbral fijo, que
+nunca se alcanza a distancia. La política completa se describió en Verilog: 477 elementos
+lógicos y 224 registros en la MAX~10 de la DE10-Lite, $f_{\max}=72.1$~MHz, y coincide con
+su modelo de referencia en los 11\,424 cuadros de prueba. En una simulación de
+\numMisiones{} misiones dentro de colapsos sintéticos de $8\times6$~m, diez insectos sin
+estímulos encuentran a la persona en \pPasivaSesenta~\% de las misiones de una hora; con
+la política guiada, en \pGuiadaSesenta~\%, con unos \estGuiada{} estímulos por insecto y por
+hora. Se documentan también los límites: el sistema solo es útil entre 22 y 30~\textdegree C,
+la radio de 2.4~GHz no atraviesa el concreto y la ley mexicana exige mantener a esta especie
+en confinamiento.
+\end{tcolorbox}
+\end{titlepage}

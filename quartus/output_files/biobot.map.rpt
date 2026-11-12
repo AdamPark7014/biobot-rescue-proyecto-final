@@ -1,0 +1,676 @@
+Analysis & Synthesis report for biobot
+Mon Nov  9 19:30:45 2026
+Quartus Prime Version 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Analysis & Synthesis Summary
+  3. Analysis & Synthesis Settings
+  4. Parallel Compilation
+  5. Analysis & Synthesis Source Files Read
+  6. Analysis & Synthesis Resource Usage Summary
+  7. Analysis & Synthesis Resource Utilization by Entity
+  8. State Machine - |top_biobot_de10lite|receptor_trama:u_trama|fase
+  9. Registers Removed During Synthesis
+ 10. General Register Statistics
+ 11. Inverted Register Statistics
+ 12. Multiplexer Restructuring Statistics (Restructuring Performed)
+ 13. Parameter Settings for User Entity Instance: Top-level Entity: |top_biobot_de10lite
+ 14. Parameter Settings for User Entity Instance: uart_rx:u_rx
+ 15. Parameter Settings for User Entity Instance: receptor_trama:u_trama
+ 16. Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo
+ 17. Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|ventana_termica:u_ventana
+ 18. Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|media_movil4:u_media
+ 19. Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|detector_presencia:u_presencia
+ 20. Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|detector_quietud:u_quietud
+ 21. Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|lfsr16:u_lfsr
+ 22. Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|fsm_politica:u_fsm
+ 23. Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|gen_estimulo:u_gen
+ 24. Parameter Settings for User Entity Instance: uart_tx:u_tx
+ 25. Port Connectivity Checks: "hex7seg:u_h3"
+ 26. Port Connectivity Checks: "hex7seg:u_h0"
+ 27. Port Connectivity Checks: "nucleo_biobot:u_nucleo|gen_estimulo:u_gen"
+ 28. Port Connectivity Checks: "nucleo_biobot:u_nucleo"
+ 29. Post-Synthesis Netlist Statistics for Top Partition
+ 30. Elapsed Time Per Partition
+ 31. Analysis & Synthesis Messages
+ 32. Analysis & Synthesis Suppressed Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2025  Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+
+
+
++--------------------------------------------------------------------------------------+
+; Analysis & Synthesis Summary                                                         ;
++------------------------------------+-------------------------------------------------+
+; Analysis & Synthesis Status        ; Successful - Mon Nov  9 19:30:45 2026           ;
+; Quartus Prime Version              ; 24.1std.0 Build 1077 03/04/2025 SC Lite Edition ;
+; Revision Name                      ; biobot                                          ;
+; Top-level Entity Name              ; top_biobot_de10lite                             ;
+; Family                             ; MAX 10                                          ;
+; Total logic elements               ; 748                                             ;
+;     Total combinational functions  ; 687                                             ;
+;     Dedicated logic registers      ; 372                                             ;
+; Total registers                    ; 372                                             ;
+; Total pins                         ; 43                                              ;
+; Total virtual pins                 ; 0                                               ;
+; Total memory bits                  ; 0                                               ;
+; Embedded Multiplier 9-bit elements ; 0                                               ;
+; Total PLLs                         ; 0                                               ;
+; UFM blocks                         ; 0                                               ;
+; ADC blocks                         ; 0                                               ;
++------------------------------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Settings                                                                               ;
++------------------------------------------------------------------+---------------------+--------------------+
+; Option                                                           ; Setting             ; Default Value      ;
++------------------------------------------------------------------+---------------------+--------------------+
+; Device                                                           ; 10M50DAF484C7G      ;                    ;
+; Top-level entity name                                            ; top_biobot_de10lite ; biobot             ;
+; Family name                                                      ; MAX 10              ; Cyclone V          ;
+; Maximum processors allowed for parallel compilation              ; All                 ;                    ;
+; Use smart compilation                                            ; Off                 ; Off                ;
+; Enable parallel Assembler and Timing Analyzer during compilation ; On                  ; On                 ;
+; Enable compact report table                                      ; Off                 ; Off                ;
+; Restructure Multiplexers                                         ; Auto                ; Auto               ;
+; Create Debugging Nodes for IP Cores                              ; Off                 ; Off                ;
+; Preserve fewer node names                                        ; On                  ; On                 ;
+; Intel FPGA IP Evaluation Mode                                    ; Enable              ; Enable             ;
+; Verilog Version                                                  ; Verilog_2001        ; Verilog_2001       ;
+; VHDL Version                                                     ; VHDL_1993           ; VHDL_1993          ;
+; State Machine Processing                                         ; Auto                ; Auto               ;
+; Safe State Machine                                               ; Off                 ; Off                ;
+; Extract Verilog State Machines                                   ; On                  ; On                 ;
+; Extract VHDL State Machines                                      ; On                  ; On                 ;
+; Ignore Verilog initial constructs                                ; Off                 ; Off                ;
+; Iteration limit for constant Verilog loops                       ; 5000                ; 5000               ;
+; Iteration limit for non-constant Verilog loops                   ; 250                 ; 250                ;
+; Add Pass-Through Logic to Inferred RAMs                          ; On                  ; On                 ;
+; Infer RAMs from Raw Logic                                        ; On                  ; On                 ;
+; Parallel Synthesis                                               ; On                  ; On                 ;
+; DSP Block Balancing                                              ; Auto                ; Auto               ;
+; NOT Gate Push-Back                                               ; On                  ; On                 ;
+; Power-Up Don't Care                                              ; On                  ; On                 ;
+; Remove Redundant Logic Cells                                     ; Off                 ; Off                ;
+; Remove Duplicate Registers                                       ; On                  ; On                 ;
+; Ignore CARRY Buffers                                             ; Off                 ; Off                ;
+; Ignore CASCADE Buffers                                           ; Off                 ; Off                ;
+; Ignore GLOBAL Buffers                                            ; Off                 ; Off                ;
+; Ignore ROW GLOBAL Buffers                                        ; Off                 ; Off                ;
+; Ignore LCELL Buffers                                             ; Off                 ; Off                ;
+; Ignore SOFT Buffers                                              ; On                  ; On                 ;
+; Limit AHDL Integers to 32 Bits                                   ; Off                 ; Off                ;
+; Optimization Technique                                           ; Balanced            ; Balanced           ;
+; Carry Chain Length                                               ; 70                  ; 70                 ;
+; Auto Carry Chains                                                ; On                  ; On                 ;
+; Auto Open-Drain Pins                                             ; On                  ; On                 ;
+; Perform WYSIWYG Primitive Resynthesis                            ; Off                 ; Off                ;
+; Auto ROM Replacement                                             ; On                  ; On                 ;
+; Auto RAM Replacement                                             ; On                  ; On                 ;
+; Auto DSP Block Replacement                                       ; On                  ; On                 ;
+; Auto Shift Register Replacement                                  ; Auto                ; Auto               ;
+; Allow Shift Register Merging across Hierarchies                  ; Auto                ; Auto               ;
+; Auto Clock Enable Replacement                                    ; On                  ; On                 ;
+; Strict RAM Replacement                                           ; Off                 ; Off                ;
+; Allow Synchronous Control Signals                                ; On                  ; On                 ;
+; Force Use of Synchronous Clear Signals                           ; Off                 ; Off                ;
+; Auto RAM Block Balancing                                         ; On                  ; On                 ;
+; Auto RAM to Logic Cell Conversion                                ; Off                 ; Off                ;
+; Auto Resource Sharing                                            ; Off                 ; Off                ;
+; Allow Any RAM Size For Recognition                               ; Off                 ; Off                ;
+; Allow Any ROM Size For Recognition                               ; Off                 ; Off                ;
+; Allow Any Shift Register Size For Recognition                    ; Off                 ; Off                ;
+; Use LogicLock Constraints during Resource Balancing              ; On                  ; On                 ;
+; Ignore translate_off and synthesis_off directives                ; Off                 ; Off                ;
+; Timing-Driven Synthesis                                          ; On                  ; On                 ;
+; Report Parameter Settings                                        ; On                  ; On                 ;
+; Report Source Assignments                                        ; On                  ; On                 ;
+; Report Connectivity Checks                                       ; On                  ; On                 ;
+; Ignore Maximum Fan-Out Assignments                               ; Off                 ; Off                ;
+; Synchronization Register Chain Length                            ; 2                   ; 2                  ;
+; Power Optimization During Synthesis                              ; Normal compilation  ; Normal compilation ;
+; HDL message level                                                ; Level2              ; Level2             ;
+; Suppress Register Optimization Related Messages                  ; Off                 ; Off                ;
+; Number of Removed Registers Reported in Synthesis Report         ; 5000                ; 5000               ;
+; Number of Swept Nodes Reported in Synthesis Report               ; 5000                ; 5000               ;
+; Number of Inverted Registers Reported in Synthesis Report        ; 100                 ; 100                ;
+; Clock MUX Protection                                             ; On                  ; On                 ;
+; Auto Gated Clock Conversion                                      ; Off                 ; Off                ;
+; Block Design Naming                                              ; Auto                ; Auto               ;
+; SDC constraint protection                                        ; Off                 ; Off                ;
+; Synthesis Effort                                                 ; Auto                ; Auto               ;
+; Shift Register Replacement - Allow Asynchronous Clear Signal     ; On                  ; On                 ;
+; Pre-Mapping Resynthesis Optimization                             ; Off                 ; Off                ;
+; Analysis & Synthesis Message Level                               ; Medium              ; Medium             ;
+; Disable Register Merging Across Hierarchies                      ; Auto                ; Auto               ;
+; Resource Aware Inference For Block RAM                           ; On                  ; On                 ;
++------------------------------------------------------------------+---------------------+--------------------+
+
+
++------------------------------------------+
+; Parallel Compilation                     ;
++----------------------------+-------------+
+; Processors                 ; Number      ;
++----------------------------+-------------+
+; Number detected on machine ; 24          ;
+; Maximum allowed            ; 16          ;
+;                            ;             ;
+; Average used               ; 1.01        ;
+; Maximum used               ; 16          ;
+;                            ;             ;
+; Usage by Processor         ; % Time Used ;
+;     Processor 1            ; 100.0%      ;
+;     Processor 2            ;   0.0%      ;
+;     Processor 3            ;   0.0%      ;
+;     Processor 4            ;   0.0%      ;
+;     Processors 5-16        ;   0.0%      ;
++----------------------------+-------------+
+
+
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Source Files Read                                                                                                                                                                                                                   ;
++----------------------------------+-----------------+------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------+
+; File Name with User-Entered Path ; Used in Netlist ; File Type              ; File Name with Absolute Path                                                                                                                                     ; Library ;
++----------------------------------+-----------------+------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------+
+; ../hdl/uart_rx.v                 ; yes             ; User Verilog HDL File  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_rx.v             ;         ;
+; ../hdl/uart_tx.v                 ; yes             ; User Verilog HDL File  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_tx.v             ;         ;
+; ../hdl/ventana_termica.v         ; yes             ; User Verilog HDL File  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/ventana_termica.v     ;         ;
+; ../hdl/detectores.v              ; yes             ; User Verilog HDL File  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/detectores.v          ;         ;
+; ../hdl/fsm_politica.v            ; yes             ; User Verilog HDL File  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/fsm_politica.v        ;         ;
+; ../hdl/gen_estimulo.v            ; yes             ; User Verilog HDL File  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/gen_estimulo.v        ;         ;
+; ../hdl/nucleo_biobot.v           ; yes             ; User Verilog HDL File  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/nucleo_biobot.v       ;         ;
+; ../hdl/enlace_serie.v            ; yes             ; User Verilog HDL File  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/enlace_serie.v        ;         ;
+; ../hdl/top_biobot_de10lite.v     ; yes             ; User Verilog HDL File  ; C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v ;         ;
++----------------------------------+-----------------+------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------+
+
+
++--------------------------------------------------------------+
+; Analysis & Synthesis Resource Usage Summary                  ;
++---------------------------------------------+----------------+
+; Resource                                    ; Usage          ;
++---------------------------------------------+----------------+
+; Estimated Total logic elements              ; 748            ;
+;                                             ;                ;
+; Total combinational functions               ; 687            ;
+; Logic element usage by number of LUT inputs ;                ;
+;     -- 4 input functions                    ; 197            ;
+;     -- 3 input functions                    ; 192            ;
+;     -- <=2 input functions                  ; 298            ;
+;                                             ;                ;
+; Logic elements by mode                      ;                ;
+;     -- normal mode                          ; 403            ;
+;     -- arithmetic mode                      ; 284            ;
+;                                             ;                ;
+; Total registers                             ; 372            ;
+;     -- Dedicated logic registers            ; 372            ;
+;     -- I/O registers                        ; 0              ;
+;                                             ;                ;
+; I/O pins                                    ; 43             ;
+;                                             ;                ;
+; Embedded Multiplier 9-bit elements          ; 0              ;
+;                                             ;                ;
+; Maximum fan-out node                        ; CLOCK_50~input ;
+; Maximum fan-out                             ; 372            ;
+; Total fan-out                               ; 3644           ;
+; Average fan-out                             ; 3.18           ;
++---------------------------------------------+----------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Resource Utilization by Entity                                                                                                                                                                                                                                                           ;
++----------------------------------------+---------------------+---------------------------+-------------+------------+--------------+---------+-----------+------+--------------+------------+----------------------------------------------------------------------------+---------------------+--------------+
+; Compilation Hierarchy Node             ; Combinational ALUTs ; Dedicated Logic Registers ; Memory Bits ; UFM Blocks ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; Pins ; Virtual Pins ; ADC blocks ; Full Hierarchy Name                                                        ; Entity Name         ; Library Name ;
++----------------------------------------+---------------------+---------------------------+-------------+------------+--------------+---------+-----------+------+--------------+------------+----------------------------------------------------------------------------+---------------------+--------------+
+; |top_biobot_de10lite                   ; 687 (2)             ; 372 (3)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 43   ; 0            ; 0          ; |top_biobot_de10lite                                                       ; top_biobot_de10lite ; work         ;
+;    |emisor_estado:u_emisor|            ; 31 (31)             ; 16 (16)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|emisor_estado:u_emisor                                ; emisor_estado       ; work         ;
+;    |hex7seg:u_h0|                      ; 7 (7)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|hex7seg:u_h0                                          ; hex7seg             ; work         ;
+;    |hex7seg:u_h1|                      ; 7 (7)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|hex7seg:u_h1                                          ; hex7seg             ; work         ;
+;    |hex7seg:u_h2|                      ; 7 (7)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|hex7seg:u_h2                                          ; hex7seg             ; work         ;
+;    |hex7seg:u_h3|                      ; 7 (7)               ; 0 (0)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|hex7seg:u_h3                                          ; hex7seg             ; work         ;
+;    |nucleo_biobot:u_nucleo|            ; 456 (0)             ; 224 (0)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|nucleo_biobot:u_nucleo                                ; nucleo_biobot       ; work         ;
+;       |detector_presencia:u_presencia| ; 9 (9)               ; 4 (4)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|detector_presencia:u_presencia ; detector_presencia  ; work         ;
+;       |detector_quietud:u_quietud|     ; 10 (10)             ; 4 (4)                     ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|detector_quietud:u_quietud     ; detector_quietud    ; work         ;
+;       |fsm_politica:u_fsm|             ; 181 (181)           ; 64 (64)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|fsm_politica:u_fsm             ; fsm_politica        ; work         ;
+;       |gen_estimulo:u_gen|             ; 62 (62)             ; 47 (47)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|gen_estimulo:u_gen             ; gen_estimulo        ; work         ;
+;       |lfsr16:u_lfsr|                  ; 9 (9)               ; 16 (16)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|lfsr16:u_lfsr                  ; lfsr16              ; work         ;
+;       |media_movil4:u_media|           ; 25 (25)             ; 28 (28)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|media_movil4:u_media           ; media_movil4        ; work         ;
+;       |ventana_termica:u_ventana|      ; 160 (160)           ; 61 (61)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|ventana_termica:u_ventana      ; ventana_termica     ; work         ;
+;    |receptor_trama:u_trama|            ; 73 (73)             ; 58 (58)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|receptor_trama:u_trama                                ; receptor_trama      ; work         ;
+;    |uart_rx:u_rx|                      ; 54 (54)             ; 40 (40)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|uart_rx:u_rx                                          ; uart_rx             ; work         ;
+;    |uart_tx:u_tx|                      ; 43 (43)             ; 31 (31)                   ; 0           ; 0          ; 0            ; 0       ; 0         ; 0    ; 0            ; 0          ; |top_biobot_de10lite|uart_tx:u_tx                                          ; uart_tx             ; work         ;
++----------------------------------------+---------------------+---------------------------+-------------+------------+--------------+---------+-----------+------+--------------+------------+----------------------------------------------------------------------------+---------------------+--------------+
+Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
+
+
+Encoding Type:  One-Hot
++------------------------------------------------------------------+
+; State Machine - |top_biobot_de10lite|receptor_trama:u_trama|fase ;
++--------------+-------------+--------------+----------------------+
+; Name         ; fase.ESPERA ; fase.PIXELES ; fase.ACT             ;
++--------------+-------------+--------------+----------------------+
+; fase.ESPERA  ; 0           ; 0            ; 0                    ;
+; fase.ACT     ; 1           ; 0            ; 1                    ;
+; fase.PIXELES ; 1           ; 1            ; 0                    ;
++--------------+-------------+--------------+----------------------+
+
+
++---------------------------------------------------------------------------------+
+; Registers Removed During Synthesis                                              ;
++----------------------------------------+----------------------------------------+
+; Register name                          ; Reason for Removal                     ;
++----------------------------------------+----------------------------------------+
+; uart_tx:u_tx|tx_shift[9]               ; Stuck at VCC due to stuck port data_in ;
+; receptor_trama:u_trama|actividad[0..2] ; Lost fanout                            ;
+; Total Number of Removed Registers = 4  ;                                        ;
++----------------------------------------+----------------------------------------+
+
+
++------------------------------------------------------+
+; General Register Statistics                          ;
++----------------------------------------------+-------+
+; Statistic                                    ; Value ;
++----------------------------------------------+-------+
+; Total registers                              ; 372   ;
+; Number of registers using Synchronous Clear  ; 103   ;
+; Number of registers using Synchronous Load   ; 62    ;
+; Number of registers using Asynchronous Clear ; 372   ;
+; Number of registers using Asynchronous Load  ; 0     ;
+; Number of registers using Clock Enable       ; 318   ;
+; Number of registers using Preset             ; 0     ;
++----------------------------------------------+-------+
+
+
++---------------------------------------------------------------------+
+; Inverted Register Statistics                                        ;
++-----------------------------------------------------------+---------+
+; Inverted Register                                         ; Fan out ;
++-----------------------------------------------------------+---------+
+; uart_tx:u_tx|tx                                           ; 1       ;
+; uart_tx:u_tx|tx_shift[0]                                  ; 1       ;
+; nucleo_biobot:u_nucleo|lfsr16:u_lfsr|q[0]                 ; 2       ;
+; nucleo_biobot:u_nucleo|lfsr16:u_lfsr|q[7]                 ; 2       ;
+; nucleo_biobot:u_nucleo|lfsr16:u_lfsr|q[6]                 ; 2       ;
+; nucleo_biobot:u_nucleo|lfsr16:u_lfsr|q[5]                 ; 3       ;
+; uart_tx:u_tx|tx_shift[1]                                  ; 1       ;
+; nucleo_biobot:u_nucleo|ventana_termica:u_ventana|fondo[7] ; 1       ;
+; nucleo_biobot:u_nucleo|ventana_termica:u_ventana|fondo[6] ; 1       ;
+; nucleo_biobot:u_nucleo|ventana_termica:u_ventana|fondo[5] ; 1       ;
+; nucleo_biobot:u_nucleo|ventana_termica:u_ventana|fondo[3] ; 2       ;
+; nucleo_biobot:u_nucleo|ventana_termica:u_ventana|fondo[4] ; 1       ;
+; nucleo_biobot:u_nucleo|ventana_termica:u_ventana|fondo[2] ; 1       ;
+; nucleo_biobot:u_nucleo|ventana_termica:u_ventana|fondo[1] ; 1       ;
+; nucleo_biobot:u_nucleo|ventana_termica:u_ventana|fondo[0] ; 1       ;
+; uart_tx:u_tx|tx_shift[2]                                  ; 1       ;
+; nucleo_biobot:u_nucleo|lfsr16:u_lfsr|q[10]                ; 1       ;
+; uart_tx:u_tx|tx_shift[3]                                  ; 1       ;
+; uart_rx:u_rx|rx_sync                                      ; 12      ;
+; nucleo_biobot:u_nucleo|lfsr16:u_lfsr|q[11]                ; 1       ;
+; uart_tx:u_tx|tx_shift[4]                                  ; 1       ;
+; uart_rx:u_rx|rx_meta                                      ; 1       ;
+; uart_tx:u_tx|tx_shift[5]                                  ; 1       ;
+; nucleo_biobot:u_nucleo|lfsr16:u_lfsr|q[13]                ; 1       ;
+; uart_tx:u_tx|tx_shift[6]                                  ; 1       ;
+; uart_tx:u_tx|tx_shift[7]                                  ; 1       ;
+; nucleo_biobot:u_nucleo|lfsr16:u_lfsr|q[15]                ; 1       ;
+; uart_tx:u_tx|tx_shift[8]                                  ; 1       ;
+; Total number of inverted registers = 28                   ;         ;
++-----------------------------------------------------------+---------+
+
+
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Multiplexer Restructuring Statistics (Restructuring Performed)                                                                                                                                       ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+----------------------------------------------------------------------------------------+
+; Multiplexer Inputs ; Bus Width ; Baseline Area ; Area if Restructured ; Saving if Restructured ; Registered ; Example Multiplexer Output                                                             ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+----------------------------------------------------------------------------------------+
+; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |top_biobot_de10lite|uart_tx:u_tx|bit_index[3]                                         ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|gen_estimulo:u_gen|led_on[0]               ;
+; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|gen_estimulo:u_gen|pulsos[3]               ;
+; 3:1                ; 16 bits   ; 32 LEs        ; 16 LEs               ; 16 LEs                 ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|fsm_politica:u_fsm|cuenta[5]               ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|fsm_politica:u_fsm|retro[0]                ;
+; 3:1                ; 2 bits    ; 4 LEs         ; 2 LEs                ; 2 LEs                  ; Yes        ; |top_biobot_de10lite|emisor_estado:u_emisor|retardo[0]                                 ;
+; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|ventana_termica:u_ventana|col[4]           ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|detector_quietud:u_quietud|cnt[2]          ;
+; 3:1                ; 7 bits    ; 14 LEs        ; 7 LEs                ; 7 LEs                  ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|fsm_politica:u_fsm|t_ref[4]                ;
+; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|fsm_politica:u_fsm|t_obs[6]                ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|fsm_politica:u_fsm|t_obs[3]                ;
+; 3:1                ; 7 bits    ; 14 LEs        ; 7 LEs                ; 7 LEs                  ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|fsm_politica:u_fsm|t_perd[5]               ;
+; 3:1                ; 13 bits   ; 26 LEs        ; 13 LEs               ; 13 LEs                 ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|fsm_politica:u_fsm|cnt_quieto[12]          ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|detector_presencia:u_presencia|seguidos[3] ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 16 LEs               ; 24 LEs                 ; Yes        ; |top_biobot_de10lite|emisor_estado:u_emisor|tx_dato[7]                                 ;
+; 4:1                ; 3 bits    ; 6 LEs         ; 6 LEs                ; 0 LEs                  ; Yes        ; |top_biobot_de10lite|emisor_estado:u_emisor|paso[0]                                    ;
+; 4:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |top_biobot_de10lite|receptor_trama:u_trama|hueco[10]                                  ;
+; 4:1                ; 16 bits   ; 32 LEs        ; 16 LEs               ; 16 LEs                 ; Yes        ; |top_biobot_de10lite|uart_tx:u_tx|clk_count[11]                                        ;
+; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |top_biobot_de10lite|uart_rx:u_rx|clk_count[15]                                        ;
+; 4:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|gen_estimulo:u_gen|cnt[23]                 ;
+; 5:1                ; 3 bits    ; 9 LEs         ; 3 LEs                ; 6 LEs                  ; Yes        ; |top_biobot_de10lite|uart_rx:u_rx|bit_index[3]                                         ;
+; 3:1                ; 7 bits    ; 14 LEs        ; 7 LEs                ; 7 LEs                  ; Yes        ; |top_biobot_de10lite|uart_tx:u_tx|tx_shift[3]                                          ;
+; 15:1               ; 2 bits    ; 20 LEs        ; 8 LEs                ; 12 LEs                 ; No         ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|fsm_politica:u_fsm|Mux4                    ;
+; 21:1               ; 3 bits    ; 42 LEs        ; 21 LEs               ; 21 LEs                 ; No         ; |top_biobot_de10lite|nucleo_biobot:u_nucleo|fsm_politica:u_fsm|Mux2                    ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+----------------------------------------------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: Top-level Entity: |top_biobot_de10lite ;
++----------------+----------+---------------------------------------------------------+
+; Parameter Name ; Value    ; Type                                                    ;
++----------------+----------+---------------------------------------------------------+
+; CLK_FREQ       ; 50000000 ; Signed Integer                                          ;
+; BAUD_RATE      ; 9600     ; Signed Integer                                          ;
+; F_EST          ; 50       ; Signed Integer                                          ;
+; N_PULSOS       ; 25       ; Signed Integer                                          ;
++----------------+----------+---------------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++-----------------------------------------------------------+
+; Parameter Settings for User Entity Instance: uart_rx:u_rx ;
++----------------+----------+-------------------------------+
+; Parameter Name ; Value    ; Type                          ;
++----------------+----------+-------------------------------+
+; CLK_FREQ       ; 50000000 ; Signed Integer                ;
+; BAUD_RATE      ; 9600     ; Signed Integer                ;
++----------------+----------+-------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++---------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: receptor_trama:u_trama ;
++----------------+--------+-------------------------------------------+
+; Parameter Name ; Value  ; Type                                      ;
++----------------+--------+-------------------------------------------+
+; N_PIX          ; 64     ; Signed Integer                            ;
+; T_HUECO        ; 250000 ; Signed Integer                            ;
++----------------+--------+-------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++---------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo ;
++----------------+----------+-----------------------------------------+
+; Parameter Name ; Value    ; Type                                    ;
++----------------+----------+-----------------------------------------+
+; CLK_FREQ       ; 50000000 ; Signed Integer                          ;
+; F_EST          ; 50       ; Signed Integer                          ;
+; N_PULSOS       ; 25       ; Signed Integer                          ;
++----------------+----------+-----------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++-----------------------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|ventana_termica:u_ventana ;
++----------------+----------+-------------------------------------------------------------------+
+; Parameter Name ; Value    ; Type                                                              ;
++----------------+----------+-------------------------------------------------------------------+
+; COLS           ; 8        ; Signed Integer                                                    ;
+; LOG2_PIX       ; 6        ; Signed Integer                                                    ;
+; T_MIN          ; 01110000 ; Unsigned Binary                                                   ;
+; T_MAX          ; 10011000 ; Unsigned Binary                                                   ;
+; DELTA          ; 00001000 ; Unsigned Binary                                                   ;
+; COL_IZQ        ; 3        ; Signed Integer                                                    ;
+; COL_DER        ; 5        ; Signed Integer                                                    ;
++----------------+----------+-------------------------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++------------------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|media_movil4:u_media ;
++----------------+-------+-----------------------------------------------------------------+
+; Parameter Name ; Value ; Type                                                            ;
++----------------+-------+-----------------------------------------------------------------+
+; W              ; 7     ; Signed Integer                                                  ;
++----------------+-------+-----------------------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++----------------------------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|detector_presencia:u_presencia ;
++----------------+-------+---------------------------------------------------------------------------+
+; Parameter Name ; Value ; Type                                                                      ;
++----------------+-------+---------------------------------------------------------------------------+
+; W              ; 7     ; Signed Integer                                                            ;
+; N_PRE          ; 2     ; Signed Integer                                                            ;
+; N_DET          ; 8     ; Signed Integer                                                            ;
+; N_CONF         ; 4     ; Signed Integer                                                            ;
++----------------+-------+---------------------------------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++------------------------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|detector_quietud:u_quietud ;
++----------------+----------+--------------------------------------------------------------------+
+; Parameter Name ; Value    ; Type                                                               ;
++----------------+----------+--------------------------------------------------------------------+
+; U_ACT          ; 00001000 ; Unsigned Binary                                                    ;
+; N_QUIETO       ; 1010     ; Unsigned Binary                                                    ;
++----------------+----------+--------------------------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++-----------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|lfsr16:u_lfsr ;
++----------------+------------------+-----------------------------------------------+
+; Parameter Name ; Value            ; Type                                          ;
++----------------+------------------+-----------------------------------------------+
+; SEMILLA        ; 1010110011100001 ; Unsigned Binary                               ;
++----------------+------------------+-----------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++----------------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|fsm_politica:u_fsm ;
++----------------+------------------+----------------------------------------------------+
+; Parameter Name ; Value            ; Type                                               ;
++----------------+------------------+----------------------------------------------------+
+; T_ESPERA       ; 0000010010110    ; Unsigned Binary                                    ;
+; RETRO_MAX      ; 11               ; Unsigned Binary                                    ;
+; T_REF          ; 1100100          ; Unsigned Binary                                    ;
+; T_OBS          ; 0011110          ; Unsigned Binary                                    ;
+; T_EST          ; 0000101          ; Unsigned Binary                                    ;
+; T_PERD         ; 0110010          ; Unsigned Binary                                    ;
+; T_FUGA         ; 10111            ; Unsigned Binary                                    ;
+; LIM            ; 0000110000000000 ; Unsigned Binary                                    ;
+; T_BALIZA       ; 110010           ; Unsigned Binary                                    ;
++----------------+------------------+----------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++----------------------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: nucleo_biobot:u_nucleo|gen_estimulo:u_gen ;
++----------------+----------+------------------------------------------------------------+
+; Parameter Name ; Value    ; Type                                                       ;
++----------------+----------+------------------------------------------------------------+
+; CLK_FREQ       ; 50000000 ; Signed Integer                                             ;
+; F_EST          ; 50       ; Signed Integer                                             ;
+; N_PULSOS       ; 25       ; Signed Integer                                             ;
++----------------+----------+------------------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++-----------------------------------------------------------+
+; Parameter Settings for User Entity Instance: uart_tx:u_tx ;
++----------------+----------+-------------------------------+
+; Parameter Name ; Value    ; Type                          ;
++----------------+----------+-------------------------------+
+; CLK_FREQ       ; 50000000 ; Signed Integer                ;
+; BAUD_RATE      ; 9600     ; Signed Integer                ;
++----------------+----------+-------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++------------------------------------------+
+; Port Connectivity Checks: "hex7seg:u_h3" ;
++------+-------+----------+----------------+
+; Port ; Type  ; Severity ; Details        ;
++------+-------+----------+----------------+
+; x[3] ; Input ; Info     ; Stuck at GND   ;
++------+-------+----------+----------------+
+
+
++------------------------------------------+
+; Port Connectivity Checks: "hex7seg:u_h0" ;
++------+-------+----------+----------------+
+; Port ; Type  ; Severity ; Details        ;
++------+-------+----------+----------------+
+; x[3] ; Input ; Info     ; Stuck at GND   ;
++------+-------+----------+----------------+
+
+
++-------------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "nucleo_biobot:u_nucleo|gen_estimulo:u_gen"                                             ;
++---------+--------+----------+-------------------------------------------------------------------------------------+
+; Port    ; Type   ; Severity ; Details                                                                             ;
++---------+--------+----------+-------------------------------------------------------------------------------------+
+; ocupado ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
++---------+--------+----------+-------------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "nucleo_biobot:u_nucleo"                                                               ;
++--------+--------+----------+-------------------------------------------------------------------------------------+
+; Port   ; Type   ; Severity ; Details                                                                             ;
++--------+--------+----------+-------------------------------------------------------------------------------------+
+; fase_a ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
+; fase_b ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
+; baliza ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
+; fondo  ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
+; n_est  ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
++--------+--------+----------+-------------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------+
+; Post-Synthesis Netlist Statistics for Top Partition ;
++-----------------------+-----------------------------+
+; Type                  ; Count                       ;
++-----------------------+-----------------------------+
+; boundary_port         ; 43                          ;
+; cycloneiii_ff         ; 372                         ;
+;     CLR               ; 51                          ;
+;     CLR SCLR          ; 2                           ;
+;     CLR SLD           ; 1                           ;
+;     ENA CLR           ; 156                         ;
+;     ENA CLR SCLR      ; 101                         ;
+;     ENA CLR SLD       ; 61                          ;
+; cycloneiii_lcell_comb ; 690                         ;
+;     arith             ; 284                         ;
+;         2 data inputs ; 191                         ;
+;         3 data inputs ; 93                          ;
+;     normal            ; 406                         ;
+;         0 data inputs ; 5                           ;
+;         1 data inputs ; 42                          ;
+;         2 data inputs ; 63                          ;
+;         3 data inputs ; 99                          ;
+;         4 data inputs ; 197                         ;
+;                       ;                             ;
+; Max LUT depth         ; 10.40                       ;
+; Average LUT depth     ; 5.00                        ;
++-----------------------+-----------------------------+
+
+
++-------------------------------+
+; Elapsed Time Per Partition    ;
++----------------+--------------+
+; Partition Name ; Elapsed Time ;
++----------------+--------------+
+; Top            ; 00:00:05     ;
++----------------+--------------+
+
+
++-------------------------------+
+; Analysis & Synthesis Messages ;
++-------------------------------+
+Info: *******************************************************************
+Info: Running Quartus Prime Analysis & Synthesis
+    Info: Version 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+    Info: Processing started: Mon Nov  9 19:30:17 2026
+Info: Command: quartus_map --read_settings_files=on --write_settings_files=off biobot -c biobot
+Info (20030): Parallel compilation is enabled and will use 16 of the 16 processors detected
+Info (12021): Found 1 design units, including 1 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/uart_rx.v
+    Info (12023): Found entity 1: uart_rx File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_rx.v Line: 31
+Info (12021): Found 1 design units, including 1 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/uart_tx.v
+    Info (12023): Found entity 1: uart_tx File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_tx.v Line: 19
+Info (12021): Found 1 design units, including 1 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/ventana_termica.v
+    Info (12023): Found entity 1: ventana_termica File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/ventana_termica.v Line: 26
+Info (12021): Found 4 design units, including 4 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/detectores.v
+    Info (12023): Found entity 1: media_movil4 File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/detectores.v Line: 21
+    Info (12023): Found entity 2: detector_presencia File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/detectores.v Line: 54
+    Info (12023): Found entity 3: detector_quietud File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/detectores.v Line: 94
+    Info (12023): Found entity 4: lfsr16 File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/detectores.v Line: 127
+Info (12021): Found 1 design units, including 1 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/fsm_politica.v
+    Info (12023): Found entity 1: fsm_politica File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/fsm_politica.v Line: 28
+Info (12021): Found 1 design units, including 1 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/gen_estimulo.v
+    Info (12023): Found entity 1: gen_estimulo File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/gen_estimulo.v Line: 22
+Info (12021): Found 1 design units, including 1 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/nucleo_biobot.v
+    Info (12023): Found entity 1: nucleo_biobot File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/nucleo_biobot.v Line: 19
+Info (12021): Found 2 design units, including 2 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/enlace_serie.v
+    Info (12023): Found entity 1: receptor_trama File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/enlace_serie.v Line: 21
+    Info (12023): Found entity 2: emisor_estado File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/enlace_serie.v Line: 89
+Info (12021): Found 2 design units, including 2 entities, in source file /users/adpoz/onedrive/documentos/universidad/2026-semestre-5/11-lab-sistemas-embebidos-cn113/entregas/proyecto-final-biobots-rescate/hdl/top_biobot_de10lite.v
+    Info (12023): Found entity 1: top_biobot_de10lite File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v Line: 24
+    Info (12023): Found entity 2: hex7seg File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v Line: 118
+Info (12127): Elaborating entity "top_biobot_de10lite" for the top level hierarchy
+Info (12128): Elaborating entity "uart_rx" for hierarchy "uart_rx:u_rx" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v Line: 72
+Warning (10230): Verilog HDL assignment warning at uart_rx.v(88): truncated value with size 32 to match size of target (16) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_rx.v Line: 88
+Warning (10230): Verilog HDL assignment warning at uart_rx.v(94): truncated value with size 32 to match size of target (16) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_rx.v Line: 94
+Warning (10230): Verilog HDL assignment warning at uart_rx.v(109): truncated value with size 32 to match size of target (4) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_rx.v Line: 109
+Info (12128): Elaborating entity "receptor_trama" for hierarchy "receptor_trama:u_trama" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v Line: 77
+Info (12128): Elaborating entity "nucleo_biobot" for hierarchy "nucleo_biobot:u_nucleo" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v Line: 86
+Info (12128): Elaborating entity "ventana_termica" for hierarchy "nucleo_biobot:u_nucleo|ventana_termica:u_ventana" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/nucleo_biobot.v Line: 62
+Info (12128): Elaborating entity "media_movil4" for hierarchy "nucleo_biobot:u_nucleo|media_movil4:u_media" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/nucleo_biobot.v Line: 66
+Info (12128): Elaborating entity "detector_presencia" for hierarchy "nucleo_biobot:u_nucleo|detector_presencia:u_presencia" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/nucleo_biobot.v Line: 71
+Info (12128): Elaborating entity "detector_quietud" for hierarchy "nucleo_biobot:u_nucleo|detector_quietud:u_quietud" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/nucleo_biobot.v Line: 75
+Info (12128): Elaborating entity "lfsr16" for hierarchy "nucleo_biobot:u_nucleo|lfsr16:u_lfsr" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/nucleo_biobot.v Line: 79
+Info (12128): Elaborating entity "fsm_politica" for hierarchy "nucleo_biobot:u_nucleo|fsm_politica:u_fsm" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/nucleo_biobot.v Line: 87
+Info (12128): Elaborating entity "gen_estimulo" for hierarchy "nucleo_biobot:u_nucleo|gen_estimulo:u_gen" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/nucleo_biobot.v Line: 92
+Warning (10230): Verilog HDL assignment warning at gen_estimulo.v(70): truncated value with size 32 to match size of target (8) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/gen_estimulo.v Line: 70
+Info (12128): Elaborating entity "emisor_estado" for hierarchy "emisor_estado:u_emisor" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v Line: 92
+Info (12128): Elaborating entity "uart_tx" for hierarchy "uart_tx:u_tx" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v Line: 96
+Warning (10230): Verilog HDL assignment warning at uart_tx.v(60): truncated value with size 32 to match size of target (16) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_tx.v Line: 60
+Warning (10230): Verilog HDL assignment warning at uart_tx.v(67): truncated value with size 32 to match size of target (4) File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_tx.v Line: 67
+Info (12128): Elaborating entity "hex7seg" for hierarchy "hex7seg:u_h0" File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/top_biobot_de10lite.v Line: 107
+Info (13000): Registers with preset signals will power-up high File: C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/hdl/uart_tx.v Line: 27
+Info (13003): DEV_CLRn pin will set, and not reset, register with preset signal due to NOT Gate Push-Back
+Info (286030): Timing-Driven Synthesis is running
+Info (17049): 3 registers lost all their fanouts during netlist optimizations.
+Info (144001): Generated suppressed messages file C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus/output_files/biobot.map.smsg
+Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
+    Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
+Info (21057): Implemented 806 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 4 input pins
+    Info (21059): Implemented 39 output pins
+    Info (21061): Implemented 763 logic cells
+Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 6 warnings
+    Info: Peak virtual memory: 4880 megabytes
+    Info: Processing ended: Mon Nov  9 19:30:45 2026
+    Info: Elapsed time: 00:00:28
+    Info: Total CPU time (on all processors): 00:00:31
+
+
++------------------------------------------+
+; Analysis & Synthesis Suppressed Messages ;
++------------------------------------------+
+The suppressed messages can be found in C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/quartus/output_files/biobot.map.smsg.
+
+
