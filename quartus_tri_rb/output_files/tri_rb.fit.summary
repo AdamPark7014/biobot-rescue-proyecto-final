@@ -1,0 +1,18 @@
+Fitter Status : Successful - Sat Nov 21 11:20:56 2026
+Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+Revision Name : tri_rb
+Top-level Entity Name : top_tri_rb
+Family : MAX 10
+Device : 10M50DAF484C7G
+Timing Models : Final
+Total logic elements : 8,838 / 49,760 ( 18 % )
+    Total combinational functions : 8,015 / 49,760 ( 16 % )
+    Dedicated logic registers : 4,128 / 49,760 ( 8 % )
+Total registers : 4128
+Total pins : 70 / 360 ( 19 % )
+Total virtual pins : 0
+Total memory bits : 0 / 1,677,312 ( 0 % )
+Embedded Multiplier 9-bit elements : 107 / 288 ( 37 % )
+Total PLLs : 0 / 4 ( 0 % )
+UFM blocks : 0 / 1 ( 0 % )
+ADC blocks : 0 / 2 ( 0 % )

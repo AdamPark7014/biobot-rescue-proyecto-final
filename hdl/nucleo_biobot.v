@@ -19,7 +19,11 @@
 module nucleo_biobot #(
     parameter CLK_FREQ = 50000000,
     parameter F_EST    = 50,
-    parameter N_PULSOS = 25
+    parameter N_PULSOS = 25,
+    // ventana de temperatura de la piel (0.25 C por cuenta); por omision 28 a 38 C
+    parameter [7:0] T_MIN = 8'd112,
+    parameter [7:0] T_MAX = 8'd152,
+    parameter [7:0] DELTA = 8'd8
 )(
     input  wire        clk,
     input  wire        reset,         // asincrono, activo en alto
@@ -55,7 +59,7 @@ wire        sobre, confirmado;
 wire [15:0] azar;
 wire        ocupado;
 
-ventana_termica u_ventana (
+ventana_termica #(.T_MIN(T_MIN), .T_MAX(T_MAX), .DELTA(DELTA)) u_ventana (
     .clk(clk), .reset(reset),
     .px_valido(px_valido), .px_temp(px_temp), .px_ultimo(px_ultimo),
     .n_cal(n_cal), .lado(lado), .fondo(fondo), .cuadro(tick)

@@ -1,0 +1,16 @@
+Analysis & Synthesis Status : Successful - Sat Nov 21 11:15:28 2026
+Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+Revision Name : tri_a
+Top-level Entity Name : top_tri_mochila
+Family : MAX 10
+Total logic elements : 4,969
+    Total combinational functions : 4,326
+    Dedicated logic registers : 2,409
+Total registers : 2409
+Total pins : 70
+Total virtual pins : 0
+Total memory bits : 0
+Embedded Multiplier 9-bit elements : 43
+Total PLLs : 0
+UFM blocks : 0
+ADC blocks : 0

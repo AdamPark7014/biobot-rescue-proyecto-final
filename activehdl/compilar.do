@@ -18,3 +18,12 @@ alog -v2k5 -dbg "$PF/hdl/top_demo_de10lite.v"
 alog -v2k5 -dbg "$PF/hdl/top_insecto_de10lite.v"
 alog -v2k5 -dbg "$PF/sim/tb_demo.v"
 alog -v2k5 -dbg "$PF/sim/tb_dos_tarjetas.v"
+
+# Red de deteccion y triangulacion con tres FPGA: CORDIC, divisor, detector de tonos,
+# mochilas y receptor
+alog -v2k5 -dbg "$PF/hdl/cordic.v"
+alog -v2k5 -dbg "$PF/hdl/tonos.v"
+alog -v2k5 -dbg "$PF/hdl/tri_red.v"
+alog -v2k5 -dbg "$PF/sim/tb_cordic.v"
+alog -v2k5 -dbg "$PF/sim/tb_tonos.v"
+alog -v2k5 -dbg "$PF/sim/tb_tri.v"

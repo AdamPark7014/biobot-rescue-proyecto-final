@@ -1,16 +1,192 @@
 # Guía de laboratorio: probar BioBot-Rescue en la DE10-Lite
 
 Tarjeta: **DE10-Lite, MAX 10 `10M50DAF484C7G`**, la misma de las prácticas 2 a 4.
-Los tres archivos `.sof` ya están generados; no hace falta compilar nada en clase.
+Todos los archivos `.sof` ya están generados; no hace falta compilar nada en clase.
 
 | Montaje | Tarjetas | Archivo a cargar |
 |---|---|---|
+| **E. Red de tres FPGA (la demostración)** | 3 | `CARGAR_RED.cmd` carga las tres y verifica los enlaces |
 | A. Una sola tarjeta | 1 | `quartus_demo/output_files/biobot_demo.sof` |
 | B. Dos tarjetas | 2 | Mochila: `quartus/output_files/biobot.sof`. Insecto: `quartus_insecto/output_files/biobot_insecto.sof` |
 | C. Tarjeta y ESP32 | 1 + ESP32 | `quartus/output_files/biobot.sof` y el programa `esp32/mochila_esp32` |
+| D. Red de botón y puente (versión anterior) | 2 o 3 | `quartus_red_*` |
 
-Para cargar: Quartus → Tools → Programmer → Hardware Setup: USB-Blaster → Add File → el `.sof` → Start.
+Para cargar a mano: Quartus → Tools → Programmer → Hardware Setup: USB-Blaster → Add File → el `.sof` → Start.
 El `.sof` se pierde al quitar la corriente; hay que volver a cargarlo.
+
+## Montaje E: red de tres FPGA con detección, tonos y triangulación
+
+Es el montaje de la demostración. Dos tarjetas son las mochilas de dos cucarachas (A y B) y la tercera es
+el receptor del operador. La computadora se conecta al receptor y muestra todo en una terminal.
+
+### Qué hace cada tarjeta
+
+- **Cada mochila** corre el núcleo del proyecto sobre un sensor térmico simulado con los interruptores.
+  Detecta a una persona de dos formas redundantes: por temperatura y por el botón de ayuda. Avisa por radio
+  (UART) a las otras dos tarjetas, mide en qué dirección ve el calor y emite un tono propio.
+- **El receptor** junta lo que llega, cuenta las personas detectadas, cruza los rumbos de las dos mochilas
+  para estimar dónde está la persona (triangulación) y se lo pasa a la computadora.
+- **Si una mochila queda fuera de alcance**, la otra retransmite su aviso (puente).
+
+### En tres pasos
+
+1. Conectar las tres tarjetas por USB y poner los seis cables de JP1 (tabla de abajo).
+2. Doble clic en **`CARGAR_RED.cmd`**. Carga las tres tarjetas y revisa los cuatro enlaces. No importa en
+   qué puerto USB quedó cada una. Cada tarjeta muestra su letra en el display de la izquierda: `A`, `b` o `r`.
+3. Doble clic en **`DEMO.cmd`**. Abre dos ventanas: el **monitor**, que se actualiza solo, y la de **órdenes**.
+
+### Cables (conector JP1, el de 40 pines)
+
+| De | | A | Para qué |
+|---|---|---|---|
+| A, pin 35 | → | r, pin 37 | A habla con el receptor |
+| A, pin 33 | → | b, pin 37 | A habla con B |
+| b, pin 35 | → | r, pin 39 | B habla con el receptor |
+| b, pin 33 | → | A, pin 37 | B habla con A |
+| A, pin 30 | — | r, pin 30 | tierra |
+| b, pin 30 | — | r, pin 12 | tierra |
+
+Los pines 33, 35, 37 y 39 son los cuatro últimos de la columna izquierda; el 39 es el de hasta abajo. Los
+pines 35 y 33 de cada tarjeta llevan la misma señal. El pin 1 saca el tono propio de la tarjeta (1, 2 o
+4 kHz), por si se quiere oír con un zumbador o ver en el osciloscopio; no hace falta conectarlo.
+
+### Controles de cada mochila
+
+| Control | Qué es |
+|---|---|
+| **SW5–SW0** | La temperatura que lee el sensor térmico, en grados, en binario. Detecta de **35 a 38 °C** |
+| **KEY1** | El botón de ayuda que va sobre la cucaracha. Queda marcado hasta reiniciar |
+| **KEY0** | Reinicia la tarjeta |
+| SW9–SW6 | Posición de la cucaracha (16 lugares fijos), si la terminal no la fija |
+
+Temperaturas en los interruptores (SW5 a SW0): 34 = `100010`, **35 = `100011`, 36 = `100100`,
+37 = `100101`, 38 = `100110`**, 39 = `100111`. Con 22 (`010110`) no hay nadie; con 47 (`101111`) es un
+objeto caliente y no debe contar. Si la temperatura sale del intervalo, la detección se apaga en menos de
+un segundo y el conteo baja.
+
+### Qué se ve en las tarjetas
+
+| Indicador | En una mochila | En el receptor |
+|---|---|---|
+| HEX5 | Quién es: `A` o `b` | `r` |
+| HEX4–HEX3 | `Pd` (personas detectadas) | `Pd` |
+| HEX2 | Cuántas personas detectadas: 0, 1 o 2 | Lo mismo |
+| HEX1 | La letra de la otra mochila, si oye su tono | `A`, si oye el tono de A |
+| HEX0 | `r`, si oye el tono del receptor | `b`, si oye el tono de B |
+| LEDR9–5 | Metros a la otra mochila, en binario | Metros a la mochila A |
+| LEDR4–0 | Metros al receptor, en binario | Metros a la mochila B |
+
+Los LED de una distancia quedan apagados cuando no se oye a ese nodo. Con cinco LED se cuentan hasta 31 m,
+que es justo el alcance: **a menos de 32 m se oye; a 32 m o más, no**.
+
+En el receptor, SW1–SW0 cambian lo que muestran los displays: `00` lo de la tabla, `01` la posición de la
+persona (X y Y en decímetros), `10` la distancia entre A y B, `11` los rumbos de A y B en grados.
+
+### Escala y alcance
+
+- Mapa de 0 a 64 m en 10 bits: una cuenta vale **6.25 cm**. Por ejemplo, 5 m son 80 cuentas, el 7.8 % de
+  la escala.
+- El receptor está en la entrada, en (0, 0). La persona está escondida en (25.50, 19.25) m, a 31.95 m: en
+  el borde del alcance.
+- Alcance del radio y de los tonos: 31.94 m (511 cuentas).
+
+### La terminal
+
+`DEMO.cmd` abre dos ventanas:
+
+- **Monitor.** Muestra lo que sabe el receptor: personas detectadas, posición estimada de la persona, y de
+  cada mochila su posición, la distancia, si la detección es térmica **y a cuántos grados**, el botón, el
+  rumbo y a quién oye. Cambia en cuanto cambia algo en las tarjetas.
+- **Órdenes.** Lo que se escribe aquí se ejecuta en las tarjetas y se ve en el monitor:
+
+| Orden | Qué hace |
+|---|---|
+| `pos A 31 0` | Pone la mochila A en x = 31 m, y = 0 m. Está a 31 m: se oye |
+| `pos A 32 0` | A 32 m ya no se oye: se apagan sus LED y desaparece del receptor |
+| `pos B 4.5 3` | Pone a B cerca de la entrada, para que haga de puente |
+| `pos A sw` | La posición vuelve a los interruptores SW9–SW6 |
+| `temp A 36` | El sensor de A lee 36 °C (lo mismo que mover SW5–SW0) |
+| `temp A sw` | La temperatura vuelve a los interruptores |
+| `boton B` | Aprieta el botón de ayuda de B |
+| `vista 1` | Cambia lo que muestran los displays del receptor (0 a 3) |
+| `vista sw` | La vista del receptor vuelve a sus interruptores SW1–SW0 |
+| `reset` / `suelta` | Reinicia las tarjetas / todo vuelve a los interruptores |
+
+### Guion de la demostración
+
+1. **Nadie.** Las dos mochilas en 22 °C. Las tres tarjetas muestran `Pd 0`.
+2. **Detección térmica.** En A, poner 36 en SW5–SW0. En un segundo y medio las tres tarjetas muestran `Pd 1`
+   y el monitor dice «térmica SÍ, 36 C».
+3. **Segunda detección.** En B, poner 37. Las tres muestran `Pd 2` y el receptor da la posición de la
+   persona cruzando los dos rumbos.
+4. **Sale del intervalo.** En A, poner 40 o 30. El conteo baja a 1 en las tres.
+5. **Objeto caliente.** Poner 47: no cuenta.
+6. **Botón.** Con las dos en 22 °C, apretar KEY1 en B: `Pd 1` en las tres. Se borra con KEY0 en B.
+7. **Alcance.** En órdenes: `pos A 31 0` (el receptor muestra `A` y 31 en los LED) y luego `pos A 32 0`
+   (se apagan).
+8. **Puente.** `pos A sw` y `pos B sw`, con SW9–SW6 de A en `0001` y de B en `0000`: A queda a 32.00 m,
+   fuera de alcance, y su aviso llega por B. El monitor dice «radio: por el puente B».
+
+### Posiciones con SW9–SW6
+
+| SW9–SW6 | Lugar (m) | Distancia al receptor |
+|---|---|---|
+| `0000` | (25.25, 19.00), junto a la persona | 31.60 m: se oye |
+| `0001` | (25.75, 19.00), junto a la persona | 32.00 m: no se oye |
+| `0010` | (25.75, 19.50), junto a la persona | 32.30 m: no se oye |
+| `0011` | (25.25, 19.50), junto a la persona | 31.90 m: se oye |
+| `0100` | (25.50, 18.94), junto a la persona | 31.76 m: se oye |
+| `0101` | (40, 30) | 50.0 m |
+| `0110` | (50, 40) | 64.0 m |
+| `0111` | (4.5, 3.0), cerca de la entrada | 5.4 m |
+| `1000` a `1111` | (2, 2), (10, 10), (20, 10), (10, 20), (20, 20), (23, 22), (24, 22), (60, 60) | 2.8, 14.1, 22.4, 22.4, 28.3, 31.8, 32.6 y 84.9 m |
+
+### Cómo se hablan las tarjetas
+
+UART a 115 200 baudios, con una trama propia de 16 bytes cada 100 ms:
+
+| Byte | Contenido |
+|---|---|
+| 0 | `0xA5`, sincronía |
+| 1 | Quién midió (origen), quién transmite esta copia (emisor) y cuántos saltos lleva |
+| 2 | Detección térmica, botón, mancha a la vista, rumbo válido y estado del núcleo |
+| 3–8 | Posición del origen, rumbo hacia el calor, distancia estimada y píxeles calientes |
+| 9–11 | Posición del emisor |
+| 12 | A quién oye por tonos y la temperatura del sensor |
+| 13 | Número de secuencia |
+| 14–15 | **CRC-16/CCITT** de los bytes 1 a 13 |
+
+Quien recibe descarta la trama si el CRC no coincide, si se corta a la mitad o si el emisor está a 32 m o
+más. Con el número de secuencia el receptor cuenta las tramas perdidas y reconoce la que le llega repetida
+por dos caminos. Si en un segundo no llega nada de una mochila, la da por perdida.
+
+### Los tonos
+
+Cada nodo emite todo el tiempo un tono distinto: **A 1 kHz, B 2 kHz y el receptor 4 kHz**. Cada uno lleva
+un detector que mide la potencia en las frecuencias de los otros dos con filtros de Goertzel (un filtro IIR
+de segundo orden), cada 4 ms. Con saber a quién oye, cada nodo sabe quién le queda cerca. No hay bocinas ni
+micrófonos: el canal va simulado, y el tono de un nodo «llega» solo si ese nodo está a menos de 32 m.
+
+### Pruebas
+
+| Prueba | Cómo | Resultado |
+|---|---|---|
+| CORDIC y divisor | `tb_cordic` | 248 de 248 casos; error máximo de 0.008° en el ángulo y 0.013 % en la magnitud |
+| Detector de tonos | `tb_tonos` | 8 de 8; un tono presente mide unas 28 000 unidades y el silencio menos de 50 |
+| Las tres FPGA | `tb_tri`, nueve escenarios | 9 de 9. Triangula con 6.2 cm de error a 31.95 m, en 1.10 s; a 31 m se oye y a 32 m no; con ruido en la línea descarta 14 tramas por CRC y no usa ningún dato equivocado |
+| La terminal contra las tres tarjetas simuladas | `sim/probar_terminal.ps1` | 47 de 47 comprobaciones en 12 pasos: cada orden llega bien a la FPGA y la terminal muestra lo que el circuito hace |
+| Síntesis de las cuatro variantes | `sintetizar_red.ps1` | Mochila 4 812 elementos lógicos (10 %) y 56 MHz; receptor 6 220 (13 %) y 57 MHz; sin advertencias críticas |
+| En las tres tarjetas reales, 18-11-2026 | `sim/prueba_tri.tcl` | Seis escenarios correctos con la versión anterior del enlace (mapa de 20 m, sin CRC ni tonos); error de triangulación de 2.8 cm |
+| Sensor en la tarjeta real, 18-11-2026 | lectura directa | Detecta con 35, 36 y 38 °C; no con 34, 39, 47 ni 22 °C; al salir del intervalo se apaga en 0.77 s |
+
+La versión con CRC-16, número de secuencia, tonos y mapa de 64 m está simulada y sintetizada, pero **todavía
+no se ha cargado en las tarjetas**. Para comprobarla: `CARGAR_RED.cmd` y después
+`quartus_stp -t sim/prueba_tri.tcl`, con el monitor cerrado.
+
+Las distancias se guardan en cuentas de 6.25 cm y se truncan: una mochila a 31.60 m aparece en la terminal
+a 31.56 m.
+
+Si una tarjeta se queda sin corriente pierde su programa: volver a correr `CARGAR_RED.cmd`.
 
 ## Cuántas tarjetas y por qué
 
@@ -19,7 +195,8 @@ El `.sof` se pierde al quitar la corriente; hay que volver a cargarlo.
 - **Con dos** se demuestra además el enlace real: una tarjeta es la mochila y la otra es el insecto con su
   sensor. Solo las unen dos líneas de UART y tierra. Es el mismo circuito de la mochila que se usaría con el
   ESP32 y el sensor, sin cambiarle nada.
-- Una tercera no hace falta.
+- **Con tres** (montaje E) se demuestra la red: dos mochilas que detectan, se oyen por tonos y se
+  retransmiten, y el receptor del operador que triangula.
 
 ## Montaje A: una sola tarjeta
 

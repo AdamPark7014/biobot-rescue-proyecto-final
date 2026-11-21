@@ -1,0 +1,16 @@
+Analysis & Synthesis Status : Successful - Sat Nov 21 11:16:06 2026
+Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+Revision Name : tri_receptor
+Top-level Entity Name : top_tri_receptor
+Family : MAX 10
+Total logic elements : 6,413
+    Total combinational functions : 5,748
+    Dedicated logic registers : 2,811
+Total registers : 2811
+Total pins : 70
+Total virtual pins : 0
+Total memory bits : 0
+Embedded Multiplier 9-bit elements : 76
+Total PLLs : 0
+UFM blocks : 0
+ADC blocks : 0

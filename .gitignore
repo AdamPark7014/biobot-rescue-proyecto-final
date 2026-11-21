@@ -1,5 +1,8 @@
 # Archivos que se regeneran al compilar; no se versionan.
 
+# Notas internas del equipo (rúbrica, pendientes): no van al repositorio público
+notas-internas/
+
 # Quartus: bases de datos intermedias e imagen de flash (los .sof sí se guardan)
 db/
 incremental_db/
@@ -28,3 +31,10 @@ sim/*.log
 
 # Python
 __pycache__/
+
+# Quartus: temporales
+*.jditmp
+
+# Prueba de la terminal: archivos intermedios
+sim/fuentes_sonda.txt
+sim/sondas.txt

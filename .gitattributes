@@ -1,0 +1,2 @@
+# Los lanzadores de Windows necesitan fin de linea CRLF (cmd falla con goto si solo hay LF)
+*.cmd text eol=crlf
