@@ -47,8 +47,10 @@ paso {} 25 "Encendido. A en (25.75, 19.00) m, a 32.00 m; B en (25.25, 19.00) m, 
     "el receptor conoce la posicion de A por el puente"   {[cerca $IA(x) 25.75 0.01] && [cerca $IA(y) 19.0 0.01]}
     "tonos: el receptor oye a B y no a A"                 {$R(oye_b) == 1 && $R(oye_a) == 0}
     "tonos: A no oye al receptor; B si; se oyen entre si" {$A(oye_rec) == 0 && $B(oye_rec) == 1 && $A(oye_otra) == 1 && $B(oye_otra) == 1}
-    "distancia de B al receptor: 31.60 m"                 {[cerca $B(d_rec) 31.60 0.07] && [cerca $R(d_b) 31.60 0.07]}
+    "distancia de B al receptor: 31.56 m (505 cuentas)"   {$B(d_rec) == 31.5625 && $R(d_b) == 31.5625}
+    "distancia de A al receptor: 32.00 m (512 cuentas)"   {$A(d_rec) == 32.0 && $R(d_a) == 32.0}
     "LED: 31 m a B en el receptor y en B; A apagada"      {[campo $R(led) 4 0] eq "11111" && [campo $R(led) 9 5] eq "00000" && [campo $B(led) 4 0] eq "11111" && [campo $A(led) 4 0] eq "00000"}
+    "LED: A y B se oyen a 0.50 m y marcan 1 m"            {[campo $A(led) 9 5] eq "00001" && [campo $B(led) 9 5] eq "00001"}
     "sin avisos"                                          {$R(modo) == 0}
 }
 paso {{temp A 36}} 30 "temp A 36: deteccion termica en A" {
@@ -62,7 +64,7 @@ paso {{temp B 37}} 30 "temp B 37: segunda deteccion y triangulacion" {
     "el receptor recibe de B: termica SI, 37 C"           {$IB(termica) == 1 && $IB(temp) == 37}
     "triangulada sin error"                               {$R(modo) == 2 && $R(err) == 0}
     "persona a menos de 20 cm de (25.50, 19.25) m"        {hypot($R(x) - 25.5, $R(y) - 19.25) < 0.20}
-    "distancia entre A y B: 0.50 m"                       {[cerca $R(d_ab) 0.50 0.07]}
+    "distancia entre A y B: 0.50 m"                       {$R(d_ab) == 0.5}
 }
 paso {{temp A 40}} 25 "temp A 40: A sale del intervalo" {
     "A deja de detectar"                                  {$A(alerta) == 0 && $A(temp) == 40}
@@ -86,15 +88,27 @@ paso {reset} 30 "reset: reinicia las tres tarjetas" {
 }
 paso {{pos A 31 0}} 25 "pos A 31 0: A a 31 m del receptor" {
     "A en (31.00, 0.00) m"                                {[cerca $A(x) 31.0 0.01] && [cerca $A(y) 0.0 0.01]}
-    "radio directo y distancia de 31.00 m"                {$R(a_dir) == 1 && [cerca $R(d_a) 31.0 0.07] && [cerca $A(d_rec) 31.0 0.07]}
+    "radio directo y distancia de 31.00 m exactos"        {$R(a_dir) == 1 && $R(d_a) == 31.0 && $A(d_rec) == 31.0}
     "tonos: el receptor oye a A y A al receptor"          {$R(oye_a) == 1 && $A(oye_rec) == 1}
     "LED: 31 m en el receptor y en A"                     {[campo $R(led) 9 5] eq "11111" && [campo $A(led) 4 0] eq "11111"}
 }
+paso {{pos A 0 31}} 25 "pos A 0 31: A a 31 m por el otro eje" {
+    "A en (0.00, 31.00) m"                                {$A(x) == 0.0 && $A(y) == 31.0}
+    "radio directo y distancia de 31.00 m exactos"        {$R(a_dir) == 1 && $R(d_a) == 31.0 && $A(d_rec) == 31.0}
+    "tonos: el receptor oye a A y A al receptor"          {$R(oye_a) == 1 && $A(oye_rec) == 1}
+    "LED: 31 m en el receptor y en A"                     {[campo $R(led) 9 5] eq "11111" && [campo $A(led) 4 0] eq "11111"}
+}
+paso {{pos A 25.75 18.94}} 25 "pos A 25.75 18.94: en diagonal, a 31.96 m (lo mas lejos que se oye)" {
+    "A en (25.75, 18.94) m"                               {$A(x) == 25.75 && $A(y) == 18.9375}
+    "se oye: radio directo y tonos en los dos sentidos"   {$R(a_dir) == 1 && $R(oye_a) == 1 && $A(oye_rec) == 1}
+    "distancia de 31.94 m (511 cuentas)"                  {$R(d_a) == 31.9375 && $A(d_rec) == 31.9375}
+    "LED: 31 m en el receptor y en A; B, a 0.50 m, 1 m"   {[campo $R(led) 9 5] eq "11111" && [campo $A(led) 4 0] eq "11111" && [campo $A(led) 9 5] eq "00001"}
+}
 paso {{pos A 32 0}} 25 "pos A 32 0: A a 32 m del receptor" {
-    "A en (32.00, 0.00) m"                                {[cerca $A(x) 32.0 0.01] && [cerca $A(y) 0.0 0.01]}
+    "A en (32.00, 0.00) m, a 32.00 m"                     {$A(x) == 32.0 && $A(y) == 0.0 && $A(d_rec) == 32.0}
     "ya no llega directo ni se oye su tono"               {$R(a_dir) == 0 && $R(oye_a) == 0 && $A(oye_rec) == 0}
     "LED apagados en el receptor y en A"                  {[campo $R(led) 9 5] eq "00000" && [campo $A(led) 4 0] eq "00000"}
-    "B, a 20.16 m de A, hace de puente"                   {$R(a_rel) == 1 && [cerca $A(d_otra) 20.16 0.10]}
+    "B, a 20.12 m de A (322 cuentas), hace de puente"     {$R(a_rel) == 1 && $A(d_otra) == 20.125}
 }
 paso {{pos B 60 60}} 30 "pos B 60 60: B tambien fuera de alcance" {
     "ninguna mochila llega al receptor"                   {$R(a_dir) == 0 && $R(a_rel) == 0 && $R(b_dir) == 0 && $R(b_rel) == 0}
@@ -197,6 +211,38 @@ for {set n 0} {$n < [llength $PASOS]} {incr n} {
     }
 }
 close $registro
+
+# ---- lo que la terminal le contesta al operador: posicion real en la rejilla de 6.25 cm, si
+#      queda dentro del alcance y si la temperatura cae en la ventana; y las ordenes mal escritas
+puts "RESPUESTAS de la terminal"
+fuente_inicial
+foreach {texto orden patron} {
+    "pos A 31 0: 31.00 m, dentro del alcance"             {pos A 31 0}     {*(31.00, 0.00) m: a 31.00 m del receptor, dentro del alcance*}
+    "pos A 0 31: 31.00 m, dentro del alcance"             {pos A 0 31}     {*(0.00, 31.00) m: a 31.00 m del receptor, dentro del alcance*}
+    "pos A 32 0: 32.00 m, fuera del alcance"              {pos A 32 0}     {*(32.00, 0.00) m: a 32.00 m del receptor, fuera del alcance*}
+    "pos A 31.97 0: queda en 32.00 m, fuera del alcance"  {pos A 31.97 0}  {*(32.00, 0.00) m: a 32.00 m del receptor, fuera del alcance*}
+    "pos B 25.75 18.94: 31.94 m, dentro del alcance"      {pos B 25.75 18.94} {*(25.75, 18.94) m: a 31.94 m del receptor, dentro del alcance*}
+    "temp A 35: dentro de la ventana"                     {temp A 35}      {*lee 35 C: dentro de la ventana de 35 a 38 C*}
+    "temp A 38: dentro de la ventana"                     {temp A 38}      {*lee 38 C: dentro de la ventana de 35 a 38 C*}
+    "temp A 34: fuera de la ventana"                      {temp A 34}      {*lee 34 C: fuera de la ventana de 35 a 38 C*}
+    "temp A 39: fuera de la ventana"                      {temp A 39}      {*lee 39 C: fuera de la ventana de 35 a 38 C*}
+    "pos A 70 0: se rechaza"                              {pos A 70 0}     ERROR
+    "pos A treinta 0: se rechaza"                         {pos A treinta 0} ERROR
+    "temp A 99: se rechaza"                               {temp A 99}      ERROR
+    "vista 7: se rechaza"                                 {vista 7}        ERROR
+    "orden desconocida: se rechaza"                       {vuela A}        ERROR
+} {
+    set fallo [catch {ejecuta_orden $orden} res]
+    if {$patron eq "ERROR"} { set bien $fallo } else { set bien [expr {!$fallo && [string match $patron $res]}] }
+    if {$bien} {
+        incr buenas
+        puts "    bien   $texto"
+    } else {
+        incr malas
+        puts "    FALLA  $texto  ->  $res"
+    }
+}
+
 if {$malas == 0} {
     puts "RESULTADO prueba_terminal: $buenas de $buenas comprobaciones correctas en [llength $PASOS] pasos"
     exit 0

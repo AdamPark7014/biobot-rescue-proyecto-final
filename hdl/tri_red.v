@@ -26,8 +26,17 @@
 // El receptor cruza los dos rumbos para estimar donde esta la persona
 // (triangulacion por angulos, con CORDIC y un divisor).
 //
+// Parametros de la demostracion (son parametros de los modulos, con estos valores):
+//   T_PERSONA_MIN = 35, T_PERSONA_MAX = 38   el sensor detecta de 35 a 38 C, las dos incluidas
+//   ALCANCE_M     = 32                       un nodo se oye (radio y tono) si esta a MENOS de
+//                                            32 m: a 31 m se oye; a 32 m o mas, no
+//
 // Distancias: 10 bits, 0 a 64 m, 1 cuenta = 64/1024 m = 6.25 cm (5 m = 80 cuentas = 7.8 %).
-// Alcance del radio y del tono: se oye a menos de 32 m (511 cuentas = 31.94 m).
+// Se calculan exactas (tri_distancia): la parte entera de sqrt(dx^2 + dy^2), en cuentas. La
+// regla del alcance compara esa misma suma de cuadrados con (16 * ALCANCE_M)^2, asi que la
+// distancia que se muestra y el corte de los 32 m nunca se contradicen.
+// LED: cinco bits por distancia, en metros enteros sin redondear (31.9 m marca 31). Un nodo
+// que se oye marca de 1 a 31; los cinco apagados quieren decir siempre "no lo oigo".
 // Angulos: binario de 16 bits (65 536 = 360 grados); en la red, 10 bits.
 //
 // Protocolo de enlace, sobre UART 8N1 a 115 200 baudios. Trama de una mochila
@@ -239,6 +248,61 @@ end
 endmodule
 
 // ----------------------------------------------------------------------------
+// Distancia exacta entre dos puntos del mapa, en cuentas de 1/16 m:
+//     d = parte entera de sqrt((x1 - x2)^2 + (y1 - y2)^2)
+// La raiz cuadrada es entera, digito por digito (un bit de la raiz por ciclo de reloj), y no
+// tiene error de redondeo: 31.00 m da 496 cuentas en cualquier direccion. Se satura en 1023
+// cuentas (63.94 m). Latencia: 12 ciclos desde start hasta listo.
+// ----------------------------------------------------------------------------
+module tri_distancia (
+    input  wire       clk,
+    input  wire       reset,
+    input  wire       start,
+    input  wire [9:0] x1, y1, x2, y2,
+    output reg  [9:0] d,
+    output reg        listo
+);
+
+wire signed [10:0] dx  = $signed({1'b0, x1}) - $signed({1'b0, x2});
+wire signed [10:0] dy  = $signed({1'b0, y1}) - $signed({1'b0, y2});
+wire signed [21:0] dx2 = dx * dx;
+wire signed [21:0] dy2 = dy * dy;
+wire        [21:0] n2  = dx2 + dy2;          // a lo mas 2 * 1023^2 = 2 093 058
+
+reg  [21:0] m;                               // bits de n2 que faltan por bajar, de dos en dos
+reg  [12:0] r;                               // resto parcial
+reg  [10:0] q;                               // raiz parcial
+reg  [3:0]  k;
+reg         corriendo;
+wire [12:0] r_sh   = {r[10:0], m[21:20]};    // baja dos bits
+wire [12:0] prueba = {q, 2'b01};             // 4 * q + 1
+wire        cabe   = (r_sh >= prueba);
+wire [10:0] q_sig  = {q[9:0], cabe};
+
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
+        m <= 22'd0; r <= 13'd0; q <= 11'd0; k <= 4'd0; corriendo <= 1'b0; d <= 10'd0; listo <= 1'b0;
+    end else begin
+        listo <= 1'b0;
+        if (start) begin
+            m <= n2; r <= 13'd0; q <= 11'd0; k <= 4'd0; corriendo <= 1'b1;
+        end else if (corriendo) begin
+            r <= cabe ? (r_sh - prueba) : r_sh;
+            q <= q_sig;
+            m <= {m[19:0], 2'b00};
+            if (k == 4'd10) begin
+                corriendo <= 1'b0;
+                listo     <= 1'b1;
+                d         <= q_sig[10] ? 10'd1023 : q_sig[9:0];
+            end
+            k <= k + 4'd1;
+        end
+    end
+end
+
+endmodule
+
+// ----------------------------------------------------------------------------
 // Escena termica simulada. Sabe donde esta la persona (PX, PY); con la
 // posicion y el rumbo del insecto calcula con el CORDIC (vectorizacion) en
 // que direccion la veria la matriz de 8x8 y genera los 64 pixeles. La
@@ -361,26 +425,30 @@ endmodule
 
 // ----------------------------------------------------------------------------
 // Mochila. ROL 1 = A, 2 = B.
-//   sw[5:0]  temperatura que lee el sensor (grados C); detecta de 35 a 38 C
-//   sw[9:6]  posicion (tri_posicion)
-//   boton    la persona lo sostiene T_PULSA_MS
-// Displays: HEX5-HEX2 "PdA", "Pd b" o "PdAb" segun quien detecto (propia u otra
-//   mochila); "----" si nadie. HEX1-HEX0 la temperatura que lee esta mochila.
+//   sw[5:0]  temperatura que lee el sensor termico, en grados C y en binario; detecta a una
+//            persona de T_PERSONA_MIN a T_PERSONA_MAX (35 a 38 C)
+//   sw[9:6]  posicion (tri_posicion), si la terminal no la fija
+//   boton    boton de ayuda: la persona lo sostiene T_PULSA_MS y queda marcado hasta el reset
+// Displays: HEX5 quien soy (A o b), HEX4-HEX3 "Pd", HEX2 personas detectadas (0, 1 o 2),
+//   HEX1 la letra de la otra mochila si oigo su tono, HEX0 "r" si oigo el del receptor
+//   (un guion donde no oigo).
 // LED: 9-5 metros a la otra mochila, 4-0 metros al receptor (apagados: no la oye).
 // ----------------------------------------------------------------------------
 module tri_mochila #(
-    parameter integer ROL        = 1,
-    parameter integer CLK_FREQ   = 50000000,
-    parameter integer BAUD_RATE  = 115200,
-    parameter integer F_EST      = 50,
-    parameter integer N_PULSOS   = 25,
-    parameter [9:0]   PX         = 10'd408,
-    parameter [9:0]   PY         = 10'd308,
-    parameter [15:0]  OFFSET     = 16'd2185,
-    parameter [15:0]  DERIVA     = 16'd0,       // error de la IMU en el rumbo
-    parameter integer ALC        = 511,         // alcance: se oye a menos de 32 m
-    parameter integer T_PULSA_MS = 100,         // el boton debe durar apretado 0.1 s (quita rebotes)
-    parameter integer REARMA     = 1            // 1 = la deteccion termica se apaga al perder la mancha
+    parameter integer ROL           = 1,
+    parameter integer CLK_FREQ      = 50000000,
+    parameter integer BAUD_RATE     = 115200,
+    parameter integer F_EST         = 50,
+    parameter integer N_PULSOS      = 25,
+    parameter [9:0]   PX            = 10'd408,
+    parameter [9:0]   PY            = 10'd308,
+    parameter [15:0]  OFFSET        = 16'd2185,
+    parameter [15:0]  DERIVA        = 16'd0,    // error de la IMU en el rumbo
+    parameter integer T_PERSONA_MIN = 35,       // el sensor detecta a una persona de 35 ...
+    parameter integer T_PERSONA_MAX = 38,       // ... a 38 grados C, las dos incluidas
+    parameter integer ALCANCE_M     = 32,       // se oye (radio y tono) a MENOS de 32 m
+    parameter integer T_PULSA_MS    = 100,      // el boton debe durar apretado 0.1 s (quita rebotes)
+    parameter integer REARMA        = 1         // 1 = la deteccion termica se apaga al perder la mancha
 ) (
     input  wire        clk,
     input  wire        reset,
@@ -422,8 +490,14 @@ localparam integer C_CUADRO = CLK_FREQ / 10;
 localparam integer C_PULSA  = (CLK_FREQ / 1000) * T_PULSA_MS;
 localparam [3:0]   T_FRESCO = 4'd5;
 localparam [3:0]   T_VIVO   = 4'd10;
-localparam [7:0]   T_PIEL_MIN = 8'd140;         // 35.00 C (0.25 C por cuenta)
-localparam [7:0]   T_PIEL_MAX = 8'd155;         // 38.75 C
+// El sensor entrega 0.25 C por cuenta. La ventana va de 35.00 C a 38.75 C: entra toda lectura
+// cuya parte entera este entre 35 y 38.
+localparam integer C_PIEL_MIN = 4 * T_PERSONA_MIN;          // 140 cuentas
+localparam integer C_PIEL_MAX = 4 * T_PERSONA_MAX + 3;      // 155 cuentas
+localparam [7:0]   T_PIEL_MIN = C_PIEL_MIN[7:0];
+localparam [7:0]   T_PIEL_MAX = C_PIEL_MAX[7:0];
+// Alcance al cuadrado, en cuentas de 1/16 m: (16 * 32)^2 = 512^2
+localparam integer ALC2     = (16 * ALCANCE_M) * (16 * ALCANCE_M);
 wire [1:0] yo   = ROL[1:0];
 wire [1:0] otra = (ROL == 1) ? 2'd2 : 2'd1;
 
@@ -509,8 +583,8 @@ always @(posedge clk or posedge reset) begin
 end
 wire reset_nucleo = reset | rearma;
 
-// Ventana de la piel: 35.00 a 38.75 C. Con el sensor en grados enteros detecta 35, 36, 37 y
-// 38 y rechaza 34 y 39; los 0.75 C de arriba absorben el ruido de un bit de la lectura.
+// Ventana de la piel: con el sensor en grados enteros detecta 35, 36, 37 y 38 y rechaza 34
+// y 39. La lectura lleva un bit de ruido (0.25 C), que cabe dentro de la ventana.
 nucleo_biobot #(.CLK_FREQ(CLK_FREQ), .F_EST(F_EST), .N_PULSOS(N_PULSOS),
                 .T_MIN(T_PIEL_MIN), .T_MAX(T_PIEL_MAX), .DELTA(8'd8)) u_nucleo (
     .clk(clk), .reset(reset_nucleo), .habilita(1'b1),
@@ -602,7 +676,7 @@ function en_alcance;
     begin
         ddx = $signed({2'b00, c_xe(c)}) - $signed({2'b00, xa});
         ddy = $signed({2'b00, c_ye(c)}) - $signed({2'b00, ya});
-        en_alcance = (ddx * ddx + ddy * ddy) <= ALC * ALC;
+        en_alcance = (ddx * ddx + ddy * ddy) < ALC2;         // el emisor esta a menos de 32 m
     end
 endfunction
 
@@ -645,32 +719,26 @@ assign otra_viva    = (t_otra != 0);
 assign otra_detecta = otra_viva && det_otra;
 wire   puente       = (t_fwd != 0);
 
-// ---- distancia a la otra mochila con un segundo CORDIC (cada 100 ms)
-wire signed [23:0] ddx_o = $signed({14'd0, xo_otra}) - $signed({14'd0, x_yo});
-wire signed [23:0] ddy_o = $signed({14'd0, yo_otra}) - $signed({14'd0, y_yo});
-wire signed [23:0] mx, my;
-wire        [15:0] mz;
-wire               m_listo;
-cordic #(.W(24), .N(16)) u_cordic_d (.clk(clk), .reset(reset), .start(tick100), .modo(1'b1),
-    .x0(ddx_o <<< 4), .y0(ddy_o <<< 4), .z0(16'd0), .x(mx), .y(my), .z(mz), .listo(m_listo));
-wire [39:0] d_x = mx * 40'sd9949;           // magnitud * 0.60725 / 16
+// ---- distancia exacta a la otra mochila (cada 100 ms); 0 si no llega su radio
+wire [9:0] dq_otra;
+wire       dl_otra;
+tri_distancia u_d_otra (.clk(clk), .reset(reset), .start(tick100),
+    .x1(xo_otra), .y1(yo_otra), .x2(x_yo), .y2(y_yo), .d(dq_otra), .listo(dl_otra));
 always @(posedge clk or posedge reset) begin
     if (reset) d_otra <= 10'd0;
-    else if (m_listo) d_otra <= !otra_viva ? 10'd0 : (d_x[39:18] > 22'd1023) ? 10'd1023 : d_x[27:18];
+    else if (dl_otra) d_otra <= otra_viva ? dq_otra : 10'd0;
 end
 
-// ---- distancia al receptor, que esta en la entrada (0, 0): tercer CORDIC
-wire signed [23:0] rx_, ry_;
-wire        [15:0] rz_;
-wire               r_listo;
-cordic #(.W(24), .N(16)) u_cordic_r (.clk(clk), .reset(reset), .start(tick100), .modo(1'b1),
-    .x0($signed({14'd0, x_yo}) <<< 4), .y0($signed({14'd0, y_yo}) <<< 4), .z0(16'd0),
-    .x(rx_), .y(ry_), .z(rz_), .listo(r_listo));
-wire [39:0] dr_x = rx_ * 40'sd9949;
+// ---- distancia exacta al receptor, que esta en la entrada (0, 0)
+wire [9:0] dq_rec;
+wire       dl_rec;
+tri_distancia u_d_rec (.clk(clk), .reset(reset), .start(tick100),
+    .x1(x_yo), .y1(y_yo), .x2(10'd0), .y2(10'd0), .d(dq_rec), .listo(dl_rec));
 always @(posedge clk or posedge reset) begin
     if (reset) d_rec <= 10'd0;
-    else if (r_listo) d_rec <= (dr_x[39:18] > 22'd1023) ? 10'd1023 : dr_x[27:18];
+    else if (dl_rec) d_rec <= dq_rec;
 end
+
 // ---- localizacion por tonos (tonos.v). El canal acustico va simulado: el tono de otro
 // nodo llega si ese nodo esta a menos de 32 m. La posicion verdadera de la otra mochila se
 // toma de sus tramas tal como llegan por el cable, antes de aplicar el alcance del radio.
@@ -687,13 +755,13 @@ always @(posedge clk or posedge reset) begin
     end else if (tick100 && t_cable != 0)
         t_cable <= t_cable - 4'd1;
 end
-function cerca;                                 // dos puntos a ALC o menos
+function cerca;                                 // dos puntos a menos de ALCANCE_M metros
     input [9:0] x1, y1, x2, y2;
     reg signed [11:0] ex, ey;
     begin
         ex = $signed({2'b00, x1}) - $signed({2'b00, x2});
         ey = $signed({2'b00, y1}) - $signed({2'b00, y2});
-        cerca = (ex * ex + ey * ey) <= ALC * ALC;
+        cerca = (ex * ex + ey * ey) < ALC2;
     end
 endfunction
 wire        llega_otra = (t_cable != 0) && cerca(xr_otra, yr_otra, x_yo, y_yo);
@@ -760,13 +828,15 @@ function [6:0] seg;
     endcase
 endfunction
 
-// cuentas de 1/16 m a metros enteros (0 a 31), sin redondear: 31.9 m se muestra como 31
+// Cuentas de 1/16 m a metros enteros para cinco LED, sin redondear: 31.9 m marca 31. Un nodo
+// que se oye marca de 1 a 31 (a menos de 1 m marca 1): los cinco LED apagados quedan
+// reservados para "no lo oigo".
 function [4:0] metros5;
     input [9:0] c;
-    reg [13:0] m;
     begin
-        m = {8'd0, c[9:4]};
-        metros5 = (m > 14'd31) ? 5'd31 : m[4:0];
+        if      (c[9:4] > 6'd31) metros5 = 5'd31;
+        else if (c[9:4] == 6'd0) metros5 = 5'd1;
+        else                     metros5 = c[8:4];
     end
 endfunction
 
@@ -911,7 +981,7 @@ endmodule
 module tri_receptor #(
     parameter integer CLK_FREQ  = 50000000,
     parameter integer BAUD_RATE = 115200,
-    parameter integer ALC       = 511          // alcance: se oye a menos de 32 m
+    parameter integer ALCANCE_M = 32           // se oye (radio y tono) a MENOS de 32 m
 ) (
     input  wire        clk,
     input  wire        reset,
@@ -950,6 +1020,8 @@ module tri_receptor #(
 
 localparam integer C_TICK = CLK_FREQ / 10;
 localparam [3:0]   T_VIVO = 4'd10;
+// Alcance al cuadrado, en cuentas de 1/16 m: (16 * 32)^2 = 512^2
+localparam integer ALC2   = (16 * ALCANCE_M) * (16 * ALCANCE_M);
 
 wire         l1, l2, m1, m2;
 wire [103:0] r1x, r2x;
@@ -958,14 +1030,14 @@ tri_rx_n #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE), .N(13)) u_rx2 (.clk(clk),
 wire [95:0] r1 = r1x[103:8], r2 = r2x[103:8];
 wire [7:0]  q1 = r1x[7:0],   q2 = r2x[7:0];
 
-function en_alcance;
+// El receptor esta en (0, 0): la distancia al cuadrado de un punto es x^2 + y^2
+function cerca;                                 // el punto esta a menos de ALCANCE_M metros
+    input [9:0] x, y;
+    cerca = ({10'd0, x} * {10'd0, x} + {10'd0, y} * {10'd0, y}) < ALC2;
+endfunction
+function en_alcance;                            // el emisor de la trama esta en alcance
     input [95:0] c;
-    reg [9:0] xe, ye;
-    begin
-        xe = {c[15:14], c[31:24]};
-        ye = {c[13:12], c[23:16]};
-        en_alcance = ({10'd0, xe} * {10'd0, xe} + {10'd0, ye} * {10'd0, ye}) <= ALC * ALC;
-    end
+    en_alcance = cerca({c[15:14], c[31:24]}, {c[13:12], c[23:16]});
 endfunction
 wire ok1 = l1 && (r1[95:94] == 2'd1 || r1[95:94] == 2'd2) && en_alcance(r1);
 wire ok2 = l2 && (r2[95:94] == 2'd1 || r2[95:94] == 2'd2) && en_alcance(r2);
@@ -1112,37 +1184,21 @@ always @(posedge clk or posedge reset) begin
     end
 end
 
-// ---- distancia entre A y B (CORDIC, vectorizacion)
-wire signed [23:0] dabx = $signed({14'd0, bx}) - $signed({14'd0, ax});
-wire signed [23:0] daby = $signed({14'd0, by}) - $signed({14'd0, ay});
-wire signed [23:0] mx, my;
-wire        [15:0] mz;
-wire               m_listo;
-cordic #(.W(24), .N(16)) u_cordic_d (.clk(clk), .reset(reset), .start(tick), .modo(1'b1),
-    .x0(dabx <<< 4), .y0(daby <<< 4), .z0(16'd0), .x(mx), .y(my), .z(mz), .listo(m_listo));
-wire [39:0] d_x = mx * 40'sd9949;
+// ---- distancias exactas (cada 100 ms): entre A y B, y del receptor (0, 0) a cada mochila
+wire [9:0] dq_ab, dq_a, dq_b;
+wire       dl_ab, dl_a, dl_b;
+tri_distancia u_d_ab (.clk(clk), .reset(reset), .start(tick),
+    .x1(ax), .y1(ay), .x2(bx), .y2(by), .d(dq_ab), .listo(dl_ab));
+tri_distancia u_d_a (.clk(clk), .reset(reset), .start(tick),
+    .x1(ax), .y1(ay), .x2(10'd0), .y2(10'd0), .d(dq_a), .listo(dl_a));
+tri_distancia u_d_b (.clk(clk), .reset(reset), .start(tick),
+    .x1(bx), .y1(by), .x2(10'd0), .y2(10'd0), .d(dq_b), .listo(dl_b));
 always @(posedge clk or posedge reset) begin
-    if (reset) d_ab <= 10'd0;
-    else if (m_listo) d_ab <= !(vivo_a && vivo_b) ? 10'd0 : (d_x[39:18] > 22'd1023) ? 10'd1023 : d_x[27:18];
-end
-
-// ---- distancia del receptor (origen) a cada mochila
-wire signed [23:0] ax_c, ay_c, bx_c, by_c;
-wire        [15:0] az_c, bz_c;
-wire               a_listo, b_listo;
-cordic #(.W(24), .N(16)) u_cordic_a (.clk(clk), .reset(reset), .start(tick), .modo(1'b1),
-    .x0($signed({14'd0, ax}) <<< 4), .y0($signed({14'd0, ay}) <<< 4), .z0(16'd0),
-    .x(ax_c), .y(ay_c), .z(az_c), .listo(a_listo));
-cordic #(.W(24), .N(16)) u_cordic_b (.clk(clk), .reset(reset), .start(tick), .modo(1'b1),
-    .x0($signed({14'd0, bx}) <<< 4), .y0($signed({14'd0, by}) <<< 4), .z0(16'd0),
-    .x(bx_c), .y(by_c), .z(bz_c), .listo(b_listo));
-wire [39:0] da_x = ax_c * 40'sd9949;
-wire [39:0] db_x = bx_c * 40'sd9949;
-always @(posedge clk or posedge reset) begin
-    if (reset) begin d_a <= 10'd0; d_b <= 10'd0; end
+    if (reset) begin d_ab <= 10'd0; d_a <= 10'd0; d_b <= 10'd0; end
     else begin
-        if (a_listo) d_a <= (da_x[39:18] > 22'd1023) ? 10'd1023 : da_x[27:18];
-        if (b_listo) d_b <= (db_x[39:18] > 22'd1023) ? 10'd1023 : db_x[27:18];
+        if (dl_ab) d_ab <= (vivo_a && vivo_b) ? dq_ab : 10'd0;
+        if (dl_a)  d_a  <= dq_a;
+        if (dl_b)  d_b  <= dq_b;
     end
 end
 assign enlaces   = {(dir_a != 0), (rel_a != 0), (dir_b != 0), (rel_b != 0)};
@@ -1171,8 +1227,8 @@ always @(posedge clk or posedge reset) begin
         end
     end
 end
-wire llega_a = (tc_a != 0) && (({10'd0, xr_a} * {10'd0, xr_a} + {10'd0, yr_a} * {10'd0, yr_a}) <= ALC * ALC);
-wire llega_b = (tc_b != 0) && (({10'd0, xr_b} * {10'd0, xr_b} + {10'd0, yr_b} * {10'd0, yr_b}) <= ALC * ALC);
+wire llega_a = (tc_a != 0) && cerca(xr_a, yr_a);
+wire llega_b = (tc_b != 0) && cerca(xr_b, yr_b);
 wire [2:0]  oye_t;
 wire [15:0] p0;
 tri_tonos #(.CLK_FREQ(CLK_FREQ), .YO(0)) u_tonos (.clk(clk), .reset(reset), .presente({llega_b, llega_a, 1'b0}),
@@ -1229,12 +1285,12 @@ function [6:0] seg;
         default: seg = 7'b1111111;
     endcase
 endfunction
-function [4:0] metros5;                 // cuentas de 1/16 m a metros enteros (0 a 31)
+function [4:0] metros5;                 // cuentas de 1/16 m a metros enteros, de 1 a 31 (como en la mochila)
     input [9:0] c;
-    reg [13:0] m;
     begin
-        m = {8'd0, c[9:4]};
-        metros5 = (m > 14'd31) ? 5'd31 : m[4:0];
+        if      (c[9:4] > 6'd31) metros5 = 5'd31;
+        else if (c[9:4] == 6'd0) metros5 = 5'd1;
+        else                     metros5 = c[8:4];
     end
 endfunction
 function [11:0] bcd3;

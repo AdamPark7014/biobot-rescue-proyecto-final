@@ -77,7 +77,10 @@ un segundo y el conteo baja.
 | LEDR4–0 | Metros al receptor, en binario | Metros a la mochila B |
 
 Los LED de una distancia quedan apagados cuando no se oye a ese nodo. Con cinco LED se cuentan hasta 31 m,
-que es justo el alcance: **a menos de 32 m se oye; a 32 m o más, no**.
+que es justo el alcance: **a menos de 32 m se oye; a 32 m o más, no**. Los metros van sin redondear (31.9 m
+marca 31) y un nodo que se oye marca al menos 1, aunque esté a menos de un metro: así, los cinco LED apagados
+quieren decir siempre «no lo oigo». Con las dos mochilas junto a la persona, a medio metro una de la otra,
+LEDR9–5 marca `00001`.
 
 En el receptor, SW1–SW0 cambian lo que muestran los displays: `00` lo de la tabla, `01` la posición de la
 persona (X y Y en decímetros), `10` la distancia entre A y B, `11` los rumbos de A y B en grados.
@@ -88,7 +91,11 @@ persona (X y Y en decímetros), `10` la distancia entre A y B, `11` los rumbos d
   la escala.
 - El receptor está en la entrada, en (0, 0). La persona está escondida en (25.50, 19.25) m, a 31.95 m: en
   el borde del alcance.
-- Alcance del radio y de los tonos: 31.94 m (511 cuentas).
+- Alcance del radio y de los tonos: **menos de 32 m** (512 cuentas). A 31 m se oye; a 32 m o más, no. Vale
+  igual en cualquier dirección.
+- La distancia entre dos nodos se calcula exacta (raíz cuadrada entera de Δx² + Δy²) y se trunca a la cuenta
+  de 6.25 cm. La regla del alcance usa esa misma suma de cuadrados: un nodo se oye exactamente cuando su
+  distancia marca menos de 32.00 m.
 
 ### La terminal
 
@@ -103,6 +110,7 @@ persona (X y Y en decímetros), `10` la distancia entre A y B, `11` los rumbos d
 |---|---|
 | `pos A 31 0` | Pone la mochila A en x = 31 m, y = 0 m. Está a 31 m: se oye |
 | `pos A 32 0` | A 32 m ya no se oye: se apagan sus LED y desaparece del receptor |
+| `pos A 0 31` | Lo mismo por el otro eje: a 31 m se oye, y con `pos A 0 32` ya no |
 | `pos B 4.5 3` | Pone a B cerca de la entrada, para que haga de puente |
 | `pos A sw` | La posición vuelve a los interruptores SW9–SW6 |
 | `temp A 36` | El sensor de A lee 36 °C (lo mismo que mover SW5–SW0) |
@@ -111,6 +119,11 @@ persona (X y Y en decímetros), `10` la distancia entre A y B, `11` los rumbos d
 | `vista 1` | Cambia lo que muestran los displays del receptor (0 a 3) |
 | `vista sw` | La vista del receptor vuelve a sus interruptores SW1–SW0 |
 | `reset` / `suelta` | Reinicia las tarjetas / todo vuelve a los interruptores |
+
+La posición va en metros, de 0 a 63.94, y la temperatura en grados enteros, de 0 a 63. La terminal contesta
+cada orden con lo que de verdad quedó en la tarjeta: la posición en la rejilla de 6.25 cm, la distancia al
+receptor y si queda dentro del alcance; y si la temperatura cae dentro de la ventana de 35 a 38 °C. Por
+ejemplo, `pos A 31.97 0` queda en (32.00, 0.00) m, fuera del alcance.
 
 ### Guion de la demostración
 
@@ -122,8 +135,10 @@ persona (X y Y en decímetros), `10` la distancia entre A y B, `11` los rumbos d
 4. **Sale del intervalo.** En A, poner 40 o 30. El conteo baja a 1 en las tres.
 5. **Objeto caliente.** Poner 47: no cuenta.
 6. **Botón.** Con las dos en 22 °C, apretar KEY1 en B: `Pd 1` en las tres. Se borra con KEY0 en B.
-7. **Alcance.** En órdenes: `pos A 31 0` (el receptor muestra `A` y 31 en los LED) y luego `pos A 32 0`
-   (se apagan).
+7. **Alcance.** En órdenes: `pos A 31 0` (el receptor muestra `A` y 31 en los LED, `11111`) y luego
+   `pos A 32 0` (se apagan y la `A` cambia por un guion). Lo mismo por el otro eje, con `pos A 0 31` y
+   `pos A 0 32`, y en diagonal: `pos A 25.75 18.94` queda a 31.94 m y se oye; `pos A 25.75 19` queda a
+   32.00 m y ya no.
 8. **Puente.** `pos A sw` y `pos B sw`, con SW9–SW6 de A en `0001` y de B en `0000`: A queda a 32.00 m,
    fuera de alcance, y su aviso llega por B. El monitor dice «radio: por el puente B».
 
@@ -173,9 +188,10 @@ micrófonos: el canal va simulado, y el tono de un nodo «llega» solo si ese no
 |---|---|---|
 | CORDIC y divisor | `tb_cordic` | 248 de 248 casos; error máximo de 0.008° en el ángulo y 0.013 % en la magnitud |
 | Detector de tonos | `tb_tonos` | 8 de 8; un tono presente mide unas 28 000 unidades y el silencio menos de 50 |
-| Las tres FPGA | `tb_tri`, nueve escenarios | 9 de 9. Triangula con 6.2 cm de error a 31.95 m, en 1.10 s; a 31 m se oye y a 32 m no; con ruido en la línea descarta 14 tramas por CRC y no usa ningún dato equivocado |
-| La terminal contra las tres tarjetas simuladas | `sim/probar_terminal.ps1` | 47 de 47 comprobaciones en 12 pasos: cada orden llega bien a la FPGA y la terminal muestra lo que el circuito hace |
-| Síntesis de las cuatro variantes | `sintetizar_red.ps1` | Mochila 4 812 elementos lógicos (10 %) y 56 MHz; receptor 6 220 (13 %) y 57 MHz; sin advertencias críticas |
+| Distancia exacta | `tb_distancia` | 89 443 de 89 443: 31.00 m da 496 cuentas en los dos ejes; la distancia y la regla del alcance coinciden en todos los puntos entre 30.94 y 33.06 m |
+| Las tres FPGA | `tb_tri`, nueve escenarios | 9 de 9, con los displays y los LED revisados. Triangula con 6.2 cm de error a 31.95 m, en 1.10 s; a 31 m se oye y a 32 m no, por los dos ejes y en diagonal; con ruido en la línea descarta 16 tramas por CRC y no usa ningún dato equivocado |
+| La terminal contra las tres tarjetas simuladas | `sim/probar_terminal.ps1` | 71 de 71 comprobaciones en 14 pasos: cada orden llega bien a la FPGA, la terminal muestra lo que el circuito hace y contesta con la posición real, la distancia y si queda dentro del alcance |
+| Síntesis de las cuatro variantes | `sintetizar_red.ps1` | Mochila 3 933 elementos lógicos (8 %) y 55 MHz; receptor 4 929 (10 %) y 61 MHz; sin advertencias críticas |
 | En las tres tarjetas reales, 18-11-2026 | `sim/prueba_tri.tcl` | Seis escenarios correctos con la versión anterior del enlace (mapa de 20 m, sin CRC ni tonos); error de triangulación de 2.8 cm |
 | Sensor en la tarjeta real, 18-11-2026 | lectura directa | Detecta con 35, 36 y 38 °C; no con 34, 39, 47 ni 22 °C; al salir del intervalo se apaga en 0.77 s |
 
@@ -183,8 +199,8 @@ La versión con CRC-16, número de secuencia, tonos y mapa de 64 m está simulad
 no se ha cargado en las tarjetas**. Para comprobarla: `CARGAR_RED.cmd` y después
 `quartus_stp -t sim/prueba_tri.tcl`, con el monitor cerrado.
 
-Las distancias se guardan en cuentas de 6.25 cm y se truncan: una mochila a 31.60 m aparece en la terminal
-a 31.56 m.
+Las distancias se guardan en cuentas de 6.25 cm y se truncan a la cuenta: una mochila a 31.60 m aparece en
+la terminal a 31.56 m (505 cuentas), y una a 31.00 m, a 31.00 m exactos.
 
 Si una tarjeta se queda sin corriente pierde su programa: volver a correr `CARGAR_RED.cmd`.
 

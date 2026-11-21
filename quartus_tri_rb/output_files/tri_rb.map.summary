@@ -1,12 +1,12 @@
-Analysis & Synthesis Status : Successful - Sat Nov 21 11:16:44 2026
+Analysis & Synthesis Status : Successful - Sat Nov 21 14:31:22 2026
 Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
 Revision Name : tri_rb
 Top-level Entity Name : top_tri_rb
 Family : MAX 10
-Total logic elements : 9,146
-    Total combinational functions : 8,009
-    Dedicated logic registers : 4,390
-Total registers : 4390
+Total logic elements : 7,839
+    Total combinational functions : 6,685
+    Dedicated logic registers : 4,258
+Total registers : 4258
 Total pins : 70
 Total virtual pins : 0
 Total memory bits : 0

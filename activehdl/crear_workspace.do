@@ -29,6 +29,7 @@ addfile "$PF/hdl/tonos.v"
 addfile "$PF/hdl/tri_red.v"
 addfile "$PF/sim/tb_cordic.v"
 addfile "$PF/sim/tb_tonos.v"
+addfile "$PF/sim/tb_distancia.v"
 addfile "$PF/sim/tb_tri.v"
 
 do "$PF/activehdl/compilar.do"

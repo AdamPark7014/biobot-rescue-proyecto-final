@@ -41,8 +41,8 @@ entrada del derrumbe. La computadora solo muestra lo que el receptor ya calculó
 | **Detección redundante** | KEY1 es el botón de ayuda que va sobre la cucaracha: si alguien lo aprieta, hay una persona viva |
 | **Cuenta las personas detectadas** | Las tres tarjetas muestran `Pd` y el número (0, 1 o 2). Si la temperatura sale del intervalo, el conteo baja en menos de un segundo |
 | **Sabe a quién oye** | Cada nodo emite un tono propio (A 1 kHz, B 2 kHz, receptor 4 kHz) y detecta los otros dos con filtros de Goertzel. Los dos últimos displays muestran las letras de los nodos que oye |
-| **Mide distancias** | Cinco LED para los metros a cada vecino, en binario. Si no se oye a un nodo, sus LED se apagan |
-| **Tiene alcance** | A menos de 32 m se oye; **a 32 m o más, no** |
+| **Mide distancias** | Cinco LED para los metros a cada vecino, en binario, de 1 a 31. Si no se oye a un nodo, sus cinco LED se apagan |
+| **Tiene alcance** | A menos de 32 m se oye (a 31 m, sí); **a 32 m o más, no**, en cualquier dirección |
 | **Retransmite (puente)** | Si una mochila queda fuera del alcance del receptor, la otra reenvía su aviso |
 | **Triangula** | El receptor cruza los rumbos que miden las dos mochilas y estima dónde está la persona |
 | **Informa al operador** | Una terminal en la computadora muestra todo con decimales, en vivo, y permite mover las cucarachas |
@@ -59,17 +59,45 @@ entrada del derrumbe. La computadora solo muestra lo que el receptor ya calculó
 | LEDR9–5 | Metros a la otra mochila | Metros a la mochila A |
 | LEDR4–0 | Metros al receptor | Metros a la mochila B |
 
+Los metros van sin redondear (31.9 m marca 31). Un nodo que se oye marca de 1 a 31, aunque esté a menos
+de un metro: los cinco LED apagados quieren decir siempre «no lo oigo».
+
 La guía paso a paso, con el cableado, los controles y el guion de la demostración, está en
 [GUIA_LABORATORIO.md](GUIA_LABORATORIO.md).
+
+### Parámetros de la demostración
+
+| Parámetro | Valor | En el código | Banco que lo comprueba |
+|---|---|---|---|
+| Ventana de temperatura de una persona | 35 a 38 °C, las dos incluidas | `T_PERSONA_MIN` y `T_PERSONA_MAX` de `tri_mochila` | `tb_tri` 2: 34 °C no, 35 sí, 38 sí, 39 no, 47 no |
+| Sensor térmico simulado | SW5–SW0: grados en binario, de 0 a 63 | `sw[5:0]` | `tb_tri` 2 y 7 |
+| Segunda detección, redundante | KEY1 sostenido 0.1 s; queda marcado hasta el reset | `T_PULSA_MS` | `tb_tri` 5 |
+| Conteo de personas | 0, 1 o 2, igual en las tres tarjetas y en la terminal; baja si la temperatura sale de la ventana | `cuenta_pd` | `tb_tri` 1, 5 y 7 |
+| Displays | Quién soy, `Pd`, el conteo y a quién oigo | `seg` | `tb_tri` lee los seis displays de cada tarjeta en siete de sus nueve escenarios |
+| Alcance del radio y de los tonos | Menos de 32 m: a 31 m se oye; a 32 m o más, no | `ALCANCE_M` | `tb_tri` 9, en el eje X, en el eje Y y en diagonal; `tb_distancia` |
+| Distancia en los LED | 5 + 5 LED, metros enteros de 1 a 31; apagados si no se oye | `metros5` | `tb_tri` 1, 3, 6 y 9 |
+| Escala de distancias | 10 bits, de 0 a 64 m: 6.25 cm por cuenta (5 m son 80 cuentas, el 7.8 % de la escala) | `tri_distancia` | `tb_distancia` |
+| Tonos | A 1 kHz, B 2 kHz y receptor 4 kHz; umbral de potencia de 4 000 | `tri_tonos` (`UMBRAL`) | `tb_tonos` y `tb_tri` |
+| Enlace | UART 8N1 a 115 200 baudios; trama de 16 bytes cada 100 ms con CRC-16 y número de secuencia | `BAUD_RATE`, `tri_tx_n`, `tri_rx_n` | `tb_tri` 8 |
+| Terminal de la computadora | Todo con decimales y coordenadas, en vivo; los grados cuando la detección es térmica | `pc/terminal.tcl` | `sim/probar_terminal.ps1` |
 
 ### El mapa y el alcance
 
 ![El mapa de 64 m con el alcance de 32 m, y el acercamiento donde se cruzan los dos rumbos](latex/figs/red_mapa.png)
 
 Las posiciones van en 10 bits sobre un mapa de 0 a 64 m: **una cuenta vale 6.25 cm**. El receptor está en
-(0, 0) y la persona en (25.50, 19.25) m, a 31.95 m: justo en el borde del alcance, que es de 511 cuentas
-(31.94 m) para el radio y para los tonos. Por eso, de dos mochilas que están junto a la persona, una puede
-quedar dentro del alcance y la otra fuera, y entonces la primera hace de puente.
+(0, 0) y la persona en (25.50, 19.25) m, a 31.95 m: justo en el borde del alcance, que es de 32 m para el
+radio y para los tonos. Por eso, de dos mochilas que están junto a la persona, una puede quedar dentro del
+alcance y la otra fuera, y entonces la primera hace de puente.
+
+La distancia entre dos nodos se calcula exacta, con una raíz cuadrada entera que saca un bit por ciclo de
+reloj (`tri_distancia`):
+
+$$d = \left\lfloor\sqrt{\Delta x^2 + \Delta y^2}\right\rfloor \ \text{cuentas}, \qquad \text{se oye si}\ \ \Delta x^2 + \Delta y^2 < 512^2$$
+
+La distancia que se muestra y la regla del alcance salen de la misma suma de cuadrados, así que no pueden
+contradecirse: un nodo se oye exactamente cuando su distancia marca menos de 32.00 m. A 31.00 m da 496
+cuentas en cualquier dirección.
 
 ### El protocolo de enlace
 
@@ -143,7 +171,7 @@ flowchart LR
         NUC --> RUM["rumbo hacia el calor<br/>(centroide + divisor)"]
         RXM["tri_rx_n ×2<br/>CRC-16 y alcance"] --> PUE["puente<br/>reenvía una vez"]
         TON["tri_tonos<br/>Goertzel 1, 2 y 4 kHz"]
-        DIS["distancias<br/>(CORDIC ×2)"]
+        DIS["tri_distancia ×2<br/>raíz cuadrada entera"]
         NUC --> TXM["tri_tx_n<br/>trama de 16 bytes"]
         RUM --> TXM
         PUE --> TXM
@@ -172,7 +200,8 @@ flowchart LR
 | Función | Dónde corre |
 |---|---|
 | Detección térmica, filtrado, decisión y estímulo | FPGA (mochila) |
-| Rumbo hacia el calor y distancias | FPGA (mochila) |
+| Rumbo hacia el calor | FPGA (mochila) |
+| Distancias exactas entre nodos y regla del alcance | FPGA (las tres) |
 | Tramas, CRC-16, número de secuencia, alcance y puente | FPGA (las tres) |
 | Generación y detección de tonos | FPGA (las tres) |
 | Conteo de personas y triangulación | FPGA (receptor) |
@@ -199,12 +228,12 @@ Mochila B   [radio: directo]   posicion (25.25, 19.00) m, a 31.56 m del receptor
             tonos: oye a A SI, oye al receptor SI
 
 Receptor    tonos: oye a A (1 kHz) no [potencia 43], oye a B (2 kHz) SI [potencia 27600]
-            distancia entre A y B 0.50 m | LED 0000011111 (metros a A | metros a B)
+            distancia entre A y B 0.50 m | LED 00000 11111 (A: no se oye | B: 31 m)
 Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 ```
 
-La persona está en (25.50, 19.25) m: el error es de una cuenta (6.25 cm). Las distancias se truncan a
-cuentas, por eso B aparece a 31.56 m y no a 31.60 m.
+La persona está en (25.50, 19.25) m: el error es de una cuenta (6.25 cm). Las distancias son exactas y se
+truncan a la cuenta de 6.25 cm, por eso B aparece a 31.56 m (505 cuentas) y no a 31.60 m.
 
 ## Resultados
 
@@ -218,12 +247,13 @@ cuentas, por eso B aparece a 31.56 m y no a 31.60 m.
 | `tb_demo`, `tb_dos_tarjetas` | Lazo cerrado con un insecto simulado, en una y en dos tarjetas | Con persona alerta en el cuadro 558 (56 s); con un objeto caliente, sin persona o con un insecto que no responde, no alerta |
 | `tb_cordic` | CORDIC en rotación y vectorización, y el divisor | 248 de 248 casos; error máximo de 0.008° en el ángulo y 0.013 % en la magnitud |
 | `tb_tonos` | Los tres filtros de Goertzel con ruido | 8 de 8; un tono presente mide entre 27 000 y 33 000 unidades y el silencio menos de 50 |
-| `tb_tri` | Las tres FPGA cableadas como en el laboratorio, nueve escenarios | 9 de 9 escenarios correctos |
-| `tb_sonda` y `prueba_terminal.tcl` | La terminal real del operador contra las tres tarjetas simuladas con sus módulos superiores: cada orden, los bits que llegan a la FPGA y lo que la terminal muestra al leerla | 47 de 47 comprobaciones en 12 pasos |
+| `tb_distancia` | La distancia exacta entre nodos y su acuerdo con la regla del alcance | 89 443 de 89 443 distancias exactas: los dos ejes, todos los puntos entre 30.94 y 33.06 m y 60 000 pares al azar. Con `+completo`, los 1 048 576 pares de diferencias del mapa, también sin error |
+| `tb_tri` | Las tres FPGA cableadas como en el laboratorio, nueve escenarios, con lectura de displays y LED | 9 de 9 escenarios correctos |
+| `tb_sonda` y `prueba_terminal.tcl` | La terminal real del operador contra las tres tarjetas simuladas con sus módulos superiores: cada orden, los bits que llegan a la FPGA y lo que la terminal muestra al leerla | 71 de 71 comprobaciones: 57 en 14 pasos sobre las tarjetas simuladas y 14 sobre lo que la terminal contesta al operador |
 
 Los nueve escenarios de `tb_tri`: triangulación con puente, objeto caliente y bordes del intervalo, una
 sola mochila, rumbos opuestos, botón, sin alcance, seguimiento del sensor, ruido en la línea y umbral de
-31 y 32 m.
+31 y 32 m (por el eje X, por el eje Y y en diagonal).
 
 | Medida en `tb_tri` | Valor |
 |---|---|
@@ -232,9 +262,11 @@ sola mochila, rumbos opuestos, botón, sin alcance, seguimiento del sensor, ruid
 | Rumbo medido por cada mochila | A 133.6° (real 135.0°), B 43.5° (real 45.0°) |
 | Intervalo de detección | 34 °C no, 35 °C sí, 38 °C sí, 39 °C no; 47 °C no cuenta |
 | Seguimiento del sensor | El conteo pasa de 2 a 1 y a 0 al salir del intervalo, y vuelve a subir al regresar |
-| Umbral de alcance | A 31.00 m se oye (potencia del tono 25 840); a 32.00 m no (potencia 0); a 31.88 m sí |
+| Umbral de alcance | A 31.00 m se oye, por el eje X y por el eje Y (potencia del tono 25 840); a 32.00 m no (potencia 1). En diagonal, a 31.96 m se oye y a 32.0005 m no |
+| Distancia que marcan los LED | A 31.00 m, `11111` (31) en el receptor y en la mochila; a 32.00 m, apagados; dos mochilas a 0.50 m una de la otra, `00001` |
+| Displays con las dos detecciones | A `APd2b-`, B `bPd2Ar`, receptor `rPd2-b` (A está a 32.00 m y no oye al receptor; su aviso llega por B) |
 | Potencia medida de un tono | Presente, cerca de 28 000; ausente, 104 o menos (umbral: 4 000) |
-| Ruido en la línea durante 3 s | 14 tramas descartadas por CRC, 15 perdidas contadas por número de secuencia, ningún dato equivocado; al terminar, triangula con el mismo error |
+| Ruido en la línea durante 3 s | 16 tramas descartadas por CRC, 18 perdidas contadas por número de secuencia, ningún dato equivocado; al terminar, triangula con el mismo error |
 
 ### Síntesis
 
@@ -242,10 +274,10 @@ Quartus Prime Lite 24.1, MAX 10 `10M50DAF484C7G` (49 760 elementos lógicos), re
 
 | Variante | Elementos lógicos | Registros | Multiplicadores de 9 bits | Frecuencia máxima | Holgura a 50 MHz |
 |---|---|---|---|---|---|
-| Mochila A | 4 812 (10 %) | 2 319 | 43 | 56.15 MHz | 2.19 ns |
-| Mochila B | 4 832 (10 %) | 2 319 | 43 | 55.96 MHz | 2.13 ns |
-| Receptor | 6 220 (13 %) | 2 591 | 76 | 57.16 MHz | 2.51 ns |
-| Receptor con la mochila B (para hacerlo con dos tarjetas) | 8 838 (18 %) | 4 128 | 107 | 56.88 MHz | 2.42 ns |
+| Mochila A | 3 933 (8 %) | 2 279 | 43 | 55.43 MHz | 1.96 ns |
+| Mochila B | 3 952 (8 %) | 2 279 | 43 | 58.52 MHz | 2.91 ns |
+| Receptor | 4 929 (10 %) | 2 523 | 76 | 61.63 MHz | 3.77 ns |
+| Receptor con la mochila B (para hacerlo con dos tarjetas) | 7 525 (15 %) | 4 060 | 107 | 59.42 MHz | 3.17 ns |
 
 Las cuatro cumplen el reloj de 50 MHz sin advertencias críticas; la frecuencia es la del peor caso (modelo
 lento, 85 °C). `sintetizar_red.ps1` repite la síntesis y arma esta tabla a partir de los reportes.
@@ -255,13 +287,13 @@ A dónde se van los recursos:
 | Bloque | Mochila A | Receptor |
 |---|---|---|
 | Núcleo de la mochila (`nucleo_biobot`) | 405 EL, 177 registros | — |
-| Sensor térmico simulado (`tri_escena`, con su CORDIC) | 858 EL | — |
-| Triangulación (`tri_triangula`: CORDIC y divisor de 44 bits) | — | 1 514 EL, 631 registros |
-| Distancias (CORDIC en vectorización) | 2 × ~500 EL | 3 × ~490 EL |
-| Detector de tonos (`tri_tonos`, tres filtros de Goertzel) | 358 EL, 225 registros | 412 EL, 225 registros |
-| Recepción de tramas con CRC-16 (`tri_rx_n` × 2) | 740 EL | 696 EL |
-| Transmisión de tramas (`tri_tx_n`) | 209 EL | 365 EL |
-| Sonda JTAG para la computadora | 322 EL | 412 EL |
+| Sensor térmico simulado (`tri_escena`, con su CORDIC) | 856 EL | — |
+| Triangulación (`tri_triangula`: CORDIC y divisor de 44 bits) | — | 1 509 EL, 631 registros |
+| Distancias exactas (`tri_distancia`, raíz cuadrada entera) | 2 bloques: 196 EL, 120 registros | 3 bloques: 283 EL, 180 registros |
+| Detector de tonos (`tri_tonos`, tres filtros de Goertzel) | 355 EL, 225 registros | 414 EL, 225 registros |
+| Recepción de tramas con CRC-16 (`tri_rx_n` × 2) | 739 EL | 692 EL |
+| Transmisión de tramas (`tri_tx_n`) | 209 EL | 364 EL |
+| Sonda JTAG para la computadora | 320 EL | 413 EL |
 
 EL = elementos lógicos. El núcleo de la mochila, que es lo que iría en el circuito integrado, es la parte
 más pequeña: sintetizado solo ocupa 477 elementos lógicos y 224 registros (722 y 372 con su enlace serie).
@@ -296,13 +328,13 @@ Requisitos: Icarus Verilog 12 en `C:\iverilog\bin`, Quartus Prime Lite 24.1 en `
 Python 3.12 con `matplotlib` y PowerShell 7.
 
 ```powershell
-# Bancos de prueba (ocho bancos, unos minutos)
+# Bancos de prueba (nueve bancos, unos minutos)
 pwsh -File sim\simular.ps1
 
-# Además, las tres FPGA con sus nueve escenarios (cerca de una hora)
+# Además, las tres FPGA con sus nueve escenarios, que corren a la vez (unos 5 minutos más)
 pwsh -File sim\simular.ps1 -Completa
 
-# La terminal del operador contra las tres tarjetas simuladas, sin hardware (cerca de una hora)
+# La terminal del operador contra las tres tarjetas simuladas, sin hardware (unos 15 minutos)
 pwsh -File sim\probar_terminal.ps1
 
 # Síntesis de las cuatro variantes de la red, con resumen de recursos y tiempos
@@ -319,7 +351,7 @@ En las tarjetas (tres DE10-Lite por USB y seis cables en JP1, como indica la gu�
 
 Para ver las formas de onda en Active-HDL, desde su consola:
 `do ".../activehdl/crear_workspace.do"`, `do ".../activehdl/compilar.do"` y después `simular_red.do`,
-`simular_tonos.do` o `simular_cordic.do`.
+`simular_tonos.do`, `simular_cordic.do` o `simular_distancia.do`.
 
 La simulación de misión y el reporte:
 
@@ -335,7 +367,8 @@ hdl/                    Verilog sintetizable
   nucleo_biobot.v         núcleo de la mochila: ventana_termica, detectores, fsm_politica, gen_estimulo
   cordic.v                CORDIC secuencial y divisor con restauración
   tonos.v                 generador de tono y tres filtros de Goertzel
-  tri_red.v               red de tres FPGA: tramas con CRC-16, escena térmica, mochila, triangulación y receptor
+  tri_red.v               red de tres FPGA: tramas con CRC-16, distancia exacta, escena térmica, mochila,
+                          triangulación y receptor
   tri_top.v               módulos superiores para la DE10-Lite, con sonda JTAG
   uart_rx.v, uart_tx.v    UART de la práctica 4
   ...                     montajes anteriores: una tarjeta, dos tarjetas y red de botón y puente
@@ -365,6 +398,8 @@ Lo que **no** está hecho:
   discutida en el reporte, no medida.
 - **La posición de cada mochila se da por conocida.** En el sistema real saldría de la odometría del
   insecto y de los tonos; aquí la fijan los interruptores o la terminal.
+- **El receptor solo escucha.** No retransmite hacia las mochilas: si las dos quedan a 32 m o más entre
+  sí, cada una muestra su propia detección y solo el receptor, que oye a ambas, muestra el total.
 
 Trabajo futuro:
 

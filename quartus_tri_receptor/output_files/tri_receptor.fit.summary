@@ -1,14 +1,14 @@
-Fitter Status : Successful - Sat Nov 21 11:18:35 2026
+Fitter Status : Successful - Sat Nov 21 14:31:46 2026
 Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
 Revision Name : tri_receptor
 Top-level Entity Name : top_tri_receptor
 Family : MAX 10
 Device : 10M50DAF484C7G
 Timing Models : Final
-Total logic elements : 6,220 / 49,760 ( 13 % )
-    Total combinational functions : 5,752 / 49,760 ( 12 % )
-    Dedicated logic registers : 2,591 / 49,760 ( 5 % )
-Total registers : 2591
+Total logic elements : 4,929 / 49,760 ( 10 % )
+    Total combinational functions : 4,440 / 49,760 ( 9 % )
+    Dedicated logic registers : 2,523 / 49,760 ( 5 % )
+Total registers : 2523
 Total pins : 70 / 360 ( 19 % )
 Total virtual pins : 0
 Total memory bits : 0 / 1,677,312 ( 0 % )

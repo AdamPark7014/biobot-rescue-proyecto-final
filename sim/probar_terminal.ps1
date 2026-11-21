@@ -1,5 +1,5 @@
 # Prueba la terminal del operador (pc/tri_lib.tcl) contra las tres FPGA simuladas, sin tarjetas.
-# Uso:  pwsh -File sim\probar_terminal.ps1          (cerca de una hora)
+# Uso:  pwsh -File sim\probar_terminal.ps1          (unos 15 minutos)
 # 1. La terminal real ejecuta las ordenes de cada paso; los bits que mandaria a las tarjetas
 #    quedan en fuentes_sonda.txt.
 # 2. tb_sonda.v simula las tres tarjetas con sus modulos superiores y guarda sus sondas.

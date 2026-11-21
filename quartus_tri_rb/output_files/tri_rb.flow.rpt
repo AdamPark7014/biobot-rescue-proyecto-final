@@ -1,5 +1,5 @@
 Flow report for tri_rb
-Sat Nov 21 11:22:41 2026
+Sat Nov 21 14:32:22 2026
 Quartus Prime Version 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
 
 
@@ -41,17 +41,17 @@ on the Quartus Prime software download page.
 +--------------------------------------------------------------------------------------+
 ; Flow Summary                                                                         ;
 +------------------------------------+-------------------------------------------------+
-; Flow Status                        ; Successful - Sat Nov 21 11:21:43 2026           ;
+; Flow Status                        ; Successful - Sat Nov 21 14:32:14 2026           ;
 ; Quartus Prime Version              ; 24.1std.0 Build 1077 03/04/2025 SC Lite Edition ;
 ; Revision Name                      ; tri_rb                                          ;
 ; Top-level Entity Name              ; top_tri_rb                                      ;
 ; Family                             ; MAX 10                                          ;
 ; Device                             ; 10M50DAF484C7G                                  ;
 ; Timing Models                      ; Final                                           ;
-; Total logic elements               ; 8,838 / 49,760 ( 18 % )                         ;
-;     Total combinational functions  ; 8,015 / 49,760 ( 16 % )                         ;
-;     Dedicated logic registers      ; 4,128 / 49,760 ( 8 % )                          ;
-; Total registers                    ; 4128                                            ;
+; Total logic elements               ; 7,525 / 49,760 ( 15 % )                         ;
+;     Total combinational functions  ; 6,688 / 49,760 ( 13 % )                         ;
+;     Dedicated logic registers      ; 4,060 / 49,760 ( 8 % )                          ;
+; Total registers                    ; 4060                                            ;
 ; Total pins                         ; 70 / 360 ( 19 % )                               ;
 ; Total virtual pins                 ; 0                                               ;
 ; Total memory bits                  ; 0 / 1,677,312 ( 0 % )                           ;
@@ -67,7 +67,7 @@ on the Quartus Prime software download page.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 11/21/2026 11:10:04 ;
+; Start date & time ; 11/21/2026 14:29:59 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; tri_rb              ;
 +-------------------+---------------------+
@@ -78,7 +78,7 @@ on the Quartus Prime software download page.
 +--------------------------+---------------------------------+---------------+-------------+------------+
 ; Assignment Name          ; Value                           ; Default Value ; Entity Name ; Section Id ;
 +--------------------------+---------------------------------+---------------+-------------+------------+
-; COMPILER_SIGNATURE_ID    ; 231268874246095.179528100403300 ; --            ; --          ; --         ;
+; COMPILER_SIGNATURE_ID    ; 189155196944723.179529299935588 ; --            ; --          ; --         ;
 ; MAX_CORE_JUNCTION_TEMP   ; 85                              ; --            ; --          ; --         ;
 ; MIN_CORE_JUNCTION_TEMP   ; 0                               ; --            ; --          ; --         ;
 ; NUM_PARALLEL_PROCESSORS  ; All                             ; --            ; --          ; --         ;
@@ -92,11 +92,11 @@ on the Quartus Prime software download page.
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name          ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis ; 00:06:30     ; 1.0                     ; 5169 MB             ; 00:01:57                           ;
-; Fitter               ; 00:04:08     ; 2.0                     ; 6833 MB             ; 00:02:38                           ;
-; Assembler            ; 00:00:07     ; 1.0                     ; 4861 MB             ; 00:00:04                           ;
-; Timing Analyzer      ; 00:00:49     ; 4.7                     ; 5125 MB             ; 00:00:30                           ;
-; Total                ; 00:11:34     ; --                      ; --                  ; 00:05:09                           ;
+; Analysis & Synthesis ; 00:01:21     ; 1.0                     ; 5198 MB             ; 00:01:26                           ;
+; Fitter               ; 00:00:43     ; 2.0                     ; 6801 MB             ; 00:01:20                           ;
+; Assembler            ; 00:00:04     ; 1.0                     ; 4861 MB             ; 00:00:04                           ;
+; Timing Analyzer      ; 00:00:06     ; 3.0                     ; 5118 MB             ; 00:00:14                           ;
+; Total                ; 00:02:14     ; --                      ; --                  ; 00:03:04                           ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 

@@ -14,7 +14,7 @@ PASO 0: Encendido. A en (25.75, 19.00) m, a 32.00 m; B en (25.25, 19.00) m, a 31
                 tonos: oye a A SI, oye al receptor SI
     
     Receptor    tonos: oye a A (1 kHz) no [potencia 3], oye a B (2 kHz) SI [potencia 28507]
-                distancia entre A y B 0.50 m | LED 0000011111 (metros a A | metros a B)
+                distancia entre A y B 0.50 m | LED 00000 11111 (A: no se oye | B: 31 m)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 
 PASO 1: temp A 36: deteccion termica en A
@@ -30,7 +30,7 @@ PASO 1: temp A 36: deteccion termica en A
                 tonos: oye a A SI, oye al receptor SI
     
     Receptor    tonos: oye a A (1 kHz) no [potencia 8], oye a B (2 kHz) SI [potencia 27901]
-                distancia entre A y B 0.50 m | LED 0000011111 (metros a A | metros a B)
+                distancia entre A y B 0.50 m | LED 00000 11111 (A: no se oye | B: 31 m)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 
 PASO 2: temp B 37: segunda deteccion y triangulacion
@@ -46,7 +46,7 @@ PASO 2: temp B 37: segunda deteccion y triangulacion
                 tonos: oye a A SI, oye al receptor SI
     
     Receptor    tonos: oye a A (1 kHz) no [potencia 43], oye a B (2 kHz) SI [potencia 27600]
-                distancia entre A y B 0.50 m | LED 0000011111 (metros a A | metros a B)
+                distancia entre A y B 0.50 m | LED 00000 11111 (A: no se oye | B: 31 m)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 
 PASO 3: temp A 40: A sale del intervalo
@@ -62,7 +62,7 @@ PASO 3: temp A 40: A sale del intervalo
                 tonos: oye a A SI, oye al receptor SI
     
     Receptor    tonos: oye a A (1 kHz) no [potencia 22], oye a B (2 kHz) SI [potencia 26718]
-                distancia entre A y B 0.50 m | LED 0000011111 (metros a A | metros a B)
+                distancia entre A y B 0.50 m | LED 00000 11111 (A: no se oye | B: 31 m)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 
 PASO 4: temp A sw, temp B sw: los sensores vuelven a los interruptores
@@ -78,7 +78,7 @@ PASO 4: temp A sw, temp B sw: los sensores vuelven a los interruptores
                 tonos: oye a A SI, oye al receptor SI
     
     Receptor    tonos: oye a A (1 kHz) no [potencia 13], oye a B (2 kHz) SI [potencia 26426]
-                distancia entre A y B 0.50 m | LED 0000011111 (metros a A | metros a B)
+                distancia entre A y B 0.50 m | LED 00000 11111 (A: no se oye | B: 31 m)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 
 PASO 5: boton B: boton de ayuda
@@ -94,7 +94,7 @@ PASO 5: boton B: boton de ayuda
                 tonos: oye a A SI, oye al receptor SI
     
     Receptor    tonos: oye a A (1 kHz) no [potencia 4], oye a B (2 kHz) SI [potencia 28592]
-                distancia entre A y B 0.50 m | LED 0000011111 (metros a A | metros a B)
+                distancia entre A y B 0.50 m | LED 00000 11111 (A: no se oye | B: 31 m)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 
 PASO 6: reset: reinicia las tres tarjetas
@@ -110,7 +110,7 @@ PASO 6: reset: reinicia las tres tarjetas
                 tonos: oye a A SI, oye al receptor SI
     
     Receptor    tonos: oye a A (1 kHz) no [potencia 8], oye a B (2 kHz) SI [potencia 29179]
-                distancia entre A y B 0.50 m | LED 0000011111 (metros a A | metros a B)
+                distancia entre A y B 0.50 m | LED 00000 11111 (A: no se oye | B: 31 m)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 
 PASO 7: pos A 31 0: A a 31 m del receptor
@@ -126,10 +126,42 @@ PASO 7: pos A 31 0: A a 31 m del receptor
                 tonos: oye a A SI, oye al receptor SI
     
     Receptor    tonos: oye a A (1 kHz) SI [potencia 26121], oye a B (2 kHz) SI [potencia 27889]
-                distancia entre A y B 19.81 m | LED 1111111111 (metros a A | metros a B)
+                distancia entre A y B 19.81 m | LED 11111 11111 (A: 31 m | B: 31 m)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 
-PASO 8: pos A 32 0: A a 32 m del receptor
+PASO 8: pos A 0 31: A a 31 m por el otro eje
+    =============== BioBot-Rescue: vista del operador (receptor) ===============
+    PERSONAS DETECTADAS: 0
+    Persona estimada en --  (sin avisos)
+    
+    Mochila A   [radio: directo]   posicion (0.00, 31.00) m, a 31.00 m del receptor
+                termica no (sensor en 22 C) | boton no | EXPLORAR | pixeles calientes 0 | rumbo --
+                tonos: oye a B SI, oye al receptor SI
+    Mochila B   [radio: directo]   posicion (25.25, 19.00) m, a 31.56 m del receptor
+                termica no (sensor en 22 C) | boton no | EXPLORAR | pixeles calientes 0 | rumbo --
+                tonos: oye a A SI, oye al receptor SI
+    
+    Receptor    tonos: oye a A (1 kHz) SI [potencia 26130], oye a B (2 kHz) SI [potencia 26709]
+                distancia entre A y B 27.94 m | LED 11111 11111 (A: 31 m | B: 31 m)
+    Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
+
+PASO 9: pos A 25.75 18.94: en diagonal, a 31.96 m (lo mas lejos que se oye)
+    =============== BioBot-Rescue: vista del operador (receptor) ===============
+    PERSONAS DETECTADAS: 0
+    Persona estimada en --  (sin avisos)
+    
+    Mochila A   [radio: directo]   posicion (25.75, 18.94) m, a 31.94 m del receptor
+                termica no (sensor en 22 C) | boton no | EXPLORAR | pixeles calientes 0 | rumbo --
+                tonos: oye a B SI, oye al receptor SI
+    Mochila B   [radio: directo]   posicion (25.25, 19.00) m, a 31.56 m del receptor
+                termica no (sensor en 22 C) | boton no | EXPLORAR | pixeles calientes 0 | rumbo --
+                tonos: oye a A SI, oye al receptor SI
+    
+    Receptor    tonos: oye a A (1 kHz) SI [potencia 26490], oye a B (2 kHz) SI [potencia 26984]
+                distancia entre A y B 0.50 m | LED 11111 11111 (A: 31 m | B: 31 m)
+    Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
+
+PASO 10: pos A 32 0: A a 32 m del receptor
     =============== BioBot-Rescue: vista del operador (receptor) ===============
     PERSONAS DETECTADAS: 0
     Persona estimada en --  (sin avisos)
@@ -141,11 +173,11 @@ PASO 8: pos A 32 0: A a 32 m del receptor
                 termica no (sensor en 22 C) | boton no | EXPLORAR | pixeles calientes 0 | rumbo --
                 tonos: oye a A SI, oye al receptor SI
     
-    Receptor    tonos: oye a A (1 kHz) no [potencia 9], oye a B (2 kHz) SI [potencia 27040]
-                distancia entre A y B 20.13 m | LED 0000011111 (metros a A | metros a B)
+    Receptor    tonos: oye a A (1 kHz) no [potencia 25], oye a B (2 kHz) SI [potencia 27341]
+                distancia entre A y B 20.13 m | LED 00000 11111 (A: no se oye | B: 31 m)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 
-PASO 9: pos B 60 60: B tambien fuera de alcance
+PASO 11: pos B 60 60: B tambien fuera de alcance
     =============== BioBot-Rescue: vista del operador (receptor) ===============
     PERSONAS DETECTADAS: 0
     Persona estimada en --  (sin avisos)
@@ -157,11 +189,11 @@ PASO 9: pos B 60 60: B tambien fuera de alcance
     
     
     
-    Receptor    tonos: oye a A (1 kHz) no [potencia 3], oye a B (2 kHz) no [potencia 3]
-                distancia entre A y B 0.00 m | LED 0000000000 (metros a A | metros a B)
+    Receptor    tonos: oye a A (1 kHz) no [potencia 7], oye a B (2 kHz) no [potencia 18]
+                distancia entre A y B 0.00 m | LED 00000 00000 (A: no se oye | B: no se oye)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 
-PASO 10: vista 2: la terminal cambia los displays del receptor
+PASO 12: vista 2: la terminal cambia los displays del receptor
     =============== BioBot-Rescue: vista del operador (receptor) ===============
     PERSONAS DETECTADAS: 0
     Persona estimada en --  (sin avisos)
@@ -173,11 +205,11 @@ PASO 10: vista 2: la terminal cambia los displays del receptor
     
     
     
-    Receptor    tonos: oye a A (1 kHz) no [potencia 0], oye a B (2 kHz) no [potencia 2]
-                distancia entre A y B 0.00 m | LED 0000000000 (metros a A | metros a B)
+    Receptor    tonos: oye a A (1 kHz) no [potencia 3], oye a B (2 kHz) no [potencia 16]
+                distancia entre A y B 0.00 m | LED 00000 00000 (A: no se oye | B: no se oye)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 
-PASO 11: suelta: todo vuelve a los interruptores
+PASO 13: suelta: todo vuelve a los interruptores
     =============== BioBot-Rescue: vista del operador (receptor) ===============
     PERSONAS DETECTADAS: 0
     Persona estimada en --  (sin avisos)
@@ -190,5 +222,5 @@ PASO 11: suelta: todo vuelve a los interruptores
                 tonos: oye a A SI, oye al receptor SI
     
     Receptor    tonos: oye a A (1 kHz) no [potencia 6], oye a B (2 kHz) SI [potencia 26137]
-                distancia entre A y B 0.50 m | LED 0000011111 (metros a A | metros a B)
+                distancia entre A y B 0.50 m | LED 00000 11111 (A: no se oye | B: 31 m)
     Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0

@@ -48,8 +48,10 @@ revisa "triangula a menos de 10 cm, A llega por el puente y el conteo es 2 en la
     [expr {$R(modo) == 2 && $e < 0.10 && $R(a_rel) && !$R(a_dir) && $R(b_dir) && $R(cuenta) == 2 && $A(cuenta) == 2 && $B(cuenta) == 2}]
 revisa "tonos: el receptor oye a B y no a A; A oye a B y no al receptor" \
     [expr {$R(oye_b) && !$R(oye_a) && $A(oye_otra) && !$A(oye_rec) && $B(oye_otra) && $B(oye_rec)}]
-revisa "LED: receptor 0000011111, B 0000011111, A apagados" \
-    [expr {$R(led) eq "0000011111" && $B(led) eq "0000011111" && $A(led) eq "0000000000"}]
+revisa "LED: receptor 00000 11111 (B a 31 m); B 00001 11111 (A a 1 m, receptor a 31 m); A 00001 00000" \
+    [expr {$R(led) eq "0000011111" && $B(led) eq "0000111111" && $A(led) eq "0000100000"}]
+revisa "distancias exactas: B a 31.56 m, A a 32.00 m, entre ellas 0.50 m" \
+    [expr {$R(d_b) == 31.5625 && $B(d_rec) == 31.5625 && $R(d_a) == 32.0 && $A(d_rec) == 32.0 && $R(d_ab) == 0.5}]
 
 escena 1 47 0 47
 after 4000
@@ -96,12 +98,36 @@ pon_pos 2 60 60; pon_temp 2 22; manda_mochila 2
 pon_pos 1 31 0; pon_temp 1 36; manda_mochila 1
 reinicia_todo
 after 4000
-lee3 "9 A sola a 31 m del receptor"
-revisa "a 31 m se oye: radio directo, tono y LED 11111" [expr {$R(a_dir) && $R(oye_a) && $R(cuenta) == 1 && $R(led) eq "1111100000"}]
+lee3 "9 A sola a 31 m del receptor, sobre el eje X"
+revisa "a 31 m se oye: radio directo, tono, 31.00 m exactos y LED 11111 en el receptor y en A" \
+    [expr {$R(a_dir) && $R(oye_a) && $A(oye_rec) && $R(cuenta) == 1 && $R(d_a) == 31.0 && $A(d_rec) == 31.0
+           && $R(led) eq "1111100000" && $A(led) eq "0000011111"}]
 pon_pos 1 32 0; manda_mochila 1
 after 2500
-lee3 "9 A a 32 m"
-revisa "a 32 m ya no se oye" [expr {!$R(a_dir) && !$R(oye_a) && $R(cuenta) == 0 && $R(led) eq "0000000000"}]
+lee3 "9 A a 32 m, sobre el eje X"
+revisa "a 32 m ya no se oye y los LED se apagan" \
+    [expr {!$R(a_dir) && !$R(oye_a) && !$A(oye_rec) && $R(cuenta) == 0 && $A(d_rec) == 32.0
+           && $R(led) eq "0000000000" && $A(led) eq "0000000000"}]
+pon_pos 1 0 31; manda_mochila 1
+after 2500
+lee3 "9 A a 31 m, sobre el eje Y"
+revisa "a 31 m por el otro eje tambien se oye, con 31.00 m exactos" \
+    [expr {$R(a_dir) && $R(oye_a) && $A(oye_rec) && $R(cuenta) == 1 && $R(d_a) == 31.0 && $A(d_rec) == 31.0
+           && $R(led) eq "1111100000" && $A(led) eq "0000011111"}]
+pon_pos 1 0 32; manda_mochila 1
+after 2500
+lee3 "9 A a 32 m, sobre el eje Y"
+revisa "a 32 m por el otro eje ya no se oye" [expr {!$R(a_dir) && !$R(oye_a) && !$A(oye_rec) && $R(cuenta) == 0 && $R(led) eq "0000000000"}]
+pon_pos 1 25.75 18.94; manda_mochila 1
+after 2500
+lee3 "9 A en diagonal, a 31.96 m: lo mas lejos que se oye"
+revisa "a 31.96 m en diagonal se oye y marca 31.94 m (511 cuentas)" \
+    [expr {$R(a_dir) && $R(oye_a) && $A(oye_rec) && $R(cuenta) == 1 && $R(d_a) == 31.9375 && $A(d_rec) == 31.9375
+           && $R(led) eq "1111100000"}]
+pon_pos 1 25.75 19; manda_mochila 1
+after 2500
+lee3 "9 A en diagonal, a 32.0005 m"
+revisa "una cuenta mas lejos ya no se oye" [expr {!$R(a_dir) && !$R(oye_a) && !$A(oye_rec) && $R(cuenta) == 0 && $A(d_rec) == 32.0}]
 puts [format "   enlace: tramas perdidas de A %d, de B %d; descartadas por CRC %d" $R(perd_a) $R(perd_b) $R(malas)]
 
 suelta_todo

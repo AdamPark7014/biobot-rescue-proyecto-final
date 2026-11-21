@@ -19,7 +19,7 @@ SALIDA = os.path.join(AQUI, "..", "latex", "figs")
 PERSONA = (25.50, 19.25)
 POS_A = (25.75, 19.00)          # posición 1 de la tabla: a 32.00 m del receptor
 POS_B = (25.25, 19.00)          # posición 0: a 31.60 m
-ALCANCE = 511 / 16.0            # 31.94 m
+ALCANCE = 32.0                  # ALCANCE_M: se oye a menos de 32 m
 
 
 def caja(ax, x, y, w, h, color, relleno, titulo, lineas, tam=14.5):
@@ -85,7 +85,7 @@ def mapa():
     ang = math.radians(100)
     ax.annotate("", xy=(ALCANCE * math.cos(ang), ALCANCE * math.sin(ang)), xytext=(0, 0),
                 arrowprops=dict(arrowstyle="-|>", color=E.AZUL_OSC, lw=1.8))
-    ax.text(-1.2, 16.5, "alcance: 31.94 m\n(radio y tonos)", fontsize=13.5, color=E.AZUL_OSC, ha="left", va="center")
+    ax.text(-1.2, 16.5, "alcance: menos de 32 m\n(radio y tonos)", fontsize=13.5, color=E.AZUL_OSC, ha="left", va="center")
     ax.set_xlim(-10, 60)
     ax.set_ylim(-12, 44)
     ax.set_aspect("equal")
@@ -99,9 +99,12 @@ def mapa():
         az.plot([x], [y], marker="o", ms=15, color=color, zorder=5)
         u = (math.cos(math.radians(grados)), math.sin(math.radians(grados)))
         az.plot([x, x + 0.6 * u[0]], [y, y + 0.6 * u[1]], color=color, lw=2.4, ls=(0, (5, 3)), zorder=3)
-        az.text(x + 0.06 * lado, y - 0.02, "mochila %s\nrumbo de %d°\n%s" % (nombre, grados, dist),
-                ha="left" if lado > 0 else "right", va="top", fontsize=13.5, color=color, linespacing=1.3)
-    # el arco del alcance pasa entre las dos mochilas
+        # el rótulo de A va arriba a la derecha, donde no lo cruza el arco del alcance
+        az.text(x + (0.10 if lado > 0 else -0.06), y + (0.03 if lado > 0 else -0.02),
+                "mochila %s\nrumbo de %d°\n%s" % (nombre, grados, dist),
+                ha="left" if lado > 0 else "right", va="bottom" if lado > 0 else "top",
+                fontsize=13.5, color=color, linespacing=1.3)
+    # el arco del alcance (32 m) pasa justo por la mochila A: a 32.00 m ya no se oye
     ts = [math.radians(a / 50.0) for a in range(1700, 2000)]
     az.plot([ALCANCE * math.cos(t) for t in ts], [ALCANCE * math.sin(t) for t in ts], color=E.AZUL_OSC, lw=2.0,
             ls=(0, (2, 3)), zorder=2)

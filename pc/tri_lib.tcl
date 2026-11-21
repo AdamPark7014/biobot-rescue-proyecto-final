@@ -16,6 +16,27 @@ proc cuentas {metros} {
 set ANCHO_MOCHILA  125
 set ANCHO_RECEPTOR 238
 
+# Parametros de la demostracion, iguales a los del circuito (hdl/tri_red.v)
+set T_PERSONA_MIN 35      ;# el sensor detecta a una persona de 35 ...
+set T_PERSONA_MAX 38      ;# ... a 38 grados C
+set ALCANCE_M     32      ;# un nodo se oye (radio y tono) si esta a MENOS de 32 m
+
+# Distancia del receptor (0, 0) a un punto, como la calcula el circuito: exacta y truncada a la
+# cuenta de 1/16 m. Devuelve {metros se_oye}.
+proc distancia_al_receptor {x_m y_m} {
+    global ALCANCE_M
+    set cx [cuentas $x_m]
+    set cy [cuentas $y_m]
+    set n2 [expr {$cx * $cx + $cy * $cy}]
+    set lim [expr {16 * $ALCANCE_M}]
+    return [list [m [expr {isqrt($n2)}]] [expr {$n2 < $lim * $lim}]]
+}
+# Los cinco LED de una distancia: metros enteros de 1 a 31; apagados si no se oye
+proc lee_leds {bits} {
+    set n [a_entero $bits]
+    return [expr {$n == 0 ? "no se oye" : "$n m"}]
+}
+
 # Si un cable USB parpadea (pasa al mover la tarjeta), se reintenta unas veces antes de fallar.
 proc con_reintentos {cuerpo} {
     for {set k 0} {$k < 6} {incr k} {
@@ -229,7 +250,8 @@ proc lineas_receptor {v} {
     lappend L ""
     lappend L [format "Receptor    tonos: oye a A (1 kHz) %s \[potencia %d\], oye a B (2 kHz) %s \[potencia %d\]" \
         [si_no $R(oye_a)] $R(pot_a) [si_no $R(oye_b)] $R(pot_b)]
-    lappend L [format "            distancia entre A y B %.2f m | LED %s (metros a A | metros a B)" $R(d_ab) $R(led)]
+    lappend L [format "            distancia entre A y B %.2f m | LED %s %s (A: %s | B: %s)" $R(d_ab) \
+        [campo $R(led) 9 5] [campo $R(led) 4 0] [lee_leds [campo $R(led) 9 5]] [lee_leds [campo $R(led) 4 0]]]
     lappend L [format "Enlace      tramas perdidas: de A %d, de B %d | descartadas por CRC %d" $R(perd_a) $R(perd_b) $R(malas)]
     return $L
 }
@@ -246,8 +268,9 @@ proc muestra_estado {} {
     lappend L "--- cada mochila, leida por su propio cable ---"
     foreach nom {A B} otra {B A} {
         upvar 0 $nom D
-        lappend L [format "Mochila %s: (%.2f, %.2f) m | sensor %2d C | termica %s | boton %s | conteo %d | LED %s" \
-            $nom $D(x) $D(y) $D(temp) [si_no $D(alerta)] [si_no $D(boton)] $D(cuenta) $D(led)]
+        lappend L [format "Mochila %s: (%.2f, %.2f) m | sensor %2d C | termica %s | boton %s | conteo %d | LED %s %s (%s: %s | receptor: %s)" \
+            $nom $D(x) $D(y) $D(temp) [si_no $D(alerta)] [si_no $D(boton)] $D(cuenta) \
+            [campo $D(led) 9 5] [campo $D(led) 4 0] $otra [lee_leds [campo $D(led) 9 5]] [lee_leds [campo $D(led) 4 0]]]
         lappend L [format "           tono de %s %s \[%d\] a %.2f m | tono del receptor %s \[%d\] a %.2f m | radio de %s %s" \
             $otra [si_no $D(oye_otra)] $D(pot_otra) $D(d_otra) [si_no $D(oye_rec)] $D(pot_rec) $D(d_rec) $otra [si_no $D(otra)]]
     }
@@ -272,9 +295,17 @@ proc ejecuta_orden {linea} {
                 pon $r 3 0; manda_mochila $r
                 return "La posicion de [lindex $p 1] vuelve a sus interruptores SW9-SW6."
             }
-            pon_pos $r [lindex $p 2] [lindex $p 3]; manda_mochila $r
-            return [format "Mochila %s puesta en (%.2f, %.2f) m: a %.2f m del receptor." [string toupper [lindex $p 1]] \
-                [lindex $p 2] [lindex $p 3] [expr {hypot([lindex $p 2], [lindex $p 3])}]]
+            set x [lindex $p 2]
+            set y [lindex $p 3]
+            if {![string is double -strict $x] || ![string is double -strict $y] || $x < 0 || $y < 0 || $x >= 64 || $y >= 64} {
+                error "la posicion va en metros, de 0 a 63.94: pos A 31 0"
+            }
+            pon_pos $r $x $y; manda_mochila $r
+            # se informa la posicion que de verdad queda en la tarjeta (rejilla de 6.25 cm)
+            lassign [distancia_al_receptor $x $y] d oye
+            return [format "Mochila %s puesta en (%.2f, %.2f) m: a %.2f m del receptor, %s." [string toupper [lindex $p 1]] \
+                [m [cuentas $x]] [m [cuentas $y]] $d \
+                [expr {$oye ? "dentro del alcance (menos de $::ALCANCE_M m)" : "fuera del alcance ($::ALCANCE_M m o mas)"}]]
         }
         temp {
             set r [rol_de [lindex $p 1]]
@@ -283,8 +314,13 @@ proc ejecuta_orden {linea} {
                 pon $r 2 0; manda_mochila $r
                 return "La temperatura de [lindex $p 1] vuelve a sus interruptores SW5-SW0."
             }
-            pon_temp $r [lindex $p 2]; manda_mochila $r
-            return "El sensor de [string toupper [lindex $p 1]] lee [lindex $p 2] C."
+            set t [lindex $p 2]
+            if {![string is integer -strict $t] || $t < 0 || $t > 63} {
+                error "la temperatura va en grados enteros, de 0 a 63 (seis interruptores): temp A 36"
+            }
+            pon_temp $r $t; manda_mochila $r
+            return [format "El sensor de %s lee %d C: %s." [string toupper [lindex $p 1]] $t \
+                [expr {($t >= $::T_PERSONA_MIN && $t <= $::T_PERSONA_MAX) ? "dentro de la ventana de $::T_PERSONA_MIN a $::T_PERSONA_MAX C, detecta" : "fuera de la ventana de $::T_PERSONA_MIN a $::T_PERSONA_MAX C, no detecta"}]]
         }
         boton {
             set r [rol_de [lindex $p 1]]
@@ -299,8 +335,10 @@ proc ejecuta_orden {linea} {
                 pon 0 1 0; manda_receptor
                 return "La vista del receptor vuelve a sus interruptores SW1-SW0."
             }
-            pon 0 1 1; pon 0 2 [expr {int([lindex $p 1]) & 3}]; manda_receptor
-            return "Vista [lindex $p 1] en los displays del receptor."
+            set v [lindex $p 1]
+            if {![string is integer -strict $v] || $v < 0 || $v > 3} { error "la vista va de 0 a 3: vista 0" }
+            pon 0 1 1; pon 0 2 $v; manda_receptor
+            return "Vista $v en los displays del receptor: [lindex {{r Pd, personas y a quien oye} {persona X/Y} {distancia entre A y B} {rumbos}} $v]."
         }
         reset  { reinicia_todo; return "Tarjetas reiniciadas (se conserva lo que fijo la terminal)." }
         suelta { suelta_todo;   return "Todo vuelve a los interruptores de las tarjetas." }

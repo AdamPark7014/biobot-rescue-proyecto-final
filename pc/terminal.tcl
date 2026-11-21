@@ -9,9 +9,10 @@
 #   quartus_stp -t pc/terminal.tcl detalle  una lectura de las tres tarjetas y sale
 #
 # Ordenes:
-#   pos A|B x y     pone la cucaracha en (x, y) metros, de 0 a 64 (el receptor esta en 0, 0)
+#   pos A|B x y     pone la cucaracha en (x, y) metros, de 0 a 63.94 (el receptor esta en 0, 0);
+#                   se oye si queda a menos de 32 m: a 31 m si, a 32 m ya no
 #   pos A|B sw      la posicion vuelve a los interruptores SW9-SW6
-#   temp A|B t      el sensor termico lee t grados C (detecta de 35 a 38)
+#   temp A|B t      el sensor termico lee t grados C, de 0 a 63 (detecta de 35 a 38)
 #   temp A|B sw     la temperatura vuelve a los interruptores SW5-SW0
 #   boton A|B       aprieta el boton de ayuda
 #   vista 0..3      displays del receptor: 0 r Pd, 1 persona X/Y, 2 distancia A-B, 3 rumbos
@@ -38,7 +39,7 @@ if {[lindex $argv 0] eq "detalle"} {
 
 if {[lindex $argv 0] eq "vivo"} {
     catch { file delete $COLA }
-    set pie "Sensor: SW5-SW0 = grados C (detecta de 35 a 38). Boton de ayuda: KEY1. Reset: KEY0."
+    set pie "Sensor: SW5-SW0 = grados C (detecta de $T_PERSONA_MIN a $T_PERSONA_MAX). Boton de ayuda: KEY1. Reset: KEY0. Alcance: menos de $ALCANCE_M m."
     set aviso "Listo. Las ordenes se escriben en la ventana TERMINAL."
     set previo ""
     puts -nonewline "\033\[2J\033\[H"
@@ -83,7 +84,8 @@ if {[lindex $argv 0] eq "vivo"} {
 
 # ---- terminal sola
 puts $AYUDA
-puts "La persona esta escondida en (25.50, 19.25) m; el receptor en (0, 0); se oye a menos de 32 m."
+puts "La persona esta escondida en (25.50, 19.25) m; el receptor en (0, 0); se oye a menos de $ALCANCE_M m."
+puts "El sensor detecta de $T_PERSONA_MIN a $T_PERSONA_MAX C."
 muestra_estado
 while {1} {
     puts -nonewline "\nbiobot> "
