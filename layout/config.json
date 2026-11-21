@@ -1,0 +1,22 @@
+{
+    "meta": {
+        "version": 2,
+        "flow": "Classic"
+    },
+    "DESIGN_NAME": "nucleo_biobot",
+    "VERILOG_FILES": [
+        "dir::../hdl/ventana_termica.v",
+        "dir::../hdl/detectores.v",
+        "dir::../hdl/fsm_politica.v",
+        "dir::../hdl/gen_estimulo.v",
+        "dir::../hdl/nucleo_biobot.v"
+    ],
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 20,
+    "FP_CORE_UTIL": 40,
+    "PL_TARGET_DENSITY_PCT": 55,
+    "CTS_SINK_CLUSTERING_SIZE": 10,
+    "RUN_POST_GRT_DESIGN_REPAIR": true,
+    "GRT_DESIGN_REPAIR_MAX_SLEW_PCT": 50,
+    "DESIGN_REPAIR_MAX_SLEW_PCT": 50
+}

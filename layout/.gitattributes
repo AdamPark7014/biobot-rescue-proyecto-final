@@ -1,0 +1,5 @@
+# Los scripts corren dentro de la VM Linux: siempre con fin de línea LF
+*.sh   text eol=lf
+*.py   text eol=lf
+*.json text eol=lf
+*.gds  binary
