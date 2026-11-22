@@ -1,0 +1,18 @@
+# Controlador PID en punto fijo (hdl/pid_q.v), solo, para medir recursos y frecuencia.
+# Las entradas y salidas van como pines virtuales: no es un diseno para cargar en la tarjeta.
+set_global_assignment -name FAMILY "MAX 10"
+set_global_assignment -name DEVICE 10M50DAF484C7G
+set_global_assignment -name TOP_LEVEL_ENTITY pid_q
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name VERILOG_FILE ../hdl/pid_q.v
+set_global_assignment -name SDC_FILE pid.sdc
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
+set_location_assignment PIN_P11 -to clk
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
+set_instance_assignment -name VIRTUAL_PIN ON -to referencia
+set_instance_assignment -name VIRTUAL_PIN ON -to medida
+set_instance_assignment -name VIRTUAL_PIN ON -to u
+set_instance_assignment -name VIRTUAL_PIN ON -to saturada
+set_instance_assignment -name VIRTUAL_PIN ON -to tick
+set_instance_assignment -name VIRTUAL_PIN ON -to reset
+set_global_assignment -name LAST_QUARTUS_VERSION "24.1std.0 Lite Edition"

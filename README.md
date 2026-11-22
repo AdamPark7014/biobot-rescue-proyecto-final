@@ -246,7 +246,9 @@ truncan a la cuenta de 6.25 cm, por eso B aparece a 31.56 m (505 cuentas) y no a
 | `tb_top` | El núcleo con su enlace serie | 500 de 500 respuestas por UART |
 | `tb_demo`, `tb_dos_tarjetas` | Lazo cerrado con un insecto simulado, en una y en dos tarjetas | Con persona alerta en el cuadro 558 (56 s); con un objeto caliente, sin persona o con un insecto que no responde, no alerta |
 | `tb_cordic` | CORDIC en rotación y vectorización, y el divisor | 248 de 248 casos; error máximo de 0.008° en el ángulo y 0.013 % en la magnitud |
+| `tb_cordic_iter` | El error del CORDIC con 4 a 20 iteraciones | Baja a la cuarta parte cada dos iteraciones y se estanca en 0.017° desde 14; el diseño usa 16 |
 | `tb_tonos` | Los tres filtros de Goertzel con ruido | 8 de 8; un tono presente mide entre 27 000 y 33 000 unidades y el silencio menos de 50 |
+| `tb_pid` | El controlador PID en punto fijo de la práctica 5, contra un PID en aritmética real | 3 de 3; menos de una cuenta de diferencia; con el integrador protegido, 0.2 % de sobrepaso al saturar el actuador, y sin protección la salida se queda en el tope |
 | `tb_distancia` | La distancia exacta entre nodos y su acuerdo con la regla del alcance | 89 443 de 89 443 distancias exactas: los dos ejes, todos los puntos entre 30.94 y 33.06 m y 60 000 pares al azar. Con `+completo`, los 1 048 576 pares de diferencias del mapa, también sin error |
 | `tb_tri` | Las tres FPGA cableadas como en el laboratorio, nueve escenarios, con lectura de displays y LED | 9 de 9 escenarios correctos |
 | `tb_sonda` y `prueba_terminal.tcl` | La terminal real del operador contra las tres tarjetas simuladas con sus módulos superiores: cada orden, los bits que llegan a la FPGA y lo que la terminal muestra al leerla | 71 de 71 comprobaciones: 57 en 14 pasos sobre las tarjetas simuladas y 14 sobre lo que la terminal contesta al operador |
@@ -328,7 +330,7 @@ Requisitos: Icarus Verilog 12 en `C:\iverilog\bin`, Quartus Prime Lite 24.1 en `
 Python 3.12 con `matplotlib` y PowerShell 7.
 
 ```powershell
-# Bancos de prueba (nueve bancos, unos minutos)
+# Bancos de prueba (once bancos, unos minutos)
 pwsh -File sim\simular.ps1
 
 # Además, las tres FPGA con sus nueve escenarios, que corren a la vez (unos 5 minutos más)

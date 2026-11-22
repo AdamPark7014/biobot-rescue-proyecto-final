@@ -1,5 +1,5 @@
 # Corre los bancos de prueba del proyecto con Icarus Verilog 12.
-# Uso (desde cualquier carpeta):  pwsh -File sim\simular.ps1            (diez bancos, unos minutos)
+# Uso (desde cualquier carpeta):  pwsh -File sim\simular.ps1            (once bancos, unos minutos)
 #                                 pwsh -File sim\simular.ps1 -Completa  (ademas tb_tri: sus nueve escenarios
 #                                                                        corren a la vez, unos 5 minutos mas)
 # Antes regenera los vectores con el modelo de referencia en Python.
@@ -29,6 +29,7 @@ $bancos = @(
     @{ tb = 'tb_cordic';       src = @("$hdl\cordic.v") },
     @{ tb = 'tb_cordic_iter';  src = @("$hdl\cordic.v") },
     @{ tb = 'tb_tonos';        src = @("$hdl\tonos.v") },
+    @{ tb = 'tb_pid';          src = @("$hdl\pid_q.v") },
     @{ tb = 'tb_distancia';    src = $red }
 )
 Push-Location $sim

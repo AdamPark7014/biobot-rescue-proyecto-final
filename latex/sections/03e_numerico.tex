@@ -3,8 +3,8 @@
 
 La red necesita ángulos, cosenos, potencias de un tono y distancias, y en la FPGA no hay punto
 flotante. Este apartado reúne los bloques numéricos del proyecto, que son los de la práctica~5
-(CORDIC y filtros FIR e IIR), con el formato de cada uno y su error medido contra el valor
-exacto. La tabla~\ref{tab:formatos} resume los formatos.
+(CORDIC, filtros FIR e IIR y controlador PID), con el formato de cada uno y su error medido
+contra el valor exacto. La tabla~\ref{tab:formatos} resume los formatos.
 
 \begin{table}[H]
 \centering\footnotesize
@@ -22,6 +22,9 @@ CORDIC, $x$ e $y$ & 24 bits con signo y 4 bits de guarda & Los bits de guarda de
 Coseno y seno & 18 bits con signo, 14 de fracción & $2^{-14}=6.1\times10^{-5}$; caben $\pm1$ con margen para los productos de la triangulación \\
 Coeficientes de Goertzel & Q2.14 con signo & $c=2\cos(2\pi k/64)$ queda entre $-2$ y $2$ \\
 Estado de Goertzel & 18 bits con signo & La entrada mide $\pm9$ a lo sumo (dos tonos de amplitud 4 y ruido de $\pm1$) y el filtro acumula 64 muestras: el estado no pasa de $2^{11}$ \\
+PID: error y salida & 16 bits con signo & Una cuenta de la medida; la resta lleva un bit de guarda \\
+PID: ganancias & Q8.8 con signo & $1/256=0.0039$; caben ganancias de $-128$ a $128$ \\
+PID: integrador & 32 bits con signo, 8 de fracción & Guarda $K_i\sum e$ sin truncar; un tope evita el desbordamiento \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -148,7 +151,63 @@ explica por qué no se usa aquí el CORDIC, que también da la magnitud.
 El divisor \sig{divisor\_u} es un divisor con restauración, un bit del cociente por ciclo. La
 triangulación usa uno de 44 bits entre 32 (195 elementos lógicos) y el rumbo, uno de 20 entre 7.
 
-\textbf{Lo que no se usó.} El proyecto no tiene un controlador PID. El actuador de la mochila no
-es una magnitud continua, sino un pulso que el insecto obedece o no, y lo que hay que acotar es
-cuántos pulsos recibe. Por eso el control es una máquina de estados con un presupuesto de
-estímulos (sección~\ref{sec:nucleo}) y no un lazo proporcional.
+\subsubsection{Controlador PID}
+\label{sec:pid}
+
+El módulo \sig{pid\_q} es un PID en forma posicional, una muestra por pulso:
+\begin{equation}
+e[n]=r[n]-y[n],\qquad
+u[n]=K_p\,e[n]+K_i\sum_{k\le n}e[k]+K_d\,\bigl(e[n]-e[n-1]\bigr).
+\end{equation}
+El término proporcional y el derivativo son un producto cada uno; el integral es un acumulador
+de 32 bits que guarda $K_i\sum e$ con sus ocho bits de fracción, de modo que no pierde nada al
+sumar. La salida se satura en $\pm U_{\max}$, que es lo que da el actuador, y la saturación se
+decide con la suma completa, antes de quitar la fracción.
+
+\textbf{El integrador saturado.} Si el actuador está en el tope y el error persiste, el
+acumulador sigue creciendo sin efecto y después tarda en descargarse. El módulo lo evita con
+integración condicional: congela el acumulador mientras la salida está saturada y el error
+empuja hacia el mismo lado. Un parámetro permite quitar la protección para compararla.
+
+\textbf{Verificación.} El banco \sig{tb\_pid} cierra el lazo sobre una planta de primer orden,
+$y[n+1]=y[n]+(4u[n]-y[n])/20$, y corre junto al circuito un PID en aritmética real
+(tabla~\ref{tab:pid} y figura~\ref{fig:pid}). Con las mismas muestras de entrada, la salida del
+circuito difiere de la del PID en reales en menos de una cuenta, que es el truncado final. La
+cuantización de las ganancias a Q8.8 ($K_i=13/256=0.0508$ en lugar de 0.05) cambia la respuesta
+de la planta en menos de dos cuentas sobre mil.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Resultados del controlador PID con $K_p=0.5$, $K_i=0.0508$, $K_d=0.25$ y tope de 255
+(\sig{tb\_pid}: 3 de 3 escenarios).}
+\label{tab:pid}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{TableHead} Escenario & Lo medido \\
+\midrule
+Escalón de 200, sin saturar & Sobrepaso de 9.3~\%; dentro del 2~\% en 49 muestras; valor final 200.00. Diferencia máxima de $u$ contra el PID en reales: 0.996 cuentas \\
+Escalón de 1\,000, actuador saturado & Con integración condicional: 36 muestras en el tope, sobrepaso de 0.2~\%, dentro del 2~\% en 66 muestras y valor final 1\,000.00. Sin ella: 400 muestras después la salida sigue en el tope y la planta queda en 1\,020, 2~\% arriba de la referencia \\
+Escalón de $-600$ & Sobrepaso de 7.4~\%; valor final $-600.00$; la salida nunca pasa de $\pm255$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figs/pid_respuesta.png}
+\caption{Escalón de 1\,000 con el actuador saturado, con los datos de la simulación del circuito. Sin
+protección, el integrador acumulado mantiene la salida en el tope y la planta no vuelve a la referencia.}
+\label{fig:pid}
+\end{figure}
+
+Sintetizado solo, ocupa 213 elementos lógicos, 66 registros y 2 multiplicadores de 9 bits, con
+79.96~MHz de frecuencia máxima. Usa tan pocos multiplicadores porque las ganancias son
+parámetros: 0.5 y 0.25 se resuelven con corrimientos.
+
+\textbf{Su lugar en el proyecto.} La búsqueda no usa un PID: su actuador es un pulso que el
+insecto obedece o no, y lo que hay que acotar es cuántos recibe, así que el control es una
+máquina de estados con presupuesto (sección~\ref{sec:nucleo}). El PID corresponde al modo de
+regreso de la sección~\ref{sec:regreso}: llevar a cero la diferencia entre los dos fotodiodos
+que miran al faro, con la tasa de estímulos como actuador, que se satura en el presupuesto. Ese
+modo no está en la demostración; aquí el controlador queda verificado con una planta de prueba.

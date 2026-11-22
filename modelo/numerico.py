@@ -114,8 +114,54 @@ def filtros():
     return fig
 
 
+def pid():
+    """Respuesta del PID al escalón grande, con y sin integración condicional (sim/trazas/pid.csv)."""
+    import csv
+    ruta = os.path.join(SIM, "trazas", "pid.csv")
+    if not os.path.exists(ruta):
+        sys.exit("Falta %s: correr  vvp -n tb_pid.out +traza  en sim/" % ruta)
+    with open(ruta, encoding="ascii") as f:
+        filas = list(csv.DictReader(f))
+    n = [int(r["muestra"]) for r in filas][:200]
+    y_con = [int(r["y_con"]) for r in filas][:200]
+    y_sin = [int(r["y_sin"]) for r in filas][:200]
+    u_con = [int(r["u_con"]) for r in filas][:200]
+    u_sin = [int(r["u_sin"]) for r in filas][:200]
+    ref = int(filas[0]["ref"])
+
+    fig, (a, b) = plt.subplots(1, 2, figsize=(16.64, 6.0))
+    fig.subplots_adjust(left=0.075, right=0.985, top=0.88, bottom=0.15, wspace=0.2)
+    a.axhline(ref, color=E.GRIS, lw=1.6, ls=":")
+    a.plot(n, y_sin, color=E.ROJO, ls=(0, (5, 2)), label="sin protección del integrador")
+    a.plot(n, y_con, color=E.AZUL, label="con integración condicional")
+    a.set_title("Salida de la planta", loc="left")
+    a.set_xlabel("Muestra")
+    a.set_ylabel("Medida (cuentas)")
+    a.set_ylim(0, ref * 1.08)
+    a.legend(loc="lower right")
+    # acercamiento al sobrepaso
+    ins = a.inset_axes([0.42, 0.32, 0.54, 0.36])
+    ins.axhline(ref, color=E.GRIS, lw=1.2, ls=":")
+    ins.plot(n, y_sin, color=E.ROJO, ls=(0, (5, 2)), lw=2.2)
+    ins.plot(n, y_con, color=E.AZUL, lw=2.2)
+    ins.set_xlim(30, 140)
+    ins.set_ylim(ref * 0.97, ref * 1.03)
+    ins.tick_params(labelsize=12)
+    ins.set_title("sobrepaso", fontsize=13, loc="left")
+    b.axhline(255, color=E.GRIS, lw=1.6, ls=":")
+    b.text(n[-1], 258, "tope del actuador: 255", ha="right", va="bottom", fontsize=14, color=E.GRIS)
+    b.plot(n, u_sin, color=E.ROJO, ls=(0, (5, 2)), label="sin protección")
+    b.plot(n, u_con, color=E.AZUL, label="con integración condicional")
+    b.set_title("Acción de control", loc="left")
+    b.set_xlabel("Muestra")
+    b.set_ylabel("u (cuentas)")
+    b.set_ylim(0, 285)
+    b.legend(loc="lower right")
+    return fig
+
+
 if __name__ == "__main__":
-    for nombre, f in (("cordic_iteraciones", cordic), ("filtros", filtros)):
+    for nombre, f in (("cordic_iteraciones", cordic), ("filtros", filtros), ("pid_respuesta", pid)):
         fig = f()
         ruta = os.path.join(SALIDA, nombre + ".png")
         fig.savefig(ruta, dpi=120)

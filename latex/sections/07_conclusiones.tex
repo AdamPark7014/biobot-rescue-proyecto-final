@@ -41,7 +41,8 @@ La ley exige confinamiento & El proyecto se limita a recinto cerrado \\
   \item \textbf{En punto fijo, el error se mide, no se supone.} Dieciséis iteraciones del CORDIC dan
         0.017\textdegree; más iteraciones no mejoran. La distancia por CORDIC truncado fallaba en más
         de la mitad de las distancias exactas, y una raíz cuadrada entera la dejó sin error con la
-        quinta parte de la lógica.
+        quinta parte de la lógica. El PID difiere del de aritmética real en menos de una cuenta, y
+        sin la protección del integrador su salida se queda en el tope.
   \item \textbf{Guiar ayuda, sin milagros.} En la simulación, la política guiada sube la detección en
         una hora de \pPasivaSesenta~\% a \pGuiadaSesenta~\% con diez insectos. Pesan más el número
         de insectos y la forma del colapso que la política, y en uno de los ocho colapsos guiar
@@ -72,7 +73,7 @@ simulado; falta repetirla con sensores reales.
   \item \textbf{Red con más nodos y receptor que retransmite,} para que el conteo sea el mismo en todas
         las mochilas aunque no se oigan entre sí.
   \item \textbf{Regreso de los insectos:} un faro infrarrojo en la entrada que la mochila siga con dos
-        fotodiodos.
+        fotodiodos, cerrando el lazo con el controlador PID ya verificado.
   \item \textbf{Pruebas en recinto cerrado} con la colonia de la universidad, con el protocolo de la
         sección~\ref{sec:etica}, para medir el ángulo de giro por pulso de luz ultravioleta.
 \end{itemize}
