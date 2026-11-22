@@ -1,0 +1,35 @@
+\section{Metodología}
+\label{sec:metodologia}
+
+El trabajo avanzó de los datos al circuito, y cada paso entrega al siguiente un número con el
+que se puede diseñar (tabla~\ref{tab:metodo}). Primero se fijó, con lo publicado, qué puede
+cargar y hacer el insecto. Con eso se armó un modelo de la misión que permite comparar
+políticas de estímulo por simulación. La política elegida se describió en Verilog como el
+núcleo de la mochila, y sobre el núcleo se construyó la red de tres FPGA que detecta, se
+comunica y ubica a la persona. Al final, el núcleo se llevó a un layout.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Etapas del trabajo, herramienta de cada una y forma de evaluarla.}
+\label{tab:metodo}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{5.2cm}@{}}
+\toprule
+\rowcolor{TableHead} Etapa & Qué se hace y con qué & Cómo se evalúa \\
+\midrule
+Portador (\ref{sec:portador}) & Revisión de lo publicado sobre \Gp: masa, carga, marcha y sentidos & Cada dato lleva su fuente; los supuestos se marcan \\
+Modelo de la misión (\ref{sec:modelo}) & Cinco submodelos y una simulación con agentes, en Python & Marcha simulada frente a la publicada; \numMisiones{} misiones por caso; sensibilidad \\
+Núcleo de la mochila (\ref{sec:nucleo}) & Siete módulos en Verilog; modelo de referencia en Python con las mismas cuentas enteras & Comparación cuadro por cuadro en Icarus Verilog; síntesis en Quartus; dos tarjetas reales \\
+Red de tres FPGA (\ref{sec:red}) & Protocolo de enlace, tonos, distancias y triangulación; terminal del operador por JTAG & Nueve escenarios autoverificables; la terminal real contra las tarjetas simuladas; síntesis \\
+Aritmética (\ref{sec:numerico}) & CORDIC, filtros FIR e IIR, raíz cuadrada entera y divisor, en punto fijo & Error contra el valor exacto; barrido de todo el mapa \\
+Layout (\ref{sec:flujo-layout}) & Flujo abierto de RTL a GDS en SKY130 & DRC, LVS y tiempos en nueve esquinas \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\input{sections/03a_portador}
+\input{sections/03b_modelo}
+\input{sections/03c_nucleo}
+\input{sections/03d_red}
+\input{sections/03e_numerico}
+\input{sections/03f_herramientas}

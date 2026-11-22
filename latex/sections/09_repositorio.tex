@@ -1,0 +1,32 @@
+\appendix
+\section{Repositorio y reproducibilidad}
+\label{sec:repositorio}
+
+Todo el material está en \url{\repositorio}: el Verilog, los bancos de prueba, los proyectos de
+Quartus con sus reportes y archivos \sig{.sof}, el proyecto de Active-HDL, el layout con su GDS,
+la simulación de misión y los programas que generan cada figura.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Cómo se reproduce cada resultado.}
+\label{tab:reproducir}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{5.2cm} >{\ttfamily\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{TableHead} \textbf{Resultado} & \normalfont\textbf{Orden, desde la raíz del repositorio} \\
+\midrule
+Bancos de prueba y los nueve escenarios de la red & pwsh -File sim\textbackslash simular.ps1 -Completa \\
+La terminal contra las tres tarjetas simuladas & pwsh -File sim\textbackslash probar\_terminal.ps1 \\
+Síntesis de las cuatro variantes de la red & pwsh -File sintetizar\_red.ps1 \\
+Carga de las tres tarjetas y demostración & CARGAR\_RED.cmd y DEMO.cmd \\
+Layout en SKY130 & layout/correr\_flujo.sh (ver layout/LEEME.md) \\
+Simulación de misión y este documento & python modelo/experimentos.py; pwsh -File compilar.ps1 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Carpetas: \sig{hdl/} (Verilog sintetizable), \sig{sim/} (bancos y pruebas en tarjeta),
+\sig{pc/} (terminal del operador), \sig{quartus\_tri\_*/} (proyectos de la red),
+\sig{activehdl/}, \sig{layout/}, \sig{modelo/} (simulación y figuras), \sig{investigacion/}
+(notas con cada dato y su fuente) y \sig{latex/}. La guía \sig{GUIA\_LABORATORIO.md} describe el
+cableado y el guion de la demostración.

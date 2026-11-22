@@ -1,4 +1,5 @@
-\section{El modelo}
+\subsection{El modelo de la misión}
+\label{sec:modelo}
 
 El modelo encadena cinco partes (figura~\ref{fig:marco}). Cada una entrega a la siguiente un
 número con el que se puede diseñar, y todas quedan acotadas por la capa ética y normativa de
@@ -11,7 +12,7 @@ la sección~\ref{sec:etica}.
 \label{fig:marco}
 \end{figure}
 
-\subsection{M1. El insecto: marcha natural}
+\subsubsection{M1. El insecto: marcha natural}
 
 La marcha sin estímulo se describe con el modelo de Dirafzoon et al.~\cite{dirafzoon2017}, con
 los valores que usan Tran-Ngoc et al.~\cite{tranngoc2024}. El insecto camina tramos rectos de
@@ -25,7 +26,7 @@ F_m=\frac{l^*/v}{l^*/v+P_s\,T_s}=\frac{9.1}{9.1+7.8}=0.54 ,
 dentro del intervalo medido de $0.37\pm0.20$. La carga útil y la altura salen de la
 tabla~\ref{tab:capacidades}: $m_c\le3$~g y componentes no apilados.
 
-\subsection{M2. El estímulo}
+\subsubsection{M2. El estímulo}
 
 \begin{table}[H]
 \centering\footnotesize
@@ -78,7 +79,7 @@ habituación frente a los datos medidos.}
 \label{fig:habituacion}
 \end{figure}
 
-\subsection{M3. La mochila: masa, energía y cómputo}
+\subsubsection{M3. La mochila: masa, energía y cómputo}
 
 \begin{figure}[H]
 \centering
@@ -127,7 +128,7 @@ Tarjeta de desarrollo (XIAO, SuperMini) & $21\times18$~mm & 1.5 a 2.5~g & 44~$\m
 \end{tabularx}
 \end{table}
 
-\subsection{M4. La detección}
+\subsubsection{M4. La detección}
 \label{sec:deteccion}
 
 Un sensor térmico de un solo píxel promedia todo su campo de visión. Si el blanco tiene área
@@ -200,7 +201,7 @@ temperatura~\cite{gracidas2026}. (b) Atenuación calculada con el modelo de la U
 mediciones de NIST son peores~\cite{stone1997}.}
 \end{figure}
 
-\subsection{Localización}
+\subsubsection{Localización}
 
 Encontrar a la persona no basta: hay que decirle al rescatista dónde cavar. El método tiene
 tres capas, de la más gruesa a la más fina.
@@ -225,7 +226,7 @@ a 2.4~GHz~\cite{itu2040}, y el único robot inalámbrico del World Trade Center 
 \label{fig:localizacion}
 \end{figure}
 
-\subsection{M5. La misión}
+\subsubsection{M5. La misión}
 
 La misión se simula con agentes. Cada agente camina con el modelo de M1, obedece estímulos
 con el modelo de M2 y detecta con el de M4, dentro de un colapso sintético de $8\times6$~m

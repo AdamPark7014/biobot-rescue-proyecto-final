@@ -1,0 +1,187 @@
+\section{Casos de estudio}
+\label{sec:casos}
+
+Cuatro casos, de menor a mayor alcance: el núcleo solo, la red de tres FPGA, la misión completa
+en simulación y el núcleo como circuito integrado.
+
+\subsection{Caso 1: el núcleo en una y en dos tarjetas}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figs/sistema.png}
+\caption{Sistema completo: del enjambre al rescatista.}
+\label{fig:sistema}
+\end{figure}
+
+Para cerrar el lazo sin sensor ni insecto, una segunda DE10-Lite hace de insecto y de matriz
+térmica: calcula los 64 píxeles que vería la mochila según la distancia y el rumbo, los manda
+por UART y mueve a un insecto de prueba según los estímulos que recibe. Las unen dos líneas de
+UART cruzadas y tierra. El 11 de noviembre de 2026 se corrieron los cuatro escenarios en las
+tarjetas, en tiempo real; los LED y los displays se leyeron por la sonda de JTAG.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Los cuatro escenarios del núcleo en dos DE10-Lite reales.}
+\label{tab:tarjetas}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.6cm}@{}}
+\toprule
+\rowcolor{TableHead} Escenario & Lo medido en las tarjetas & Simulación \\
+\midrule
+Persona a 1.65~m & Acercar a los 26.3~s con 2 píxeles; 8 píxeles a los 54.6~s; alerta a los 55.1~s, cuatro cuadros después; la otra tarjeta recibe la alerta & Alerta a los 55.6~s \\
+Objeto a 47.5~\textdegree C & Ningún píxel caliente, ni a 0.2~m; sin alerta en 45~s & Sin alerta \\
+Sin persona & Un pulso de avance cuando el insecto se detuvo; sin alerta en 75~s & Sin alerta \\
+Insecto que no responde & Reactivar a los 16 y a los 49~s; sin alerta en 75~s & Reactivar a los 16 y a los 49~s \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+El insecto de prueba no es el modelo de marcha de la simulación de misiones; es un banco con
+valores redondos que solo sirve para cerrar el lazo.
+
+\subsection{Caso 2: la red de tres FPGA}
+\label{sec:casored}
+
+El banco \sig{tb\_tri} cablea las dos mochilas y el receptor como en el laboratorio y recorre
+nueve escenarios (tabla~\ref{tab:escenarios}). En siete de ellos lee además los seis displays
+de cada tarjeta.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Los nueve escenarios de la red. Resultado: 9 de 9 correctos.}
+\label{tab:escenarios}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}c >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{TableHead} N.º & Escenario & Qué se comprueba y qué se midió \\
+\midrule
+1 & Triangulación con puente & A a 32.00~m, fuera de alcance, y B a 31.56~m, las dos a 36~\textdegree C. El aviso de A llega por B; conteo 2 en las tres tarjetas; persona estimada a 6.2~cm de la real, 1.10~s después del encendido. Displays: \sig{APd2b-}, \sig{bPd2Ar}, \sig{rPd2-b} \\
+2 & Objeto caliente y bordes & 47~\textdegree C no cuenta. 34 y 39~\textdegree C no detectan; 35 y 38~\textdegree C sí \\
+3 & Una sola mochila & A detecta; B, cerca de la entrada y sin detectar, hace de puente. Conteo 1 en las tres. LED de B: 26~m a A y 5~m al receptor \\
+4 & Rumbos opuestos & Las rectas no se cruzan: el receptor lo indica y promedia \\
+5 & Botón & Nada caliente; se aprieta el botón de B: conteo 1 en las tres y la posición es la de la mochila \\
+6 & Sin alcance & B lejos: las mochilas se oyen entre sí a 18~m, pero ninguna llega al receptor. Conteo 2, 2 y 0 \\
+7 & Seguir al sensor & Al salir de la ventana el conteo baja, y al volver, sube: 2, 1, 0, 1 (figura~\ref{fig:seguimiento}) \\
+8 & Ruido en la línea & Tres segundos de pulsos sobre la línea de B: 16 tramas descartadas por CRC y 18 perdidas contadas por número de secuencia; ningún dato equivocado. Al terminar triangula con el mismo error \\
+9 & Corte del alcance & A en siete posiciones: a 31.00~m se oye, por el eje X y por el eje Y; a 32.00~m, no. En diagonal, a 31.96~m se oye y a 32.0005~m no (figura~\ref{fig:umbral}) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figs/red_seguimiento.png}
+\caption{Escenario 7, con los datos de la simulación del circuito. La detección aparece y desaparece
+unos 0.8~s después del cambio de temperatura; las mochilas actualizan su conteo un cuadro (0.1~s)
+antes que el receptor.}
+\label{fig:seguimiento}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figs/red_umbral.png}
+\caption{Escenario 9. Los tonos se pierden en cuanto la mochila pasa de 32~m; el enlace de radio se da
+por perdido un segundo después, cuando caduca la última trama. Los LED del receptor marcan 31~m o
+se apagan.}
+\label{fig:umbral}
+\end{figure}
+
+\textbf{La terminal del operador} se probó contra las tres tarjetas simuladas con sus módulos
+superiores: 71 de 71 comprobaciones, 57 en 14 pasos sobre el circuito y 14 sobre lo que la
+terminal contesta. Esto es lo que ve el operador con las dos detecciones:
+
+{\scriptsize
+\begin{verbatim}
+=============== BioBot-Rescue: vista del operador (receptor) ===============
+PERSONAS DETECTADAS: 2
+Persona estimada en (25.56, 19.25) m  ->  TRIANGULADA (dos rumbos)
+
+Mochila A   [radio: por el puente B]   posicion (25.75, 19.00) m, a 32.00 m del receptor
+            termica SI, 36 C | boton no | ALERTAR | pixeles calientes 14 | rumbo 133.6 grados
+            tonos: oye a B SI, oye al receptor no
+Mochila B   [radio: directo]   posicion (25.25, 19.00) m, a 31.56 m del receptor
+            termica SI, 37 C | boton no | ALERTAR | pixeles calientes 12 | rumbo 43.2 grados
+            tonos: oye a A SI, oye al receptor SI
+
+Receptor    tonos: oye a A (1 kHz) no [potencia 43], oye a B (2 kHz) SI [potencia 27600]
+            distancia entre A y B 0.50 m | LED 00000 11111 (A: no se oye | B: 31 m)
+Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
+\end{verbatim}
+}
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Síntesis de la red en Quartus Prime Lite 24.1 para la MAX~10 \sig{10M50DAF484C7G} (49\,760
+elementos lógicos), con reloj de 50~MHz. Frecuencia del peor caso (modelo lento, 85~\textdegree C).}
+\label{tab:sintesisred}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}X r r r r r@{}}
+\toprule
+\rowcolor{TableHead} Variante & Elem. lógicos & Registros & Mult. 9 bits & $f_{\max}$ (MHz) & Holgura (ns) \\
+\midrule
+Mochila A & 3\,933 (8~\%) & 2\,279 & 43 & 55.43 & 1.96 \\
+Mochila B & 3\,952 (8~\%) & 2\,279 & 43 & 58.52 & 2.91 \\
+Receptor & 4\,929 (10~\%) & 2\,523 & 76 & 61.63 & 3.77 \\
+Receptor con la mochila B & 7\,525 (15~\%) & 4\,060 & 107 & 59.42 & 3.17 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Las cuatro variantes cumplen el reloj sin advertencias críticas. En la mochila, el núcleo ocupa
+405 elementos lógicos; el sensor simulado, 856; la recepción de tramas con CRC, 739; los tonos,
+355, y las dos distancias, 196. En el receptor, la triangulación ocupa 1\,509.
+
+\textbf{En las tarjetas.} El 18 de noviembre de 2026 las tres DE10-Lite corrieron seis escenarios
+correctos con la versión anterior del enlace (mapa de 20~m, suma de verificación simple y sin
+tonos), con 2.8~cm de error de triangulación y el aviso de A llegando por el puente; el sensor
+simulado detectó con 35, 36 y 38~\textdegree C y no con 34, 39, 47 ni 22~\textdegree C. La versión
+que aquí se describe, con CRC-16, tonos, mapa de 64~m y distancias exactas, está verificada por
+simulación y síntesis; su prueba en las tarjetas usa el mismo guion, \sig{sim/prueba\_tri.tcl}.
+
+\input{sections/04c_mision}
+
+\subsection{Caso 4: el núcleo como circuito integrado}
+\label{sec:layout}
+
+El núcleo pasó el flujo de la sección~\ref{sec:flujo-layout} y produjo un GDS sin errores
+(figura~\ref{fig:layout} y tabla~\ref{tab:layout}).
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.40\textwidth}
+\includegraphics[width=\linewidth]{../layout/resultados/nucleo_biobot_klayout.png}
+\caption{El dado completo: $217.7\times228.4~\mu$m.}
+\end{subfigure}\hfill
+\begin{subfigure}{0.56\textwidth}
+\includegraphics[width=\linewidth]{../layout/resultados/klayout_escritorio_vm.png}
+\caption{El GDS abierto en KLayout, en la máquina virtual.}
+\end{subfigure}
+\caption{Layout del núcleo de la mochila en SKY130.}
+\label{fig:layout}
+\end{figure}
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Resultados del layout (LibreLane 3.0.17, \sig{sky130\_fd\_sc\_hd}, reloj de 20~ns).}
+\label{tab:layout}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{0.92\textwidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{6.3cm}@{}}
+\toprule
+\rowcolor{TableHead} \textbf{Medida} & \textbf{Valor} \\
+\midrule
+Área del dado & 49\,731~$\mu$m$^2$ = 0.050~mm$^2$ \\
+Área de las celdas colocadas & 22\,615~$\mu$m$^2$ = 0.023~mm$^2$ (ocupación de 53.7~\%) \\
+Celdas estándar & 2\,671, de ellas 253 flip-flops \\
+Búferes de reparación de tiempos y árbol de reloj & 485 y 67 \\
+Margen de \emph{setup} a 50~MHz, peor esquina & +4.94~ns (+6.07~ns entre registros) \\
+Margen de \emph{hold}, peor esquina & +0.11~ns \\
+Frecuencia máxima estimada & 72~MHz (lenta), 143~MHz (típica), 220~MHz (rápida) \\
+Potencia a 50~MHz, sin vectores & 2.47~mW \\
+DRC (Magic y KLayout), LVS (Netgen) y antenas & 0 errores; LVS: los circuitos coinciden \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La frecuencia máxima se estima con el margen medido, $f\approx1/(20~\text{ns}-\text{margen})$, sin
+volver a optimizar para esa frecuencia. La potencia supone una actividad de conmutación por
+omisión; en la mochila la lógica cambia diez veces por segundo, así que el consumo real es menor.

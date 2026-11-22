@@ -403,8 +403,9 @@ Lo que **no** está hecho:
 
 Trabajo futuro:
 
-- **Circuito integrado.** Llevar el núcleo a un diseño físico con OpenLane y el proceso SKY130 de
-  SkyWater. La estimación por conteo de celdas da cerca de 0.014 mm²; falta correr el flujo completo.
+- **Circuito integrado.** El núcleo ya tiene layout en SKY130 con el flujo abierto LibreLane, el
+  sucesor de OpenLane: 0.050 mm², DRC y LVS sin errores y unos 72 MHz en la esquina lenta
+  ([layout/LEEME.md](layout/LEEME.md)). Falta fabricarlo en una corrida compartida y medirlo.
 - **Sensores reales**: matriz térmica AMG8833 o MLX90640, micrófono MEMS y sensor de CO₂, con un
   clasificador a bordo que fusione las tres señales.
 - **Distancia por tonos**: medir la potencia recibida o el tiempo de llegada para estimar la distancia, y no
@@ -416,7 +417,9 @@ Trabajo futuro:
 
 ## Documentos
 
-- [Reporte de investigación (PDF)](Esquema_Investigacion_BioBot-Rescue.pdf), con las referencias en formato IEEE.
+- [Reporte del proyecto final y práctica 5 (PDF)](Reporte_Proyecto_Final_y_Practica_5_BioBot-Rescue.pdf), con
+  estructura de artículo y las referencias en formato IEEE.
+- [Layout del núcleo en SKY130](layout/LEEME.md): GDS, métricas e imágenes.
 - [Resumen de una página (PDF)](BioBot-Rescue_en_una_pagina.pdf).
 - [Guía de laboratorio](GUIA_LABORATORIO.md).
 - [Notas de investigación](investigacion/): biología, estimulación, hardware, búsqueda y rescate, ética y

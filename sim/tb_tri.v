@@ -32,6 +32,7 @@
 // En cada escenario se revisa tambien lo que se lee en los seis displays de cada
 // tarjeta: quien soy, "Pd", personas detectadas y a quien oigo.
 // Con +rapido solo corren el 1 y el 9; con +desde=N +hasta=M, los escenarios N a M.
+// Con +traza se guarda ademas, cada 10 ms, lo que se ve en las tarjetas (trazas/tri_N.csv).
 // Reloj declarado de 400 kHz y 40 000 baudios (10 ciclos por bit).
 // ============================================================================
 module tb_tri;
@@ -130,6 +131,25 @@ function corre;
     corre = rapido ? (k == 1 || k == 9) : (k >= desde && k <= hasta);
 endfunction
 
+// Con +traza se guarda cada 10 ms lo que se ve en las tres tarjetas, en trazas/tri_<N>.csv
+// (N es el escenario de +desde). De esos datos salen las figuras del reporte.
+reg            traza = 1'b0;
+integer        ft, c_traza = 0, n_traza = 0;
+reg [8*24-1:0] nombre_traza;
+always @(posedge clk) begin
+    if (traza) begin
+        if (c_traza == CLK / 100 - 1) begin
+            c_traza <= 0;
+            n_traza <= n_traza + 1;
+            $fdisplay(ft, "%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d",
+                      n_traza, reset, tp_a, tp_b, al_a, al_b, pe_ba, pe_bb, cu_a, cu_b, cu_r, modo, est_x, est_y, enl,
+                      ot_a, or_a, ot_b, or_b, oye_ra, oye_rb, xa, ya, xb, yb, dr_a, dr_b, d_ra, d_rb, d_ab,
+                      led_a, led_b, led_r, pt_a, pt_b, malas, perd_a, perd_b, mete_ruido);
+        end else
+            c_traza <= c_traza + 1;
+    end
+end
+
 task arranca;
     input [9:0] swa, swb;
     begin
@@ -193,6 +213,12 @@ initial begin
     rapido = $test$plusargs("rapido");
     if (!$value$plusargs("desde=%d", desde)) desde = 1;
     if (!$value$plusargs("hasta=%d", hasta)) hasta = 9;
+    if ($test$plusargs("traza")) begin
+        $sformat(nombre_traza, "trazas/tri_%0d.csv", desde);
+        ft = $fopen(nombre_traza, "w");
+        $fdisplay(ft, "muestra,reset,temp_a,temp_b,termica_a,termica_b,boton_a,boton_b,cuenta_a,cuenta_b,cuenta_r,modo,est_x,est_y,enlaces,a_oye_b,a_oye_r,b_oye_a,b_oye_r,r_oye_a,r_oye_b,xa,ya,xb,yb,d_a_rec,d_b_rec,d_rec_a,d_rec_b,d_ab,led_a,led_b,led_r,pot_a,pot_b,malas,perd_a,perd_b,ruido");
+        traza = 1'b1;
+    end
 
     // ---- 1: triangulacion con puente
     if (corre(1)) begin

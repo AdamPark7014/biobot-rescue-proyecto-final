@@ -1,10 +1,10 @@
-# Regenera las figuras (simulación incluida) y compila el esquema de investigación.
+# Regenera las figuras (simulación incluida) y compila el reporte.
 # Uso: pwsh -File compilar.ps1            (figuras + PDF)
 #      pwsh -File compilar.ps1 -SoloPdf   (no vuelve a correr la simulación)
 param([switch]$SoloPdf)
 $ErrorActionPreference = 'Stop'
 $raiz = $PSScriptRoot
-$salida = Join-Path $raiz 'Esquema_Investigacion_BioBot-Rescue.pdf'
+$salida = Join-Path $raiz 'Reporte_Proyecto_Final_y_Practica_5_BioBot-Rescue.pdf'
 
 if (-not $SoloPdf) {
     Push-Location (Join-Path $raiz 'modelo')

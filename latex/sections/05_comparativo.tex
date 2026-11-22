@@ -1,0 +1,90 @@
+\section{Análisis comparativo}
+\label{sec:comparativo}
+
+\subsection{Comparación cualitativa con los trabajos relacionados}
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Este trabajo frente a los sistemas publicados con \Gp.}
+\label{tab:cualitativa}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{TableHead} Trabajo & Cómputo en la mochila & Quién decide & Detecta personas & Combina varias mochilas \\
+\midrule
+NC State, 2012~\cite{latif2012} & Microcontrolador con radio & Un operador, por control remoto & No & No \\
+NTU, 2023~\cite{tranngoc2023} & Microcontrolador Cortex-M4F y radio & La detección, a bordo; la navegación usa posición externa & Sí, matriz de $32\times32$ y clasificador & No \\
+NTU y Osaka, 2025~\cite{bai2025} & Módulo inalámbrico & Una computadora, con captura de movimiento & No & Sí, para navegar en enjambre \\
+Osaka, 2025~\cite{refat2025} & Casco con luz ultravioleta & Navegación autónoma, sin operador & No & No \\
+Este trabajo & FPGA; el núcleo cabe en 477 elementos lógicos o en 0.050~mm$^2$ de SKY130 & A bordo: máquina de estados con presupuesto de estímulos & Sí, por conteo de píxeles; con sensor simulado & Sí: dos mochilas y un receptor triangulan, y una retransmite a la otra \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Lo que distingue a este trabajo es dónde se hace el cómputo y qué se hace con varias mochilas:
+la decisión de estimular, el enlace, el reconocimiento de vecinos y la posición de la persona
+se resuelven en hardware digital, sin procesador y sin computadora. Lo que le falta frente a
+los demás es lo más importante: ellos probaron con insectos y este trabajo no.
+
+\subsection{Comparación cuantitativa}
+\label{sec:cuantitativo}
+
+\textbf{Dos formas de calcular la distancia.} La primera versión de la red sacaba la distancia de
+la magnitud del CORDIC en vectorización, truncada a la cuenta. Su error es de menos de una
+cuenta, pero al truncar basta para cambiar la lectura (tabla~\ref{tab:distancias}): 31.00~m sobre
+el eje Y se leía 30.94~m, y los LED habrían marcado 30. La raíz cuadrada entera es exacta y además
+más chica.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Distancia por CORDIC truncado frente a la raíz cuadrada entera, en los 1\,048\,576 pares de
+diferencias del mapa (\sig{tb\_dist\_cordic} y \sig{tb\_distancia}).}
+\label{tab:distancias}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{0.92\textwidth}{@{}>{\raggedright\arraybackslash}X r r@{}}
+\toprule
+\rowcolor{TableHead} \textbf{Medida} & \textbf{CORDIC truncado} & \textbf{Raíz entera} \\
+\midrule
+Lecturas distintas de la exacta & 17\,762 & 0 \\
+Distancias exactas (cuadrados perfectos) mal leídas, de 4\,179 & 2\,407 & 0 \\
+Puntos donde la lectura contradice la regla de los 32~m & 12 & 0 \\
+Elementos lógicos por distancia & unos 500 & 87 a 109 \\
+Latencia (ciclos) & 18 & 12 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Con el cambio, la mochila bajó de 4\,812 a 3\,933 elementos lógicos y el receptor de 6\,220 a
+4\,929. El CORDIC quedó para lo que hace bien: los ángulos.
+
+\textbf{El mismo núcleo en FPGA y en silicio.}
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{El núcleo de la mochila en tres formas.}
+\label{tab:fpgaasic}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{TableHead} & Estimación por conteo de celdas & FPGA MAX~10 (Quartus) & SKY130 (layout) \\
+\midrule
+Tamaño & 0.014~mm$^2$ de celdas & 477 elementos lógicos & 0.023~mm$^2$ de celdas; 0.050~mm$^2$ de dado \\
+Registros & 224 & 224 & 253 flip-flops \\
+Frecuencia & --- & 72.08~MHz (modelo lento) & 72~MHz (esquina lenta), 143~MHz (típica) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La estimación por conteo, $(224\times20.0+450\times6)/0.5\approx14\,400~\mu$m$^2$, se quedó corta por
+tres cosas que solo aparecen al hacer el layout: los búferes que se agregan para cumplir
+\emph{hold} y transiciones, el árbol de reloj y las celdas de pozo. Hay más registros que en la
+FPGA porque en la tarjeta algunas salidas del núcleo no se usan y Quartus elimina sus registros;
+en el chip las 67 salidas son pines. La frecuencia coincide en las dos tecnologías, y en ambas
+sobra: el núcleo procesa diez cuadros por segundo.
+
+\textbf{La política frente a no estimular.} Con diez insectos, la detección en una hora sube de
+\pPasivaSesenta~\% a \pGuiadaSesenta~\%, con unos \estGuiada{} estímulos por insecto y por hora;
+diez insectos guiados rinden como entre veinte y cuarenta sin guiar
+(sección~\ref{sec:resultados}).
+
+\input{sections/05b_costos_practicidad}

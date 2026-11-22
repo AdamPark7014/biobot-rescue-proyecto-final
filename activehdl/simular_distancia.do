@@ -1,10 +1,11 @@
-# Distancia exacta (sim/tb_distancia.v): la raiz cuadrada entera de tri_distancia, comparada
-# contra el valor exacto en los dos ejes, en todos los puntos alrededor del corte de 32 m y en
-# 60 000 pares al azar. Se ven los dos puntos, la suma de cuadrados, la raiz que se va
-# armando bit por bit y la distancia final. Termina con una linea RESULTADO en la consola.
+# Distancia exacta (sim/tb_distancia.v): la raiz cuadrada entera de tri_distancia. Con +casos
+# corren los once casos de la demostracion (31 y 32 m en los dos ejes y en diagonal). Se ven
+# los dos puntos, la suma de cuadrados, la raiz que se va armando bit por bit y la distancia
+# final. Termina con una linea RESULTADO en la consola.
+# Sin +casos recorre ademas los dos ejes, el corte de 32 m y 60 000 pares al azar.
 # Uso:  do ".../activehdl/simular_distancia.do"   (antes: endsim)
 
-asim +access +r tb_distancia
+asim +access +r +casos tb_distancia
 
 wave /tb_distancia/clk
 wave /tb_distancia/start

@@ -1,12 +1,13 @@
 % =====================================================================
-%  BioBot-Rescue -- Esquema de investigacion del proyecto final
+%  BioBot-Rescue -- Reporte del proyecto final y practica 5
 %  O26-LRT3032-2 Sistemas Embebidos -- UDLAP
 %  Roberto Orozco Ramirez (184595), Adam Del Pozo Ontiveros (185611) y
 %  Enrique Bernal Martin Prieto (184878)
 %
 %  Compilar con ..\compilar.ps1 (dos pasadas de pdflatex; latexmk no sirve:
-%  este MiKTeX no trae Perl). Las figuras de figs\ las genera
-%  ..\modelo\figuras.py a partir de la simulacion y de los datos citados.
+%  este MiKTeX no trae Perl). Las figuras de figs\ las generan los programas
+%  de ..\modelo\ (figuras.py, red.py, numerico.py y trazas.py) a partir de las
+%  simulaciones y de los datos citados.
 % =====================================================================
 \documentclass[11pt,letterpaper]{article}
 
@@ -72,7 +73,7 @@
 \titleformat{\subsection}
   {\large\bfseries\color{Secondary}}
   {\colorbox{Secondary!15}{\color{Primary}\strut\hspace{0.4em}\thesubsection\hspace{0.4em}}}{0.6em}{}
-\titleformat{\subsubsection}{\normalsize\bfseries\color{Primary}}{}{0pt}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{Primary}}{\thesubsubsection}{0.6em}{}
 \titlespacing*{\section}{0pt}{1.0em}{0.6em}
 \titlespacing*{\subsection}{0pt}{0.8em}{0.4em}
 \titlespacing*{\subsubsection}{0pt}{0.6em}{0.2em}
@@ -110,15 +111,16 @@
 \newcommand{\idC}{184878}
 \newcommand{\materia}{Sistemas Embebidos}
 \newcommand{\clave}{O26-LRT3032-2}
-\newcommand{\fechadoc}{9 de noviembre de 2026}
+\newcommand{\fechadoc}{21 de noviembre de 2026}
 \newcommand{\titulo}{BioBot-Rescue}
-\newcommand{\subtitulo}{Modelo bio-híbrido guiado por estímulos para búsqueda y rescate con
-  \especie{} y una mochila embebida ultraligera}
+\newcommand{\subtitulo}{Red de mochilas embebidas en FPGA para localizar personas atrapadas con
+  \especie}
+\newcommand{\repositorio}{https://github.com/AdamPark7014/biobot-rescue}
 
 \pagestyle{fancy}
 \fancyhf{}
 \lhead{\textcolor{Primary}{\footnotesize \materia\ (\clave)}}
-\rhead{\textcolor{Primary}{\footnotesize \titulo\ --- Esquema de investigación}}
+\rhead{\textcolor{Primary}{\footnotesize \titulo\ --- Proyecto final y práctica 5}}
 \fancyfoot[L]{\textcolor{Primary}{\scriptsize \autorA\ (\idA) \,$\cdot$\, \autorB\ (\idB) \,$\cdot$\, \autorC\ (\idC)}}
 \fancyfoot[R]{\textcolor{Primary}{\footnotesize \thepage\ / \pageref*{LastPage}}}
 \renewcommand{\headrulewidth}{0.7pt}
@@ -138,15 +140,14 @@
 \hypersetup{pageanchor=true}
 \setcounter{page}{1}
 
-\input{sections/01_problema}
+\input{sections/01_introduccion}
 \input{sections/02_estado_del_arte}
-\input{sections/03_portador}
-\input{sections/04_modelo}
-\input{sections/05_arquitectura}
-\input{sections/06_resultados}
-\input{sections/07_costos_practicidad}
-\input{sections/08_etica}
-\input{sections/09_plan}
-\input{sections/10_referencias}
+\input{sections/03_metodologia}
+\input{sections/04_casos}
+\input{sections/05_comparativo}
+\input{sections/06_etica}
+\input{sections/07_conclusiones}
+\input{sections/08_referencias}
+\input{sections/09_repositorio}
 
 \end{document}

@@ -1,4 +1,4 @@
-\section{Resultados de la simulación}
+\subsection{Caso 3: la misión simulada}
 \label{sec:resultados}
 
 Cada misión libera a los insectos por un boquete de un colapso sintético de $8\times6$~m con
@@ -7,7 +7,7 @@ unos \areaLibre~m$^2$ de huecos; la persona está inmóvil, a un recorrido medio
 \numMapas{} colapsos distintos: \numMisiones{} misiones de una hora. Con esa muestra, cada
 porcentaje tiene un margen de unos $\pm5$ puntos (intervalo de 95~\%).
 
-\subsection{Validación de la marcha}
+\subsubsection{Validación de la marcha}
 
 Antes de comparar políticas se comprobó que el insecto simulado camina como el medido. En una
 arena abierta de $1\times1$~m se midieron las mismas magnitudes que
@@ -37,7 +37,7 @@ coincide es la pausa con comandos: el insecto simulado descansa \valPausaCom~s y
 5.6~s. En ese punto el modelo es conservador, porque subestima cuánto acorta las pausas un
 estímulo.
 
-\subsection{Cuatro políticas con diez insectos}
+\subsubsection{Cuatro políticas con diez insectos}
 
 Se comparan cuatro políticas. La \textbf{pasiva} solo detecta. La \textbf{antipausa} da un pulso de
 avance cuando el insecto lleva 15~s quieto. La \textbf{estocástica} añade giros al azar. La
@@ -88,7 +88,7 @@ comparación válida es la de la figura~\ref{fig:politicas}.}
 \label{fig:mapa}
 \end{figure}
 
-\subsection{El colapso pesa más que la política}
+\subsubsection{El colapso pesa más que la política}
 
 \begin{figure}[H]
 \centering
@@ -121,7 +121,7 @@ el caso malo: donde la política guiada caía a \mapaPeorGuiada~\%, el enjambre 
 forma de reconocer el colapso antes de entrar. En el núcleo pide un modo de solo detección, que
 es un cambio pequeño y queda pendiente.
 
-\subsection{Tamaño del enjambre}
+\subsubsection{Tamaño del enjambre}
 
 \begin{figure}[H]
 \centering
@@ -153,7 +153,7 @@ una hora pasa de \enjHoraPasivaVeinte{} a \enjHoraGuiadaVeinte~\%. Diez insectos
 \enjHoraPasivaCuarenta~\%). Dicho de otro modo, la política equivale a duplicar o triplicar el
 enjambre sin criar ni equipar más animales.
 
-\subsection{Sensor y habituación}
+\subsubsection{Sensor y habituación}
 
 \begin{figure}[H]
 \centering
@@ -181,7 +181,7 @@ el animal y no el rendimiento: se obtiene lo mismo con la tercera parte de la ca
 insecto. Con un estímulo que no habitúa, como la onda bifásica o la luz, la detección en dos
 horas llega a \habDetBifasico~\%, frente a \habDetPasiva~\% sin estímulos.
 
-\subsection{Sensibilidad a los supuestos}
+\subsubsection{Sensibilidad a los supuestos}
 
 Doce parámetros se movieron entre un valor bajo y uno alto, uno a la vez, en cuatro de los
 colapsos (160 misiones por caso; el margen sube a unos $\pm8$ puntos). En esos cuatro colapsos
@@ -228,7 +228,7 @@ lo que más importa es cuánto y qué tan rápido camina el insecto, que es lo q
 temperatura deterioran. Para la política pasiva pesa sobre todo cuánta piel queda a la vista: de
 \sensAreaBajoPasiva{} a \sensAreaAltoPasiva~\%.
 
-\subsection{Recuperar a los insectos}
+\subsubsection{Recuperar a los insectos}
 \label{sec:regreso}
 
 Una mochila que no vuelve es un animal abandonado y una pila de litio bajo el escombro. Por eso se
@@ -283,7 +283,7 @@ por separado: una cerca invisible que devuelve al insecto cuando sale de una zon
 y micrófonos en la mochila para localizar una fuente de sonido~\cite{latif2016}. El modo de regreso
 tampoco está en el núcleo: pide dos fotodiodos, un comparador y un estado más en la máquina.
 
-\subsection{Qué dice y qué no dice la simulación}
+\subsubsection{Qué dice y qué no dice la simulación}
 
 \textbf{Sobre la hipótesis.} Se sostiene en parte. La política guiada aumenta la detección en una
 sesión de 45 a 60~min (de \pPasivaCuarentaCinco{} a \pGuiadaCuarentaCinco~\% y de

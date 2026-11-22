@@ -1,0 +1,154 @@
+\subsection{Procesamiento numérico en punto fijo}
+\label{sec:numerico}
+
+La red necesita ángulos, cosenos, potencias de un tono y distancias, y en la FPGA no hay punto
+flotante. Este apartado reúne los bloques numéricos del proyecto, que son los de la práctica~5
+(CORDIC y filtros FIR e IIR), con el formato de cada uno y su error medido contra el valor
+exacto. La tabla~\ref{tab:formatos} resume los formatos.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Formatos de punto fijo del proyecto.}
+\label{tab:formatos}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}p{4.3cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{TableHead} Magnitud & Formato & Resolución y razón \\
+\midrule
+Temperatura de un píxel & 8 bits sin signo & 0.25~\textdegree C por cuenta, la del sensor AMG8833; cubre de 0 a 63.75~\textdegree C \\
+Posición y distancia & 10 bits sin signo & 6.25~cm por cuenta sobre 64~m; la matriz confirma a menos de 1~m, así que 6~cm sobran \\
+Ángulo & 16 bits, un giro completo & $360/65\,536=0.0055$\textdegree{} por cuenta; el desbordamiento es el paso por 360\textdegree, sin lógica extra. En la trama viajan los 10 bits altos (0.35\textdegree) \\
+CORDIC, $x$ e $y$ & 24 bits con signo y 4 bits de guarda & Los bits de guarda dejan el redondeo de los corrimientos por debajo de una cuenta de la salida \\
+Coseno y seno & 18 bits con signo, 14 de fracción & $2^{-14}=6.1\times10^{-5}$; caben $\pm1$ con margen para los productos de la triangulación \\
+Coeficientes de Goertzel & Q2.14 con signo & $c=2\cos(2\pi k/64)$ queda entre $-2$ y $2$ \\
+Estado de Goertzel & 18 bits con signo & La entrada mide $\pm9$ a lo sumo (dos tonos de amplitud 4 y ruido de $\pm1$) y el filtro acumula 64 muestras: el estado no pasa de $2^{11}$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{CORDIC}
+\label{sec:cordic}
+
+El CORDIC~\cite{volder1959,andraka1998} gira un vector por ángulos cada vez menores, elegidos
+para que cada giro se haga con sumas y corrimientos:
+\begin{equation}
+x_{i+1}=x_i-d_i\,y_i\,2^{-i},\qquad
+y_{i+1}=y_i+d_i\,x_i\,2^{-i},\qquad
+z_{i+1}=z_i-d_i\arctan 2^{-i},
+\end{equation}
+con $d_i=\pm1$. El módulo \sig{cordic} es secuencial, una iteración por ciclo, y trabaja en los
+dos modos. En \textbf{rotación} lleva $z$ a cero: con $(x_0,y_0)=(1/K,0)$ entrega
+$(\cos z_0,\ \sin z_0)$, que es lo que usa la triangulación. En \textbf{vectorización} lleva $y$
+a cero: entrega el ángulo $\operatorname{atan2}(y_0,x_0)$ y la magnitud multiplicada por la
+ganancia $K=\prod\sqrt{1+2^{-2i}}=1.646760$; lo usa el sensor simulado para saber en qué
+dirección queda la persona. Antes de iterar, el problema se lleva al semiplano derecho con un
+giro de 180\textdegree, porque el algoritmo solo converge para ángulos de $\pm99.9$\textdegree.
+La latencia es de $N+2$ ciclos.
+
+\textbf{Cuántas iteraciones.} Nueve circuitos iguales, con $N$ de 4 a 20, recibieron los mismos
+360 vectores y los mismos 360 ángulos, y cada resultado se comparó con el valor exacto
+(figura~\ref{fig:cordiciter} y tabla~\ref{tab:cordiciter}). El error se divide entre cuatro cada dos
+iteraciones hasta $N=14$ y ahí se estanca: la tabla de arcotangentes tiene ángulos de 16 bits y
+se agota en la iteración 14, de modo que iterar más ya no aporta. Se eligió $N=16$: está en el
+piso del error, con dos iteraciones de margen sobre el punto donde la curva deja de bajar. Su
+error máximo en el ángulo es de 0.017\textdegree, veinte veces menos que el paso de
+0.35\textdegree{} con que el rumbo viaja por la red.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figs/cordic_iteraciones.png}
+\caption{Error del CORDIC según el número de iteraciones, medido en la simulación del circuito contra
+el valor exacto: 360 vectores en vectorización y 360 ángulos en rotación por cada valor de $N$.}
+\label{fig:cordiciter}
+\end{figure}
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Error máximo del CORDIC, medido con el banco \sig{tb\_cordic\_iter}.}
+\label{tab:cordiciter}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{0.86\textwidth}{@{}>{\bfseries}c >{\raggedleft\arraybackslash}X >{\raggedleft\arraybackslash}X >{\raggedleft\arraybackslash}X >{\raggedleft\arraybackslash}X@{}}
+\toprule
+\rowcolor{TableHead} $N$ & Ángulo (\textdegree) & Ángulo, eficaz (\textdegree) & Magnitud (\%) & Coseno y seno (\%) \\
+\midrule
+4  & 7.093 & 4.083 & 0.764 & 12.369 \\
+8  & 0.442 & 0.246 & 0.0044 & 0.773 \\
+12 & 0.035 & 0.017 & 0.0035 & 0.056 \\
+16 & 0.017 & 0.0064 & 0.0039 & 0.026 \\
+20 & 0.017 & 0.0064 & 0.0056 & 0.029 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Cada CORDIC ocupa unos 530 elementos lógicos y ningún multiplicador. El otro banco,
+\sig{tb\_cordic}, prueba los cuatro cuadrantes con 48 casos más 200 divisiones: 248 de 248.
+
+\subsubsection{Filtro FIR: media móvil}
+
+El conteo de píxeles calientes oscila con el vaivén del insecto al caminar. Antes de comparar
+con los umbrales, el núcleo lo pasa por un filtro FIR de cuatro coeficientes iguales:
+\begin{equation}
+y[n]=\tfrac14\bigl(x[n]+x[n-1]+x[n-2]+x[n-3]\bigr).
+\end{equation}
+Con coeficientes de $1/4$ no hace falta ningún multiplicador: son tres sumas y un corrimiento
+de dos bits, 40 elementos lógicos y 28 registros. No tiene realimentación, así que es estable, y
+su fase es lineal: retrasa la señal un cuadro y medio sin deformarla. Con diez cuadros por
+segundo tiene nulos en 2.5 y 5~Hz (figura~\ref{fig:filtros}, izquierda). El costo es la latencia,
+porque la detección espera a que el promedio suba, y forma parte de los 1.10~s medidos en la
+sección~\ref{sec:casored}. El filtro se verifica dentro del núcleo, que coincide con su modelo
+de referencia en los 11\,424 cuadros.
+
+\subsubsection{Filtro IIR: Goertzel}
+\label{sec:goertzel}
+
+Para saber si un tono está presente no hace falta una transformada completa: basta la potencia
+en una frecuencia. El filtro de Goertzel~\cite{goertzel1958} la obtiene con un IIR de segundo
+orden y una sola multiplicación por muestra:
+\begin{equation}
+s[n]=x[n]+c\,s[n-1]-s[n-2],\qquad c=2\cos\frac{2\pi k}{N_b},
+\end{equation}
+\begin{equation}
+P=s[N_b-1]^2+s[N_b-2]^2-c\,s[N_b-1]\,s[N_b-2].
+\end{equation}
+Con bloques de $N_b=64$ muestras a 16~kHz, los tonos de 1, 2 y 4~kHz caen exactamente en las
+líneas $k=4$, 8 y 16, de modo que un tono no se cuela en el filtro de otro. Los coeficientes
+valen 1.847759, 1.414214 y 0; en Q2.14 son 30\,274, 23\,170 y 0, con un error de cuantización
+menor que $4\times10^{-5}$, y el de 4~kHz se ahorra la multiplicación.
+
+Un IIR puede volverse inestable al cuantizar sus coeficientes, y este tiene los polos sobre el
+círculo unitario. Aquí no hay riesgo, por dos razones: el filtro solo corre 64 muestras y su
+estado se borra al terminar cada bloque, así que ningún error se acumula; y el estado tiene 18
+bits para una señal que no pasa de $2^{11}$.
+
+La figura~\ref{fig:filtros} (derecha) muestra lo que mide la mochila A: con el tono presente la
+potencia va de 27\,000 a 33\,000 unidades; sin él no pasa de 50 en este banco, ni de 104 en la
+simulación de la red completa, aunque llegue otro tono a la vez. El umbral de 4\,000 queda a un
+factor de siete del primer caso y de cuarenta del segundo. Los tres filtros y el generador de
+tono ocupan 355 elementos lógicos y 225 registros.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figs/filtros.png}
+\caption{Izquierda: respuesta en frecuencia de la media móvil del núcleo (curva teórica). Derecha:
+potencia medida por los filtros de Goertzel de la mochila A en la simulación del circuito
+(\sig{tb\_tonos}), según qué tonos llegan; el propio se ignora.}
+\label{fig:filtros}
+\end{figure}
+
+\subsubsection{Raíz cuadrada entera y divisor}
+\label{sec:raiz}
+
+La distancia entre dos nodos sale de $\Delta x^2+\Delta y^2$, que cabe en 22 bits. El módulo
+\sig{tri\_distancia} le saca la raíz con el método de dígito por dígito, el mismo de la raíz a
+mano en binario: baja dos bits del radicando por ciclo, prueba si cabe $4q+1$ en el resto y, si
+cabe, lo resta y pone un 1 en la raíz. En 12 ciclos entrega la parte entera exacta, sin error
+de redondeo, con unos 100 elementos lógicos y 60 registros. La sección~\ref{sec:cuantitativo}
+explica por qué no se usa aquí el CORDIC, que también da la magnitud.
+
+El divisor \sig{divisor\_u} es un divisor con restauración, un bit del cociente por ciclo. La
+triangulación usa uno de 44 bits entre 32 (195 elementos lógicos) y el rumbo, uno de 20 entre 7.
+
+\textbf{Lo que no se usó.} El proyecto no tiene un controlador PID. El actuador de la mochila no
+es una magnitud continua, sino un pulso que el insecto obedece o no, y lo que hay que acotar es
+cuántos pulsos recibe. Por eso el control es una máquina de estados con un presupuesto de
+estímulos (sección~\ref{sec:nucleo}) y no un lazo proporcional.

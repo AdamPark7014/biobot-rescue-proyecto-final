@@ -1,0 +1,63 @@
+\subsection{Herramientas y procedimiento de verificación}
+\label{sec:herramientas}
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Herramientas del proyecto.}
+\label{tab:herramientas}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{4.4cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{TableHead} Herramienta & Para qué se usó \\
+\midrule
+Python 3.12 & Simulación de la misión, modelo de referencia del núcleo y figuras \\
+Icarus Verilog 12~\cite{icarus} & Simulación de todos los bancos de prueba \\
+Active-HDL 17, edición estudiantil & Proyecto con todos los módulos y macros para ver las formas de onda \\
+Quartus Prime Lite 24.1 & Síntesis, colocación, ruteo y análisis de tiempos para la MAX~10 \sig{10M50DAF484C7G} \\
+DE10-Lite~\cite{terasic}, tres tarjetas & Pruebas en hardware: una, dos y tres tarjetas unidas por UART \\
+Sonda de Quartus por JTAG~\cite{intelissp} & Leer los registros de las tarjetas y fijar sus entradas desde la computadora \\
+LibreLane 3.0.17 con la PDK \sig{sky130A}~\cite{librelane,skywater} & Layout del núcleo, de RTL a GDS, en una máquina virtual con Ubuntu 24.04 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Cada bloque se verificó solo antes de conectarlo, en este orden:
+\begin{enumerate}
+  \item \textbf{Modelo de referencia.} Antes de escribir el Verilog del núcleo se programó en Python un
+        modelo que hace las mismas cuentas con enteros, registro por registro. Ese modelo genera
+        los cuadros de prueba y la respuesta esperada.
+  \item \textbf{Bancos autoverificables.} Cada banco compara contra un valor esperado y termina con una
+        línea de resultado; ninguno se revisa a ojo. Los bloques numéricos se comparan contra el
+        valor exacto en aritmética real, y la distancia, contra todos los puntos del mapa.
+  \item \textbf{Integración.} El banco \sig{tb\_tri} cablea las tres FPGA como en el laboratorio y recorre
+        nueve escenarios; lee los displays y los LED como los vería una persona.
+  \item \textbf{Síntesis y tiempos.} Las cuatro variantes de la red se compilan con el reloj de 50~MHz
+        y se exige holgura positiva en el peor caso y cero advertencias críticas. Después de cada
+        cambio se comparan los recursos con la síntesis anterior: una diferencia inesperada delata
+        lógica eliminada.
+  \item \textbf{Tarjetas.} Los mismos escenarios se repiten en las DE10-Lite fijando las entradas y
+        leyendo los registros por la sonda de JTAG, sin instrumentos externos.
+  \item \textbf{La terminal sin tarjetas.} Para probar el programa de la computadora cuando no hay
+        tarjetas, sus funciones de JTAG se sustituyen por archivos y del otro lado se simulan las
+        tres FPGA con sus módulos superiores: la orden que escribe el operador, los bits que llegan
+        a la FPGA, lo que el circuito hace y lo que la terminal muestra se comprueban de corrido.
+\end{enumerate}
+
+\subsubsection{Flujo del layout}
+\label{sec:flujo-layout}
+
+El núcleo de la mochila, que es lo que iría en un circuito integrado, se pasó por el flujo
+abierto completo de RTL a GDS con la PDK \sig{sky130A} de SkyWater~\cite{skywater} y la
+biblioteca de celdas \sig{sky130\_fd\_sc\_hd}. La herramienta fue LibreLane 3.0.17~\cite{librelane},
+el sucesor de OpenLane~\cite{shalan2020}: usa los mismos programas (Yosys para la síntesis,
+OpenROAD para el plano, la colocación, el árbol de reloj y el ruteo, y Magic, Netgen y KLayout
+para la verificación física) y el repositorio de OpenLane remite a él para diseños nuevos. La
+entrada son los cinco archivos Verilog del núcleo, sin modificar.
+
+La configuración tiene tres decisiones. El reloj es de 20~ns, el de 50~MHz de la tarjeta,
+porque el generador de estímulo cuenta sus pulsos con esa frecuencia. La ocupación del núcleo
+se pidió en 40~\% y la densidad de colocación en 55~\%, para rutear sin congestión. Y se activó
+la reparación de transiciones lentas después del ruteo global, con márgenes de 50~\%: con los
+valores por omisión la corrida pasaba DRC y LVS pero dejaba 140 transiciones de más de 0.75~ns
+en la esquina lenta, causadas por los búferes débiles que agrega la reparación de \emph{hold};
+con ese ajuste quedaron en cero. Los resultados están en la sección~\ref{sec:layout}.

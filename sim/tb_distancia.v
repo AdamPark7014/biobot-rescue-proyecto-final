@@ -15,6 +15,7 @@
 //   4 casos       31.00 m (se oye) y 32.00 m (no) en los dos ejes, 31.25 m y
 //                 31.88 m en diagonal, y el punto mas lejano que se oye
 // Con +completo recorre ademas los 1 048 576 pares (dx, dy) de 0 a 1023.
+// Con +casos corre solo la parte 4.
 // ============================================================================
 module tb_distancia;
 
@@ -40,7 +41,7 @@ function integer raiz;
     input integer n;
     integer r;
     begin
-        r = $rtoi($sqrt(n));
+        r = $rtoi($sqrt($itor(n)));
         while (r * r > n) r = r - 1;
         while ((r + 1) * (r + 1) <= n) r = r + 1;
         raiz = r;
@@ -101,6 +102,8 @@ initial begin
     repeat (4) @(posedge clk);
     reset = 1'b0;
 
+    // con +casos solo corre la parte 4 (sirve para ver las formas de onda sin esperar)
+    if (!$test$plusargs("casos")) begin
     // ---- 1: los dos ejes
     for (i = 0; i < 1024; i = i + 1) begin mide(i, 0, 0, 0); mide(0, i, 0, 0); end
     $display("MEDIDA tb_distancia 1 ejes: %0d distancias, %0d errores", total, errores);
@@ -117,6 +120,7 @@ initial begin
     for (i = 0; i < 60000; i = i + 1)
         mide({$random(semilla)} % 1024, {$random(semilla)} % 1024, {$random(semilla)} % 1024, {$random(semilla)} % 1024);
     $display("MEDIDA tb_distancia 3 al azar: 60000 pares, %0d errores acumulados", errores);
+    end
 
     // ---- 4: los casos de la demostracion
     caso("31.00 m en el eje X", 496, 0, 496, 1'b1);

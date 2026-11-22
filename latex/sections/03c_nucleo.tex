@@ -1,6 +1,7 @@
-\section{Arquitectura embebida}
+\subsection{El núcleo digital de la mochila}
+\label{sec:nucleo}
 
-\subsection{La política que corre a bordo}
+\subsubsection{La política que corre a bordo}
 
 La mochila deja que el insecto explore solo y estimula lo mínimo. La política es una máquina
 de ocho estados que avanza una vez por cuadro térmico, diez veces por segundo
@@ -27,7 +28,7 @@ Tres reglas la distinguen de un control remoto:
         carga sobre el animal sin tener que medir su respuesta.
 \end{itemize}
 
-\subsection{El núcleo digital}
+\subsubsection{Módulos y recursos}
 
 \begin{figure}[H]
 \centering
@@ -64,7 +65,7 @@ gen\_estimulo & Tren bifásico de 50~Hz y 0.5~s por el canal pedido & 64 & 47 \\
 \end{tabularx}
 \end{table}
 
-\subsection{Verificación}
+\subsubsection{Verificación contra un modelo de referencia}
 
 Antes de escribir el Verilog se programó un modelo de referencia en Python que hace las mismas
 cuentas con enteros, registro por registro. Ese modelo genera los cuadros de prueba y la
@@ -92,65 +93,3 @@ El escenario de ambiente tibio confirma el criterio doble de la sección~\ref{se
 30~\textdegree C no hay píxeles calientes, un objeto a 47.5~\textdegree C no cuenta, y una mancha a
 34.5~\textdegree C sí. Con el ambiente a 37.5~\textdegree C la mancha desaparece, que es el límite físico
 ya descrito.
-
-\subsection{Camino a un chip propio}
-
-El núcleo usa 224 registros y unos 450 bloques combinacionales. En la biblioteca de alta densidad
-de SKY130, un registro ocupa 20.0~$\mu$m$^2$ y una compuerta NAND de dos entradas
-3.75~$\mu$m$^2$~\cite{skywater}. Con unos 6~$\mu$m$^2$ por celda combinacional y 50~\% de
-utilización, el área estimada es
-\begin{equation}
-\frac{224\times20.0+450\times6}{0.5}\approx14\,400~\mu\text{m}^2=0.014~\text{mm}^2 ,
-\end{equation}
-es decir, un módulo de Tiny Tapeout ($160\times100~\mu$m) o dos~\cite{tinytapeout}. Es una
-estimación por conteo: el número real saldrá del flujo de SKY130 en la máquina virtual del curso.
-Las corridas abiertas cierran el 30 de noviembre de 2026 y entregan chips a mediados de 2027.
-Mientras tanto, una iCE40 UltraLite de 1\,248 LUT y 2~mg aloja el núcleo con holgura.
-
-\subsection{Prototipo y demostración}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{figs/sistema.png}
-\caption{Sistema completo: del enjambre al rescatista.}
-\label{fig:sistema}
-\end{figure}
-
-En el prototipo, el ESP32 lee la matriz térmica y manda cada cuadro por UART a la DE10-Lite
-(66 bytes: encabezado, actividad y 64 píxeles); la tarjeta corre el núcleo y contesta con cuatro
-bytes de estado.
-
-\textbf{Prueba en dos tarjetas reales.} Mientras llega el sensor, una segunda DE10-Lite hace de
-insecto y de matriz térmica. Calcula los 64 píxeles que vería la mochila según la distancia y el
-rumbo, los manda a 9\,600 baudios y mueve a un insecto de prueba según los estímulos que recibe.
-Las unen tres cables: dos líneas de UART cruzadas y tierra. El 11 de noviembre de 2026 se corrieron
-los cuatro escenarios; los LED y los displays se leyeron por el cable USB con una sonda de Quartus.
-
-\begin{table}[H]
-\centering\footnotesize
-\caption{Los cuatro escenarios en dos DE10-Lite reales, en tiempo real.}
-\label{tab:tarjetas}
-\rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.6cm}@{}}
-\toprule
-\rowcolor{TableHead} Escenario & Lo medido en las tarjetas & Simulación \\
-\midrule
-Persona a 1.65~m & Acercar a los 26.3~s con 2 píxeles; 8 píxeles a los 54.6~s; alerta a los 55.1~s, cuatro cuadros después; la otra tarjeta recibe la alerta & Alerta a los 55.6~s \\
-Objeto a 47.5~\textdegree C & Ningún píxel caliente, ni a 0.2~m; sin alerta en 45~s & Sin alerta \\
-Sin persona & Un pulso de avance cuando el insecto se detuvo; sin alerta en 75~s & Sin alerta \\
-Insecto que no responde & Reactivar a los 16 y a los 49~s; sin alerta en 75~s & Reactivar a los 16 y a los 49~s \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-El circuito de la mochila es el mismo que se usará con el ESP32 y el sensor: no se le cambia nada.
-El insecto de prueba no es el modelo de marcha de la simulación de misiones; es un banco con
-valores redondos que solo sirve para cerrar el lazo. Faltan dos pruebas:
-\begin{itemize}
-  \item \textbf{Con una persona real.} La matriz apunta a la mesa; al acercar una mano, los LED de
-        la tarjeta muestran el paso de explorar a acercar, confirmar y alertar, y el display muestra
-        los píxeles calientes.
-  \item \textbf{Con un insecto simulado.} La computadora corre la simulación de misión y le manda
-        a la tarjeta lo que vería y sentiría la mochila; la tarjeta devuelve los estímulos y la simulación
-        mueve al insecto. Es el circuito real dentro del lazo, sin usar animales.
-\end{itemize}
