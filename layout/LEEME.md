@@ -57,10 +57,15 @@ pines y no se elimina nada.
 
 ## Imágenes
 
-- [`resultados/nucleo_biobot_klayout.png`](resultados/nucleo_biobot_klayout.png): el chip completo en KLayout,
-  con los colores de capa de sky130A.
+Las tres primeras muestran solo las capas físicas, con los colores de sky130A: difusión (verde), polisilicio
+(rojo), interconexión local (crema), metal 1 (azul), metal 2 (magenta), metal 3 (cian), metal 4 (violeta) y
+metal 5 (mostaza). Las capas de marcado quedan apagadas porque tapan el dibujo: el marcador de zona de celdas
+estándar (`areaid.standardc`, 81/4) pinta de magenta todo el núcleo.
+
+- [`resultados/nucleo_biobot_klayout.png`](resultados/nucleo_biobot_klayout.png): el chip completo; las franjas
+  horizontales son las filas de celdas y las líneas de los bordes, los pines.
 - [`resultados/nucleo_biobot_detalle.png`](resultados/nucleo_biobot_detalle.png): acercamiento de 25 × 25 µm al
-  centro; se ven las filas de celdas, las difusiones (verde), el polisilicio y las capas de metal.
+  centro; se ven las filas de celdas, las difusiones, el polisilicio y las capas de metal.
 - [`resultados/klayout_escritorio_vm.png`](resultados/klayout_escritorio_vm.png): KLayout abierto con el GDS en el
   escritorio de la máquina virtual (captura de pantalla real).
 - [`resultados/nucleo_biobot_render_librelane.png`](resultados/nucleo_biobot_render_librelane.png): la imagen que
@@ -73,6 +78,7 @@ pines y no se elimina nada.
 | `config.json` | Configuración de LibreLane: top, archivos de `../hdl/`, reloj y ajustes de reparación |
 | `correr_flujo.sh` | Corre el flujo dentro de la VM y junta lo importante en `resultados/` |
 | `captura_klayout.py` | Dibuja el GDS a PNG con KLayout sin abrir ventana (completo o con acercamiento) |
+| `ver_layout.py` | Abre el GDS en la ventana de KLayout con solo las capas físicas a la vista |
 | `vm/crear_vm.ps1` | Crea la VM Ubuntu 24.04 en VMware a partir de la imagen oficial de Canonical, sin instalador |
 | `vm/instalar_herramientas.sh` | Instala dentro de la VM Docker, LibreLane, Magic, KLayout y el escritorio |
 | `resultados/nucleo_biobot.gds` | El layout final (SHA-256 `905f698a…6586ac`) |
@@ -125,9 +131,15 @@ funciona directo; por SSH sin terminal hay que envolverlo, `script -qefc ./corre
 **5. Ver el layout.** En el escritorio de la VM:
 
 ```bash
+cd ~/biobot/layout
 LYP=$(find ~/.ciel -path '*sky130A/libs.tech/klayout/tech/sky130A.lyp' | head -1)
-klayout -l "$LYP" ~/biobot/layout/resultados/nucleo_biobot.gds
+klayout -l "$LYP" resultados/nucleo_biobot.gds -r ver_layout.py
 ```
+
+`ver_layout.py` deja a la vista solo las capas físicas y todos los niveles de la jerarquía. Sin él, KLayout
+enciende todas las capas y el marcador `areaid.standardc` cubre el núcleo de magenta; las demás capas siguen en
+la lista *Layers* y se encienden con doble clic. La rueda del ratón acerca y aleja, el botón central arrastra el
+dibujo, el derecho marca una zona para acercarla y F2 vuelve al chip completo.
 
 Con Magic: `magic -T $(find ~/.ciel -name sky130A.tech | head -1)` y luego `gds read nucleo_biobot.gds`.
 

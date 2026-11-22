@@ -13,6 +13,18 @@ vista = pya.LayoutView()
 vista.load_layout(gds, True)
 if lyp:
     vista.load_layer_props(lyp)
+# Solo las capas fisicas (difusion, polisilicio, contactos y los cinco metales). Las de
+# marcado tapan el dibujo: areaid.standardc (81/4) pinta de magenta todo el nucleo.
+# Con -rd todas=1 se dibujan todas las capas.
+FISICAS = {(65, 20), (65, 44), (66, 20), (66, 44), (67, 20), (67, 44), (68, 20), (68, 44),
+           (69, 20), (69, 44), (70, 20), (70, 44), (71, 20), (71, 44), (72, 20)}
+if globals().get("todas", "") == "":
+    it = vista.begin_layers()
+    while not it.at_end():
+        capa = it.current()
+        if not capa.has_children():
+            capa.visible = (capa.source_layer, capa.source_datatype) in FISICAS
+        it.next()
 vista.max_hier()
 vista.set_config("background-color", "#ffffff")
 vista.set_config("grid-visible", "false")
