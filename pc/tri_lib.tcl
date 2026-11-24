@@ -283,11 +283,21 @@ proc muestra_estado {} {
 proc rol_de {nombre} {
     switch -- [string toupper $nombre] { A { return 1 } B { return 2 } default { return 0 } }
 }
+set ::ACTUAL A   ;# la cucaracha que mueve la orden «mueve»; la cambia «usa A|B»
 proc ejecuta_orden {linea} {
     set p [regexp -all -inline {\S+} $linea]
     set orden [string tolower [lindex $p 0]]
     switch -- $orden {
         "" { return "" }
+        usa {
+            set r [rol_de [lindex $p 1]]
+            if {$r == 0} { error "di A o B: usa B" }
+            set ::ACTUAL [string toupper [lindex $p 1]]
+            return "Ahora mueves la cucaracha $::ACTUAL: 'mueve 31 0' la pone a 31 m del receptor."
+        }
+        mueve {
+            return [ejecuta_orden [concat pos $::ACTUAL [lrange $p 1 end]]]
+        }
         pos {
             set r [rol_de [lindex $p 1]]
             if {$r == 0} { error "di A o B: pos A 31 0" }
