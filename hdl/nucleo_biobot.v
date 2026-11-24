@@ -1,45 +1,30 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// nucleo_biobot.v
-// Proyecto final - Sistemas Embebidos (CN113) - BioBot-Rescue
-//
-// Nucleo digital de la mochila: todo lo que iria en el chip. Recibe los
-// pixeles de la matriz termica y la actividad de la IMU, y decide cuando
-// estimular al insecto y cuando avisar que encontro a una persona.
-//
-//   pixeles --> ventana_termica --> media_movil4 --> detector_presencia --+
-//                    |  (cuadro = tick de todo lo demas)                  |
-//   actividad -----> detector_quietud ------------------------------------+--> fsm_politica
-//                    lfsr16 ----------------------------------------------+        |
-//                                                                         gen_estimulo --> electrodos / LED
-//
-// No depende de la tarjeta: el modulo superior le entrega los pixeles ya
-// separados (por UART en la DE10-Lite, por I2C en la mochila).
-// ============================================================================
+
+// nucleo
 module nucleo_biobot #(
     parameter CLK_FREQ = 50000000,
     parameter F_EST    = 50,
     parameter N_PULSOS = 25,
-    // ventana de temperatura de la piel (0.25 C por cuenta); por omision 28 a 38 C
+    // ventana de piel
     parameter [7:0] T_MIN = 8'd112,
     parameter [7:0] T_MAX = 8'd152,
     parameter [7:0] DELTA = 8'd8
 )(
     input  wire        clk,
-    input  wire        reset,         // asincrono, activo en alto
-    input  wire        habilita,      // 1 = mision en marcha
+    input  wire        reset,
+    input  wire        habilita,
     // matriz termica
     input  wire        px_valido,
     input  wire [7:0]  px_temp,
     input  wire        px_ultimo,
     // IMU
-    input  wire [7:0]  actividad,     // debe estar estable al cerrar el cuadro
+    input  wire [7:0]  actividad,
     // estimulo
     output wire [2:0]  fase_a,
     output wire [2:0]  fase_b,
     output wire [2:0]  led_on,
     // estado y telemetria
-    output wire        tick,          // un pulso por cuadro procesado
+    output wire        tick,
     output wire [2:0]  estado,
     output wire        disparo,
     output wire [1:0]  canal,
@@ -47,8 +32,8 @@ module nucleo_biobot #(
     output wire        baliza,
     output wire        quieto,
     output wire        pre,
-    output wire [6:0]  n_fil,         // pixeles calientes, filtrado
-    output wire [7:0]  fondo,         // temperatura media del cuadro
+    output wire [6:0]  n_fil,
+    output wire [7:0]  fondo,
     output wire [15:0] cuenta,
     output wire [15:0] n_est
 );

@@ -1,8 +1,3 @@
-# Demostracion en una tarjeta: los cuatro escenarios con el lazo cerrado
-# (insecto de prueba + nucleo). El primero es el de la persona: el estado pasa
-# de 1 (explorar) a 4 (acercar), 5 (confirmar) y 6 (alertar).
-# Uso:  do ".../activehdl/simular_demo.do"   (si hay una simulacion activa, antes: endsim)
-
 asim +access +r tb_demo
 
 wave /tb_demo/reset_n

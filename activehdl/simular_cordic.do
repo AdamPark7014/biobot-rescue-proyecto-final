@@ -1,8 +1,3 @@
-# CORDIC y divisor (sim/tb_cordic.v): 24 vectores en vectorizacion, 24 angulos en
-# rotacion y 200 divisiones, comparados contra el valor exacto. Termina con una linea
-# RESULTADO en la consola.
-# Uso:  do ".../activehdl/simular_cordic.do"   (antes: endsim)
-
 asim +access +r tb_cordic
 
 wave /tb_cordic/clk

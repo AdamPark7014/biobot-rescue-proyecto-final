@@ -1,5 +1,3 @@
-# Version de laboratorio con sonda (In-System Sources and Probes)
-# Proyecto final - BioBot-Rescue - segunda DE10-Lite: insecto y sensor de prueba
 set_global_assignment -name FAMILY "MAX 10"
 set_global_assignment -name DEVICE 10M50DAF484C7G
 set_global_assignment -name TOP_LEVEL_ENTITY top_lab_insecto
@@ -12,19 +10,18 @@ set_global_assignment -name RESERVE_ALL_UNUSED_PINS_WEAK_PULLUP "AS INPUT TRI-ST
 set_global_assignment -name VERILOG_FILE ../hdl/uart_rx.v
 set_global_assignment -name VERILOG_FILE ../hdl/uart_tx.v
 set_global_assignment -name VERILOG_FILE ../hdl/insecto_sim.v
-# top_biobot_de10lite.v solo aporta el decodificador hex7seg
 set_global_assignment -name VERILOG_FILE ../hdl/top_biobot_de10lite.v
 set_global_assignment -name VERILOG_FILE ../hdl/top_insecto_de10lite.v
 set_global_assignment -name VERILOG_FILE ../hdl/top_lab_sondas.v
 set_global_assignment -name SDC_FILE lab_insecto.sdc
 
-# Reloj y reset (KEY0)
+# reloj y reset
 set_location_assignment PIN_P11 -to CLOCK_50
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to CLOCK_50
 set_location_assignment PIN_B8 -to RESET_N
 set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to RESET_N
 
-# Interruptores
+# interruptores
 set_location_assignment PIN_C10 -to SW[0]
 set_location_assignment PIN_C11 -to SW[1]
 set_location_assignment PIN_D12 -to SW[2]
@@ -37,8 +34,6 @@ set_location_assignment PIN_B14 -to SW[8]
 set_location_assignment PIN_F15 -to SW[9]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW[*]
 
-# UART con la tarjeta de la mochila: mismos pines de la Practica 4
-# (GPIO_32 = pin 37 de JP1 recibe, GPIO_30 = pin 35 de JP1 transmite)
 set_location_assignment PIN_AB3 -to UART_RX
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to UART_RX
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to UART_RX
@@ -58,7 +53,7 @@ set_location_assignment PIN_A11 -to LEDR[8]
 set_location_assignment PIN_B11 -to LEDR[9]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LEDR[*]
 
-# Displays de siete segmentos
+# displays de siete segmentos
 set_location_assignment PIN_C14 -to HEX0[0]
 set_location_assignment PIN_E15 -to HEX0[1]
 set_location_assignment PIN_C15 -to HEX0[2]

@@ -1,23 +1,6 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// top_lab_sondas.v
-// Proyecto final - Sistemas Embebidos (CN113) - BioBot-Rescue
-//
-// Envolturas de laboratorio para las dos tarjetas. No cambian nada del
-// diseno: solo le cuelgan una sonda de Quartus (In-System Sources and
-// Probes) que viaja por el mismo cable USB-Blaster. Con ella la computadora
-// puede leer lo que muestran los LED y los displays, y hacer lo mismo que los
-// interruptores y el boton de reset, para probar las tarjetas sin tocarlas.
-//
-//   sonda  (lectura)    {displays, LEDR}, tal como se ven en la tarjeta
-//   fuente (escritura)  bit 7      reset, igual que KEY0
-//                       bit 0      mochila: mision en marcha, igual que SW0
-//                       bits 2-1   insecto: escenario, igual que SW2-SW1
-//
-// Los interruptores y el boton siguen funcionando: la fuente solo se suma.
-// El script que la usa es sim/prueba_tarjetas.tcl.
-// ============================================================================
 
+// mochila con sonda
 module top_lab_mochila (
     input  wire       CLOCK_50,
     input  wire       RESET_N,
@@ -57,10 +40,7 @@ top_biobot_de10lite u_mochila (
 
 endmodule
 
-// ----------------------------------------------------------------------------
-// Demostracion en una sola tarjeta, con sonda.
-//   fuente: bit 7 reset, bit 3 rapido (SW9), bits 2-1 escenario, bit 0 mision
-// ----------------------------------------------------------------------------
+// demo con sonda
 module top_lab_demo (
     input  wire       CLOCK_50,
     input  wire       RESET_N,
@@ -102,7 +82,7 @@ top_demo_de10lite u_demo (
 
 endmodule
 
-// ----------------------------------------------------------------------------
+// insecto con sonda
 module top_lab_insecto (
     input  wire       CLOCK_50,
     input  wire       RESET_N,

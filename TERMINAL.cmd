@@ -1,6 +1,4 @@
 @echo off
-rem Ordenes para la red de tres FPGA. Lo que se escribe aqui lo ejecuta el monitor en vivo
-rem (MONITOR.cmd), que debe estar abierto: ahi se ve el resultado al instante.
 title BioBot-Rescue - ordenes
 cd /d "%~dp0"
 echo.

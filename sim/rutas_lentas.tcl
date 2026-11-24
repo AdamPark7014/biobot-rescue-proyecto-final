@@ -1,5 +1,3 @@
-# Imprime las rutas mas lentas de un proyecto ya compilado.
-# Uso (dentro de la carpeta del proyecto de Quartus): quartus_sta -t ../sim/rutas_lentas.tcl <revision>
 set rev [lindex $argv 0]
 project_open $rev
 create_timing_netlist

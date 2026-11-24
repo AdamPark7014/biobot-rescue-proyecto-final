@@ -1,6 +1,3 @@
-# Compila la hoja de una página (latex\hoja.tex) y la deja en la raíz del proyecto.
-# Uso:  pwsh -File compilar_hoja.ps1
-# Las dos figuras de la hoja las genera modelo\hoja.py.
 $ErrorActionPreference = 'Stop'
 $raiz = $PSScriptRoot
 Push-Location (Join-Path $raiz 'latex')

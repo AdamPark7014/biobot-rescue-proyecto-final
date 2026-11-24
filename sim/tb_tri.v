@@ -1,40 +1,4 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tb_tri.v
-// Banco de pruebas de la red de deteccion y triangulacion con tres FPGA
-// (hdl/tri_red.v): mochila A, mochila B y receptor, cableadas como en el
-// laboratorio:
-//   A.TX -> receptor.RX1 y B.RX1      B.TX -> receptor.RX2 y A.RX1
-// El mapa mide 64 m (1 cuenta = 6.25 cm). El receptor esta en la entrada
-// (0, 0) y la persona en (25.50, 19.25) m, a 31.95 m: en el borde del
-// alcance, que es de 32 m para el radio y para los tonos. Interruptores de
-// cada mochila: SW5-SW0 temperatura (detecta de 35 a 38 C), SW9-SW6 posicion.
-//
-//   1 triangulacion   A en la posicion 1 (a 32.00 m: fuera de alcance) y B en
-//                     la 0 (a 31.60 m), las dos a 36 C: el aviso de A llega
-//                     por B, el conteo sube a 2 en las tres tarjetas y el
-//                     receptor cruza los dos rumbos
-//   2 objeto caliente a 47 C no cuenta; tampoco 34 ni 39 C; 35 y 38 C si
-//   3 solo A          B en la posicion 7 (cerca de la entrada) a 22 C hace de
-//                     puente: conteo 1 en las tres
-//   4 rumbos opuestos las rectas no se cruzan: se promedia
-//   5 boton           nada caliente; se aprieta el boton de B: conteo 1 en todas
-//   6 sin alcance     B lejos (posicion 5): las mochilas se oyen entre si pero
-//                     ninguna llega al receptor
-//   7 sigue al sensor al salir de 35-38 C el conteo baja; al volver, sube
-//   8 ruido           la linea de B al receptor se ensucia 3 s: las tramas
-//                     danadas se descartan por CRC, el receptor cuenta las
-//                     perdidas y no usa ningun dato equivocado
-//   9 umbral          A sola, puesta por la terminal a 31 m (se oye) y a 32 m
-//                     (ya no se oye), sobre el eje X, sobre el eje Y y en
-//                     diagonal: radio y tono cortan en el mismo punto, y la
-//                     distancia que marcan los LED es la exacta
-// En cada escenario se revisa tambien lo que se lee en los seis displays de cada
-// tarjeta: quien soy, "Pd", personas detectadas y a quien oigo.
-// Con +rapido solo corren el 1 y el 9; con +desde=N +hasta=M, los escenarios N a M.
-// Con +traza se guarda ademas, cada 10 ms, lo que se ve en las tarjetas (trazas/tri_N.csv).
-// Reloj declarado de 400 kHz y 40 000 baudios (10 ciclos por bit).
-// ============================================================================
 module tb_tri;
 
 localparam CLK  = 400000;
@@ -44,11 +8,11 @@ reg        clk = 1'b0;
 reg        reset = 1'b1;
 reg        boton_a = 1'b0, boton_b = 1'b0;
 reg  [9:0] sw_a = 0, sw_b = 0;
-reg        pe_a = 1'b0;                // la posicion de A la fija la terminal
+reg        pe_a = 1'b0;
 reg  [9:0] xe_a = 0, ye_a = 0;
 reg        ruido = 1'b0, mete_ruido = 1'b0;
 wire       tx_a, tx_b, tx_pc;
-wire       rx2_r = tx_b ^ ruido;       // linea de B al receptor, con ruido
+wire       rx2_r = tx_b ^ ruido;
 wire [9:0] led_a, led_b, led_r;
 wire [6:0] ha0, ha1, ha2, ha3, ha4, ha5, hb0, hb1, hb2, hb3, hb4, hb5, hr0, hr1, hr2, hr3, hr4, hr5;
 
@@ -90,7 +54,7 @@ tri_receptor #(.CLK_FREQ(CLK), .BAUD_RATE(BAUD)) r (
 
 always #5 clk = ~clk;
 
-// lo que se lee en un display de siete segmentos (encienden en bajo)
+// lectura del display
 function [7:0] letra;
     input [6:0] s;
     case (s)
@@ -106,13 +70,13 @@ wire [47:0] disp_a = {letra(ha5), letra(ha4), letra(ha3), letra(ha2), letra(ha1)
 wire [47:0] disp_b = {letra(hb5), letra(hb4), letra(hb3), letra(hb2), letra(hb1), letra(hb0)};
 wire [47:0] disp_r = {letra(hr5), letra(hr4), letra(hr3), letra(hr2), letra(hr1), letra(hr0)};
 
-// ruido en la linea: un pulso de bit y medio cada 61.3 us mientras mete_ruido = 1
+// ruido
 initial forever begin
     #61300;
     if (mete_ruido) begin ruido = 1'b1; #150; ruido = 1'b0; end
 end
 
-// sw = {posicion[3:0], temperatura[5:0]}
+// interruptores
 function [9:0] sw;
     input [3:0] k;
     input [5:0] t;
@@ -125,14 +89,13 @@ real    PX = 408.0 / 16.0, PY = 308.0 / 16.0;
 reg     rapido;
 integer desde, hasta;
 
-// que escenarios corren
+// escenario activo
 function corre;
     input integer k;
     corre = rapido ? (k == 1 || k == 9) : (k >= desde && k <= hasta);
 endfunction
 
-// Con +traza se guarda cada 10 ms lo que se ve en las tres tarjetas, en trazas/tri_<N>.csv
-// (N es el escenario de +desde). De esos datos salen las figuras del reporte.
+// traza en CSV
 reg            traza = 1'b0;
 integer        ft, c_traza = 0, n_traza = 0;
 reg [8*24-1:0] nombre_traza;
@@ -176,7 +139,7 @@ task espera_modo;
         if (modo == m) t_hit = ($realtime - t0) * 1.0e-9 * (100000000.0 / CLK);
     end
 endtask
-function real m_;                     // cuentas de 1/16 m a metros
+function real m_;
     input [9:0] c;
     m_ = c / 16.0;
 endfunction
@@ -220,7 +183,7 @@ initial begin
         traza = 1'b1;
     end
 
-    // ---- 1: triangulacion con puente
+    // triangulacion con puente
     if (corre(1)) begin
     arranca(sw(4'd1, 6'd36), sw(4'd0, 6'd36));
     espera_modo(3'd2, 6.0);
@@ -242,7 +205,7 @@ initial begin
            && perd_a == 0 && perd_b == 0 && malas == 0);
     end
 
-    // ---- 2: objeto caliente, y los bordes de la ventana: 34 y 39 C no, 35 y 38 C si
+    // objeto caliente
     if (corre(2)) begin
     arranca(sw(4'd1, 6'd47), sw(4'd0, 6'd47));
     espera_s(4.0);
@@ -260,7 +223,7 @@ initial begin
     total = total - 2;
     end
 
-    // ---- 3: solo A detecta; B cerca de la entrada hace de puente
+    // solo A detecta
     if (corre(3)) begin
     arranca(sw(4'd1, 6'd36), sw(4'd7, 6'd22));
     espera_modo(3'd1, 6.0);
@@ -274,7 +237,7 @@ initial begin
            && disp_a == "APd1b-" && disp_b == "bPd1Ar" && disp_r == "rPd1-b");
     end
 
-    // ---- 4: rumbos opuestos
+    // rumbos opuestos
     if (corre(4)) begin
     arranca(sw(4'd2, 6'd36), sw(4'd0, 6'd36));
     espera_modo(3'd3, 6.0);
@@ -284,7 +247,7 @@ initial begin
     revisa("4 rumbos opuestos", modo == 3'd3 && terr == 2'd1 && cu_r == 2);
     end
 
-    // ---- 5: boton de B
+    // boton de B
     if (corre(5)) begin
     arranca(sw(4'd1, 6'd22), sw(4'd0, 6'd22));
     espera_s(1.0);
@@ -296,7 +259,7 @@ initial begin
            && disp_a == "APd1b-" && disp_b == "bPd1Ar" && disp_r == "rPd1-b");
     end
 
-    // ---- 6: B lejos de la entrada
+    // B lejos de la entrada
     if (corre(6)) begin
     arranca(sw(4'd1, 6'd36), sw(4'd5, 6'd36));
     espera_s(4.0);
@@ -307,7 +270,7 @@ initial begin
            && disp_a == "APd2b-" && disp_b == "bPd2A-" && disp_r == "rPd0--");
     end
 
-    // ---- 7: la deteccion sigue al sensor
+    // la deteccion sigue al sensor
     if (corre(7)) begin
     arranca(sw(4'd1, 6'd36), sw(4'd0, 6'd36));
     espera_s(3.0);
@@ -330,7 +293,7 @@ initial begin
     revisa("7 vuelve a 1", cu_a == 1 && cu_b == 1 && cu_r == 1 && al_a);
     end
 
-    // ---- 8: ruido en la linea de B al receptor
+    // ruido en la linea
     if (corre(8)) begin
     arranca(sw(4'd1, 6'd36), sw(4'd0, 6'd36));
     espera_s(3.0);
@@ -346,11 +309,10 @@ initial begin
     revisa("8 ruido", malas > 0 && (perd_a + perd_b) > 0 && modo == 3'd2 && cu_r == 2 && err_m < 0.10);
     end
 
-    // ---- 9: umbral de alcance, con la posicion de A fijada por la terminal. B queda lejos
-    //         de todos, en (60, 60) m: A depende solo de su enlace directo con el receptor.
+    // umbral de alcance
     if (corre(9)) begin
     arranca(sw(4'd0, 6'd36), sw(4'd15, 6'd22));
-    pe_a = 1'b1; xe_a = 10'd496; ye_a = 10'd0;          // 31.00 m sobre el eje X
+    pe_a = 1'b1; xe_a = 10'd496; ye_a = 10'd0;
     espera_s(3.5);
     resumen("9 A en (31, 0) m");
     $display("MEDIDA tb_tri 9 A en (%0.2f, %0.2f) m, a %0.2f m: radio directo %b, tono de A en el receptor %b (potencia %0d), conteo en el receptor %0d",
@@ -358,38 +320,38 @@ initial begin
     revisa("9 a 31 m en X se oye", enl[3] && oye_ra && or_a && cu_r == 1 && dr_a == 10'd496 && d_ra == 10'd496
            && led_r == {5'd31, 5'd0} && led_a == {5'd0, 5'd31}
            && disp_a == "APd1-r" && disp_b == "bPd0--" && disp_r == "rPd1A-");
-    xe_a = 10'd512;                                     // 32.00 m sobre el eje X
+    xe_a = 10'd512;
     espera_s(1.6);
     resumen("9 A en (32, 0) m");
     $display("MEDIDA tb_tri 9 A en (%0.2f, %0.2f) m, a %0.2f m: radio directo %b, tono de A en el receptor %b (potencia %0d), conteo en el receptor %0d",
              m_(xa), m_(ya), m_(dr_a), enl[3], oye_ra, pt_a, cu_r);
     revisa("9 a 32 m en X ya no", !enl[3] && !oye_ra && !or_a && cu_r == 0 && dr_a == 10'd512
            && led_r == 10'd0 && led_a == 10'd0 && disp_a == "APd1--" && disp_r == "rPd0--");
-    xe_a = 10'd511;                                     // 31.94 m: una cuenta antes del corte
+    xe_a = 10'd511;
     espera_s(1.6);
     $display("MEDIDA tb_tri 9 A en (%0.2f, %0.2f) m, a %0.2f m: radio directo %b, tono %b, conteo %0d, LED receptor %b",
              m_(xa), m_(ya), m_(dr_a), enl[3], oye_ra, cu_r, led_r);
     revisa("9 a 31.94 m se oye", enl[3] && oye_ra && or_a && cu_r == 1 && dr_a == 10'd511 && d_ra == 10'd511
            && led_r == {5'd31, 5'd0} && led_a == {5'd0, 5'd31});
-    xe_a = 10'd0; ye_a = 10'd512;                       // 32.00 m sobre el eje Y
+    xe_a = 10'd0; ye_a = 10'd512;
     espera_s(1.6);
     $display("MEDIDA tb_tri 9 A en (%0.2f, %0.2f) m, a %0.2f m: radio directo %b, tono %b, conteo %0d, LED receptor %b",
              m_(xa), m_(ya), m_(dr_a), enl[3], oye_ra, cu_r, led_r);
     revisa("9 a 32 m en Y ya no", !enl[3] && !oye_ra && !or_a && cu_r == 0 && dr_a == 10'd512
            && led_r == 10'd0 && led_a == 10'd0);
-    ye_a = 10'd496;                                     // 31.00 m sobre el eje Y
+    ye_a = 10'd496;
     espera_s(1.6);
     $display("MEDIDA tb_tri 9 A en (%0.2f, %0.2f) m, a %0.2f m: radio directo %b, tono %b, conteo %0d, LED receptor %b",
              m_(xa), m_(ya), m_(dr_a), enl[3], oye_ra, cu_r, led_r);
     revisa("9 a 31 m en Y se oye", enl[3] && oye_ra && or_a && cu_r == 1 && dr_a == 10'd496 && d_ra == 10'd496
            && led_r == {5'd31, 5'd0} && led_a == {5'd0, 5'd31});
-    xe_a = 10'd412; ye_a = 10'd304;                     // (25.75, 19.00) m: 32.0005 m en diagonal
+    xe_a = 10'd412; ye_a = 10'd304;
     espera_s(1.6);
     $display("MEDIDA tb_tri 9 A en (%0.2f, %0.2f) m, a %0.2f m: radio directo %b, tono %b, conteo %0d, LED receptor %b",
              m_(xa), m_(ya), m_(dr_a), enl[3], oye_ra, cu_r, led_r);
     revisa("9 a 32 m en diagonal ya no", !enl[3] && !oye_ra && !or_a && cu_r == 0 && dr_a == 10'd512
            && led_r == 10'd0 && led_a == 10'd0);
-    ye_a = 10'd303;                                     // (25.75, 18.94) m: 31.96 m en diagonal
+    ye_a = 10'd303;
     espera_s(1.6);
     $display("MEDIDA tb_tri 9 A en (%0.2f, %0.2f) m, a %0.2f m: radio directo %b, tono %b, conteo %0d, LED receptor %b",
              m_(xa), m_(ya), m_(dr_a), enl[3], oye_ra, cu_r, led_r);

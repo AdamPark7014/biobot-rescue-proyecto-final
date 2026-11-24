@@ -1,48 +1,13 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// top_demo_de10lite.v
-// Proyecto final - Sistemas Embebidos (CN113) - BioBot-Rescue
-//
-// Demostracion en UNA sola DE10-Lite, sin ESP32 ni sensor. Dentro de la
-// tarjeta van las dos mitades:
-//
-//   insecto_sim  -- pixeles y actividad -->  nucleo_biobot
-//        ^                                        |
-//        +-------------- estimulos ---------------+
-//
-// El insecto de prueba genera lo que veria la matriz termica y reacciona a
-// los estimulos; el nucleo es exactamente el mismo que se verifico contra el
-// modelo de referencia. El lazo queda cerrado dentro del chip.
-//
-//   KEY0        reset (reinicia la mision y la escena)
-//   SW0         1 = mision en marcha
-//   SW2-SW1     escenario: 00 sin persona, 01 persona, 10 objeto caliente,
-//               11 insecto que no responde
-//   SW9         1 = ocho veces mas rapido (80 cuadros por segundo)
-//
-//   LEDR[2:0]   estimulo activo: avance, izquierda, derecha
-//   LEDR[3]     el nucleo ve al insecto quieto
-//   LEDR[4]     mancha de calor a la vista
-//   LEDR[7:5]   estado de la politica
-//   LEDR[8]     cambia con cada cuadro
-//   LEDR[9]     alerta: persona detectada
-//   HEX0        estado (0 reposo, 1 explorar, 2 reactivar, 3 reorientar,
-//               4 acercar, 5 confirmar, 6 alertar, 7 descanso)
-//   HEX1        estimulos acumulados en el presupuesto (0 a C)
-//   HEX3-HEX2   pixeles calientes, filtrado (hexadecimal)
-//   HEX5-HEX4   distancia a la persona en decimetros; "--" si no hay persona
-//
-//   ESTIMULO[2:0]  los mismos tres canales en GPIO_0, GPIO_1 y GPIO_2 (pines
-//               1, 2 y 3 de JP1), por si se conectan LED externos con su
-//               resistencia. No hace falta conectar nada para la prueba.
-// ============================================================================
+
+// tope demo
 module top_demo_de10lite #(
     parameter CLK_FREQ = 50000000,
     parameter F_EST    = 50,
     parameter N_PULSOS = 25
 )(
     input  wire       CLOCK_50,
-    input  wire       RESET_N,        // KEY0, activo en bajo
+    input  wire       RESET_N,
     input  wire [9:0] SW,
     output wire [9:0] LEDR,
     output wire [6:0] HEX0,
@@ -54,12 +19,12 @@ module top_demo_de10lite #(
     output wire [2:0] ESTIMULO
 );
 
-localparam integer PERIODO_NORMAL = CLK_FREQ / 10;    // 10 cuadros por segundo
-localparam integer PERIODO_RAPIDO = CLK_FREQ / 80;    // 80 cuadros por segundo
+localparam integer PERIODO_NORMAL = CLK_FREQ / 10;
+localparam integer PERIODO_RAPIDO = CLK_FREQ / 80;
 
 wire reset = ~RESET_N;
 
-// Los interruptores no estan sincronizados con el reloj: dos flip-flops
+// sincronizador
 reg [9:0] sw_meta, sw;
 always @(posedge CLOCK_50 or posedge reset) begin
     if (reset) begin
@@ -74,19 +39,16 @@ wire       habilita  = sw[0];
 wire [1:0] escenario = sw[2:1];
 wire       rapido    = sw[9];
 
-// ------------------------------------------------------- reloj de cuadros
-// Cada periodo: se mandan los 64 pixeles al nucleo, uno por ciclo, y unos
-// ciclos despues avanza el insecto. Asi el estimulo que el nucleo decide con
-// este cuadro ya influye en el siguiente.
+// reloj de cuadros
 reg [31:0] cnt_periodo;
-reg [6:0]  paso;                      // 0 en espera; 1..64 pixeles; 65..79 pausa; 80 avanza el insecto
+reg [6:0]  paso;
 reg        px_valido, px_ultimo;
 reg [7:0]  px_temp;
 reg        tick_insecto;
 
 wire [31:0] periodo    = rapido ? PERIODO_RAPIDO : PERIODO_NORMAL;
 wire        fin_cuenta = (cnt_periodo >= periodo - 32'd1);
-wire [5:0]  idx        = paso[5:0] - 6'd1;            // pixel que se manda en este paso
+wire [5:0]  idx        = paso[5:0] - 6'd1;
 wire [7:0]  px_insecto, actividad;
 
 always @(posedge CLOCK_50 or posedge reset) begin
@@ -119,7 +81,6 @@ always @(posedge CLOCK_50 or posedge reset) begin
     end
 end
 
-// ------------------------------------------------------------ las dos mitades
 wire        tick, disparo, alerta, baliza, quieto, pre;
 wire [2:0]  estado;
 wire [1:0]  canal;
@@ -149,7 +110,7 @@ nucleo_biobot #(.CLK_FREQ(CLK_FREQ), .F_EST(F_EST), .N_PULSOS(N_PULSOS)) u_nucle
     .n_fil(n_fil), .fondo(fondo), .cuenta(cuenta), .n_est(n_est)
 );
 
-// ----------------------------------------------------------------- salidas
+// salidas
 reg latido;
 always @(posedge CLOCK_50 or posedge reset) begin
     if (reset)     latido <= 1'b0;
@@ -159,12 +120,12 @@ end
 assign LEDR     = {alerta, latido, estado, pre, quieto, led_on};
 assign ESTIMULO = led_on;
 
-// Distancia en decimetros: dist / 100 = dist * 41 / 4096, con error menor a 1
+// distancia en dm
 wire [17:0] dm_x    = dist * 6'd41;
-wire [5:0]  dm      = dm_x[17:12];                    // 0 a 40
+wire [5:0]  dm      = dm_x[17:12];
 wire [3:0]  decenas = (dm >= 6'd40) ? 4'd4 : (dm >= 6'd30) ? 4'd3 : (dm >= 6'd20) ? 4'd2
                     : (dm >= 6'd10) ? 4'd1 : 4'd0;
-wire [5:0]  resto   = dm - {decenas, 3'b000} - {1'b0, decenas, 1'b0};   // dm - 10*decenas
+wire [5:0]  resto   = dm - {decenas, 3'b000} - {1'b0, decenas, 1'b0};
 wire [6:0]  seg4, seg5;
 
 hex7seg u_h0 (.x({1'b0, estado}),     .seg(HEX0));
@@ -174,7 +135,6 @@ hex7seg u_h3 (.x({1'b0, n_fil[6:4]}), .seg(HEX3));
 hex7seg u_h4 (.x(resto[3:0]),         .seg(seg4));
 hex7seg u_h5 (.x(decenas),            .seg(seg5));
 
-// Sin persona en la escena los dos displays muestran un guion (solo el segmento g)
 assign HEX4 = hay_mancha ? seg4 : 7'b0111111;
 assign HEX5 = hay_mancha ? seg5 : 7'b0111111;
 

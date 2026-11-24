@@ -1,8 +1,3 @@
-# Detector de tonos (sim/tb_tonos.v), visto desde la mochila A: emite 1 kHz y escucha los
-# 2 kHz de B y los 4 kHz del receptor con tres filtros de Goertzel. Se ven el tono propio,
-# la senal del microfono simulado, el estado de los filtros y los tonos que da por oidos.
-# Uso:  do ".../activehdl/simular_tonos.do"   (antes: endsim)
-
 asim +access +r tb_tonos
 
 wave /tb_tonos/clk

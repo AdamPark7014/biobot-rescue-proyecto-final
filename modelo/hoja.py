@@ -1,8 +1,3 @@
-"""Figuras de la hoja de una página: la prueba con dos tarjetas y la mochila real a escala.
-
-Uso:  python hoja.py
-Deja latex/figs/hoja_dos_tarjetas.png y latex/figs/hoja_mochila.png.
-"""
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, Rectangle, Circle, FancyArrowPatch
 
@@ -27,7 +22,7 @@ def flecha(ax, x1, y1, x2, y2, color, texto, arriba=True, tam=14):
 
 
 def dos_tarjetas():
-    """Montaje de laboratorio: la tarjeta insecto manda la imagen y la mochila decide."""
+    # montaje de laboratorio
     fig = plt.figure(figsize=(16.64, 5.4))
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xlim(0, 16.64)
@@ -51,7 +46,6 @@ def dos_tarjetas():
 
 
 def mochila():
-    """Distribución propuesta de la mochila real, a escala. Medidas de las hojas de datos."""
     fig = plt.figure(figsize=(16.64, 4.9))
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xlim(-2.5, 76.0)
@@ -63,13 +57,12 @@ def mochila():
         ax.add_patch(Circle((x, y), 1.05, facecolor="white", edgecolor=E.TINTA, lw=1.4, zorder=8))
         ax.text(x, y - 0.04, str(n), ha="center", va="center", fontsize=13, fontweight="bold", color=E.TINTA, zorder=9)
 
-    # tarjeta de 22 x 13 mm
     ax.add_patch(FancyBboxPatch((0, -6.5), 22, 13, boxstyle="round,pad=0,rounding_size=1.2", lw=2.4,
                                 edgecolor="#0F3D2E", facecolor="#17513D", zorder=1))
-    piezas = [(0.6, -5.0, 12.0, 10.0, "#C9CED6", 1),        # batería
-              (13.6, 1.8, 3.5, 3.6, "#1B1B1F", 2),          # nRF52840
-              (14.6, -1.4, 1.4, 1.4, "#1B1B1F", 3),         # FPGA
-              (13.6, -5.4, 2.5, 3.0, "#3A3F4A", 4)]         # IMU
+    piezas = [(0.6, -5.0, 12.0, 10.0, "#C9CED6", 1),
+              (13.6, 1.8, 3.5, 3.6, "#1B1B1F", 2),
+              (14.6, -1.4, 1.4, 1.4, "#1B1B1F", 3),
+              (13.6, -5.4, 2.5, 3.0, "#3A3F4A", 4)]
     for x, y, w, h, c, n in piezas:
         ax.add_patch(Rectangle((x, y), w, h, facecolor=c, edgecolor="#0B0B0D", lw=1.2, zorder=3))
     numero(6.6, 0.0, 1)
@@ -78,12 +71,12 @@ def mochila():
     ax.plot([13.7, 14.6], [-0.7, -0.7], color="white", lw=1.4, zorder=7)
     numero(14.85, -3.9, 4)
 
-    # matriz térmica al frente, mirando hacia adelante
+    # matriz térmica al frente
     ax.add_patch(Rectangle((18.2, -5.8), 8.0, 11.6, facecolor="#E9E4DA", edgecolor="#0B0B0D", lw=1.2, zorder=3))
     ax.add_patch(Rectangle((22.9, -2.6), 3.0, 5.2, facecolor="#4B2A7B", edgecolor="#0B0B0D", lw=1.0, zorder=4))
     numero(20.5, 0.0, 5)
 
-    # LED ultravioleta, uno a cada lado, por delante
+    # LED ultravioleta
     for sy in (1, -1):
         ax.plot([20.0, 28.6], [sy * 6.0, sy * 7.7], color="#0F3D2E", lw=2.0, zorder=2)
         ax.add_patch(Circle((29.4, sy * 7.9), 1.2, facecolor="#7BE06A", edgecolor="#2E7D32", lw=1.2, zorder=4))

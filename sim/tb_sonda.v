@@ -1,26 +1,4 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tb_sonda.v
-// Banco de pruebas de la computadora del operador contra el circuito.
-//
-// Simula las tres tarjetas con sus modulos superiores (hdl/tri_top.v), tal como
-// se sintetizan, cableadas como en el laboratorio:
-//   A.TX1 -> receptor.RX1    A.TX2 -> B.RX1
-//   B.TX1 -> receptor.RX2    B.TX2 -> A.RX1
-// La sonda de Quartus se sustituye por sim/altsource_probe_sim.v.
-//
-// Las ordenes no se escriben aqui: las genera la terminal real (pc/tri_lib.tcl)
-// con sim/prueba_terminal.tcl y llegan en fuentes_sonda.txt, una por linea:
-//   0 <paso> <rol> <bits>      escribe la fuente de una tarjeta (1 A, 2 B, 0 receptor)
-//   1 <paso> <decimas> 0       espera esas decimas de segundo y guarda las sondas
-// Las sondas de cada paso quedan en sondas.txt:
-//   <paso> <sonda A> <sonda B> <sonda receptor> <displays del receptor>
-// y la misma terminal las interpreta y comprueba (sim/prueba_terminal.tcl revisa).
-//
-// Interruptores: A en la posicion 1 (32.00 m del receptor: fuera de alcance), B
-// en la 0 (31.60 m), las dos a 22 C. El receptor, con la vista 01.
-// Reloj declarado de 400 kHz y 40 000 baudios, como en tb_tri.v.
-// ============================================================================
 module tb_sonda;
 
 localparam CLK  = 400000;
@@ -66,7 +44,7 @@ initial begin
         $display("ERROR tb_sonda: falta fuentes_sonda.txt (correr antes prueba_terminal.tcl genera)");
         $finish;
     end
-    // encendido: KEY0 en las tres tarjetas
+    // encendido
     key_a[0] = 1'b0; key_b[0] = 1'b0; key_r[0] = 1'b0;
     repeat (20) @(posedge clk);
     key_a[0] = 1'b1; key_b[0] = 1'b1; key_r[0] = 1'b1;
@@ -74,13 +52,13 @@ initial begin
     leidos = $fscanf(f, "%d %d %d %b", tipo, paso, dato, valor);
     while (leidos == 4) begin
         if (tipo == 0) begin
-            // una escritura de la terminal en la fuente de una tarjeta
+            // orden de la terminal
             case (dato)
                 1:       a.u_sonda.valor = valor;
                 2:       b.u_sonda.valor = valor;
                 default: r.u_sonda.valor = valor[12:0];
             endcase
-            repeat ((CLK * 15) / 100) @(posedge clk);      // 0.15 s entre escrituras
+            repeat ((CLK * 15) / 100) @(posedge clk);
         end else begin
             espera_decimas(dato);
             $fdisplay(g, "%0d %b %b %b %b", paso, a.sonda, b.sonda, r.sonda, {hr5, hr4, hr3, hr2, hr1, hr0});

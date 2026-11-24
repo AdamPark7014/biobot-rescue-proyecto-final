@@ -1,19 +1,6 @@
-# Prueba automatica de las dos DE10-Lite por el cable USB-Blaster.
-# Requiere las versiones con sonda (quartus_lab_mochila y quartus_lab_insecto)
-# ya cargadas: la mochila en USB-0 y el insecto en USB-1.
-#
-# Uso:
-#   quartus_stp -t sim/prueba_tarjetas.tcl [escenario] [segundos]
-#     escenario  0 sin persona, 1 persona (por omision), 2 objeto caliente, 3 no responde
-#     segundos   cuanto dura la prueba (por omision 100)
-#
-# Reinicia las dos tarjetas, pone el escenario en la tarjeta insecto, arranca
-# la mision en la mochila y cada 2 s imprime lo que muestran las dos.
-
 set escenario [expr {[llength $argv] > 0 ? [lindex $argv 0] : 1}]
 set duracion  [expr {[llength $argv] > 1 ? [lindex $argv 1] : 100}]
 
-# Decodificador de los displays de la DE10-Lite (encienden con 0; orden g..a)
 array set SEG {
     1000000 0 1111001 1 0100100 2 0110000 3 0011001 4 0010010 5 0000010 6 1111000 7
     0000000 8 0010000 9 0001000 A 0000011 B 1000110 C 0100001 D 0000110 E 0001110 F
@@ -37,7 +24,6 @@ set dev_m [lindex [get_device_names -hardware_name $hw_m] 0]
 set dev_i [lindex [get_device_names -hardware_name $hw_i] 0]
 puts "mochila: $hw_m   insecto: $hw_i"
 
-# Una sesion de sonda por operacion: solo puede haber una abierta a la vez
 proc escribe {hw dev valor} {
     start_insystem_source_probe -hardware_name $hw -device_name $dev
     write_source_data -instance_index 0 -value $valor
@@ -53,7 +39,7 @@ proc bit {v n}      { return [string index $v [expr {[string length $v] - 1 - $n
 proc campo {v hi lo} { return [string range $v [expr {[string length $v] - 1 - $hi}] [expr {[string length $v] - 1 - $lo}]] }
 proc a_entero {b}   { scan $b %b n; return $n }
 
-# reset de las dos, escenario en el insecto y arranque de la mochila
+# reset de las dos
 set esc_bits [format %02b $escenario]
 escribe $hw_m $dev_m 10000000
 escribe $hw_i $dev_i 10000000
@@ -73,12 +59,12 @@ while {1} {
     set m [lee $hw_m $dev_m]
     set i [lee $hw_i $dev_i]
 
-    # mochila: {HEX3, HEX2, HEX1, HEX0, LEDR}
+    # mochila
     set m_alerta [bit $m 9]
     set m_estado [a_entero [campo $m 7 5]]
     set m_px     "[digito [campo $m 37 31]][digito [campo $m 30 24]]"
     set m_cuenta [digito [campo $m 23 17]]
-    # insecto: {HEX5, HEX4, HEX3, HEX2, HEX1, HEX0, LEDR}
+    # insecto
     set i_alerta [bit $i 9]
     set i_enlace [bit $i 8]
     set i_estado [a_entero [campo $i 7 5]]

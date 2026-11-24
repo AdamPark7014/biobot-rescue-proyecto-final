@@ -1,6 +1,3 @@
-# Regenera las figuras (simulación incluida) y compila el reporte.
-# Uso: pwsh -File compilar.ps1            (figuras + PDF)
-#      pwsh -File compilar.ps1 -SoloPdf   (no vuelve a correr la simulación)
 param([switch]$SoloPdf)
 $ErrorActionPreference = 'Stop'
 $raiz = $PSScriptRoot

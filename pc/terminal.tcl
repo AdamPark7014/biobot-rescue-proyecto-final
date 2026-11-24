@@ -1,27 +1,3 @@
-# Terminal del operador para la red de tres DE10-Lite. La computadora se conecta al receptor
-# por su cable USB-Blaster: no hace falta ningun adaptador.
-#
-#   quartus_stp -t pc/terminal.tcl vivo     monitor en vivo (MONITOR.cmd): muestra lo que sabe el
-#                                           receptor y se actualiza en cuanto algo cambia en las
-#                                           tarjetas. Atiende las ordenes que se escriben en
-#                                           TERMINAL.cmd (llegan por el archivo pc/ordenes.txt).
-#   quartus_stp -t pc/terminal.tcl          terminal sola: se escriben las ordenes aqui mismo
-#   quartus_stp -t pc/terminal.tcl detalle  una lectura de las tres tarjetas y sale
-#
-# Ordenes:
-#   pos A|B x y     pone la cucaracha en (x, y) metros, de 0 a 63.94 (el receptor esta en 0, 0);
-#                   se oye si queda a menos de 32 m: a 31 m si, a 32 m ya no
-#   usa A|B         elige la cucaracha que mueve 'mueve' (empieza en A)
-#   mueve x y       pone la elegida en (x, y), igual que pos
-#   dist m          pone la elegida a m metros de la otra, en la misma linea (usa 'pos' o 'mueve' antes)
-#   pos A|B sw      la posicion vuelve a los interruptores SW9-SW6
-#   temp A|B t      el sensor termico lee t grados C, de 0 a 63 (detecta de 35 a 38)
-#   temp A|B sw     la temperatura vuelve a los interruptores SW5-SW0
-#   boton A|B       aprieta el boton de ayuda
-#   vista 0..3      displays del receptor: 0 r Pd, 1 persona X/Y, 2 distancia A-B, 3 rumbos
-#   vista sw        la vista del receptor vuelve a sus interruptores SW1-SW0
-#   reset           reinicia las tres tarjetas        suelta   todo vuelve a los interruptores
-
 set AQUI [file dirname [info script]]
 source [file join $AQUI tri_lib.tcl]
 set COLA [file join $AQUI ordenes.txt]
@@ -48,7 +24,6 @@ if {[lindex $argv 0] eq "vivo"} {
     puts -nonewline "\033\[2J\033\[H"
     start_insystem_source_probe -hardware_name $HW(0) -device_name $DEV(0)
     while {1} {
-        # ordenes que llegaron de la otra ventana
         if {[file exists $COLA]} {
             end_insystem_source_probe
             set leyendo "$COLA.leyendo"
@@ -85,7 +60,7 @@ if {[lindex $argv 0] eq "vivo"} {
     }
 }
 
-# ---- terminal sola
+# terminal sola
 puts $AYUDA
 puts "La persona esta escondida en (25.50, 19.25) m; el receptor en (0, 0); se oye a menos de $ALCANCE_M m."
 puts "El sensor detecta de $T_PERSONA_MIN a $T_PERSONA_MAX C."

@@ -1,13 +1,4 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tb_cordic.v
-// Banco de pruebas del CORDIC y del divisor (hdl/cordic.v): compara contra el
-// valor exacto calculado con aritmetica real, en los cuatro cuadrantes.
-//   vectorizacion: atan2 y magnitud de 24 vectores alrededor del circulo
-//   rotacion:      cos y sin de 24 angulos alrededor del circulo
-//   divisor:       200 divisiones al azar
-// Criterio: error de angulo < 0.05 grados y de magnitud/cos/sin < 0.1 %.
-// ============================================================================
 module tb_cordic;
 
 reg clk = 1'b0, reset = 1'b1;
@@ -49,14 +40,14 @@ initial begin
     repeat (3) @(posedge clk);
     reset = 1'b0;
 
-    // ---- vectorizacion
+    // vectorizacion
     for (k = 0; k < 24; k = k + 1) begin
         ang = (k * 15.0 + 7.0) * PI / 180.0;
         modo <= 1'b1;
         x0 <= $rtoi(3000.0 * $cos(ang));
         y0 <= $rtoi(3000.0 * $sin(ang));
         corre;
-        ex = $atan2($itor(y0), $itor(x0)) * 180.0 / PI;   // -180..180
+        ex = $atan2($itor(y0), $itor(x0)) * 180.0 / PI;
         e_ang = $itor($signed(z)) * 360.0 / 65536.0 - ex;
         if (e_ang > 180.0) e_ang = e_ang - 360.0;
         if (e_ang < -180.0) e_ang = e_ang + 360.0;
@@ -72,7 +63,7 @@ initial begin
         end
     end
 
-    // ---- rotacion de (1/K, 0) escalado a 2^14
+    // rotacion
     for (k = 0; k < 24; k = k + 1) begin
         ang = (k * 15.0 + 3.0);
         modo <= 1'b0;
@@ -92,7 +83,7 @@ initial begin
         end
     end
 
-    // ---- divisor
+    // divisor
     for (k = 0; k < 200; k = k + 1) begin
         num <= $urandom; den <= ($urandom % 65535) + 1;
         @(posedge clk); dstart <= 1'b1;

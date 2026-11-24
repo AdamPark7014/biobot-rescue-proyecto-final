@@ -1,11 +1,3 @@
-# Prueba automatica de la red de deteccion y triangulacion en las DE10-Lite, por los cables
-# USB-Blaster. Requiere cargada la red (CARGAR_RED.cmd) y cerrado el monitor en vivo.
-#
-# Uso:  quartus_stp -t sim/prueba_tri.tcl
-#
-# Repite en las tarjetas los escenarios de sim/tb_tri.v fijando temperatura y posicion por la
-# sonda, imprime el estado completo en cada uno y al final deja las tarjetas en sus interruptores.
-
 source [file join [file dirname [info script]] .. pc tri_lib.tcl]
 
 puts "Tarjetas:"
@@ -22,7 +14,6 @@ proc revisa {nombre cond} {
     incr total
     if {$cond} { puts "   correcto: $nombre" } else { puts "   INCORRECTO: $nombre"; incr errores }
 }
-# posiciones de la tabla tri_posicion, en metros; la persona esta en (25.50, 19.25)
 array set P {0 {25.25 19.00} 1 {25.75 19.00} 2 {25.75 19.50} 5 {40.0 30.0} 7 {4.5 3.0} 15 {60.0 60.0}}
 proc escena {ka ta kb tb} {
     global P

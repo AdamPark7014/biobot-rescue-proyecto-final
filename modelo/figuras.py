@@ -1,11 +1,3 @@
-"""Genera todas las figuras del esquema de investigación y de la presentación.
-
-Uso:  python figuras.py            (todas)
-      python figuras.py nombre ... (solo las indicadas)
-Las figuras de simulación leen resultados.json (lo escribe experimentos.py). Los datos
-publicados que se grafican llevan su fuente en el comentario de cada función y en
-../investigacion/.
-"""
 import json
 import os
 import sys
@@ -25,7 +17,7 @@ E.aplicar()
 
 
 def lienzo(ancho_px, alto_px, **kw):
-    """Figura cuyo tamaño en pantalla (px en la lámina) es ancho_px x alto_px."""
+    # figura
     return plt.subplots(figsize=(ancho_px / 100, alto_px / 100), layout="constrained", **kw)
 
 
@@ -34,9 +26,9 @@ def resultados():
         return json.load(f)
 
 
-# ------------------------------------------------------------------ ilustraciones
+# ilustraciones
 def insecto_mochila():
-    """Vista dorsal y lateral, a escala. Medidas: Tran-Ngoc 2023 (largo), Li 2019 (ancho y alto)."""
+    # vista dorsal y lateral
     fig = plt.figure(figsize=(16.64, 6.6))
     ax = fig.add_axes([0.0, 0.0, 0.61, 1.0])
     a = I.insecto_dorsal(ax, electrodos=False)
@@ -57,7 +49,7 @@ def insecto_mochila():
     ax.text(-45.5, 35.2, "Macho adulto:\n5.7 ± 0.6 cm, 6.3 ± 1.5 g", ha="left", va="top", fontsize=t,
             color=E.AZUL_OSC, fontweight="bold", linespacing=1.25)
 
-    # vista lateral: componentes uno junto a otro, no apilados
+    # vista lateral
     bx = fig.add_axes([0.60, 0.04, 0.40, 0.92])
     alto, desp = 13.2, 3.0
     us = np.linspace(0, 1, 140)
@@ -77,10 +69,10 @@ def insecto_mochila():
     I._curva(bx, (29.5, desp + 2.5), (37, desp + 7), (44, desp + 2.5), 2.2, 0.8, "#2A1810", 3)
     x0, x1 = I.xu(0.56), I.xu(0.92)
     base = float(np.interp(0.74, us, lomo)) - 0.4
-    bx.add_patch(Rectangle((x0, base), x1 - x0, 0.6, fc="#12463C", ec="#0A2A24", lw=1.0, zorder=6))          # placa
-    bx.add_patch(Rectangle((x0 + 0.5, base + 0.6), 9.0, 4.5, fc="#C9CED4", ec="#7B848D", lw=1.0, zorder=6))  # batería
-    bx.add_patch(Rectangle((x0 + 10.5, base + 0.6), 4.0, 1.0, fc="#15181C", ec="#555E68", lw=0.8, zorder=6))  # chip
-    bx.add_patch(Rectangle((x1 - 6.0, base + 0.6), 6.0, 5.0, fc="#D8DCE1", ec="#6B747D", lw=1.0, zorder=6))  # sensor
+    bx.add_patch(Rectangle((x0, base), x1 - x0, 0.6, fc="#12463C", ec="#0A2A24", lw=1.0, zorder=6))
+    bx.add_patch(Rectangle((x0 + 0.5, base + 0.6), 9.0, 4.5, fc="#C9CED4", ec="#7B848D", lw=1.0, zorder=6))
+    bx.add_patch(Rectangle((x0 + 10.5, base + 0.6), 4.0, 1.0, fc="#15181C", ec="#555E68", lw=0.8, zorder=6))
+    bx.add_patch(Rectangle((x1 - 6.0, base + 0.6), 6.0, 5.0, fc="#D8DCE1", ec="#6B747D", lw=1.0, zorder=6))
     bx.add_patch(Rectangle((x1 - 0.9, base + 1.6), 0.9, 3.0, fc="#3B1E5E", ec="none", zorder=7))
     tope = base + 5.6
     bx.plot([-40, 50], [0, 0], color=E.GRIS, lw=2.2)
@@ -109,9 +101,9 @@ def portada():
     return fig
 
 
-# --------------------------------------------------------------- datos publicados
+# datos publicados
 def supervivencia():
-    """Kobe 1995: Kawata 1996 citado por Shuto. Italia 1980: encuesta citada por Noji."""
+    # kobe 1995
     fig, ax = lienzo(1000, 600)
     dias = ["Primer día", "Días 2 y 3", "Día 4 en adelante"]
     vivos = [80, 30, 3]
@@ -126,7 +118,7 @@ def supervivencia():
 
 
 def mochilas_publicadas():
-    """Masa de mochilas publicadas (ver investigacion/01, tabla B.4)."""
+    # masa de mochilas publicadas
     fig, ax = lienzo(1000, 620)
     datos = [("NTU 2026, implantada", 0.5), ("NTU 2025", 2.3), ("NC State 2020", 3.0), ("NC State 2012", 4.0),
              ("NTU 2023", 5.5), ("HIT 2023", 5.5), ("Osaka 2023", 7.4), ("RIKEN 2022", 8.1), ("Telemetría 2019", 14.0)]
@@ -151,9 +143,6 @@ def mochilas_publicadas():
 
 
 def habituacion():
-    """Modelo H <- H + a(1-H) por estímulo, con recuperación exp(-dt/tau).
-    Datos: Ma 2023 (antena, 10 estímulos: -57 % cada 15 s, -34 % cada 120 s); Erickson 2015
-    (monofásico -80 % a los 40 ensayos de 15 s; bifásico estable 120 ensayos)."""
     fig, axs = lienzo(1664, 560, ncols=2)
     ax = axs[0]
     metodos = ["Luz UV\n(sin cirugía)", "Electrodo\nsobre la antena", "Electrodo\ntorácico", "Electrodo\nimplantado"]
@@ -203,7 +192,7 @@ def habituacion():
 
 
 def presupuesto_masa():
-    """Tres configuraciones (investigacion/03). Masas de chips estimadas; batería y sensor medidos."""
+    # tres configuraciones
     fig, ax = lienzo(1000, 600)
     partes = ["Batería", "Sensor térmico", "Tarjeta y chips", "Base y cables"]
     col = [E.AZUL_OSC, E.AMBAR, E.AZUL, E.GRIS_CL]
@@ -232,8 +221,7 @@ def presupuesto_masa():
 
 
 def energia():
-    """Potencias: Tran-Ngoc 2023 (matriz, clasificador, total), Erickson 2015 (estímulo),
-    Herreid 1981 (metabolismo, conversión propia), hojas de datos (IMU, radio)."""
+    # potencias
     fig, ax = lienzo(1000, 600)
     datos = [("Estímulo (mientras dura el tren)", 2.2, E.VERDE), ("IMU moderna", 2.3, E.AZUL),
              ("Radio de baja potencia", 0.3, E.AZUL), ("Clasificador a 1 cuadro/s", 2.4, E.AZUL),
@@ -252,7 +240,7 @@ def energia():
 
 
 def deteccion_termica():
-    """Física del campo de visión. Piel expuesta a 33 °C, fondo a 22 °C, blanco de 0.03 m² (supuestos)."""
+    # física del campo de visión
     fig, axs = lienzo(1664, 560, ncols=2)
     d = np.linspace(0.05, 4.0, 400)
     ax = axs[0]
@@ -293,8 +281,7 @@ def deteccion_termica():
 
 
 def ventana_operativa():
-    """Actividad del insecto: Gracidas-Reyes et al. 2026, Tabla 2 (caminadora esférica, 42 individuos):
-    tasa máxima de actividad y proporción de inactividad. Contraste: piel a 33 °C menos el ambiente."""
+    # actividad del insecto
     fig, ax = lienzo(1000, 600)
     T = np.linspace(12, 42, 300)
     ax.plot(T, np.clip(33 - T, 0, None), color=E.AMBAR, label="Contraste térmico de la piel (°C)")
@@ -324,7 +311,6 @@ def ventana_operativa():
 
 
 def radio_escombro():
-    """Atenuación en concreto con ITU-R P.2040-1 (cálculo en investigacion/03). Es un piso optimista."""
     fig, ax = lienzo(1000, 600)
     f = ["433 MHz", "915 MHz", "2.4 GHz\n(Bluetooth)", "6.5 GHz\n(UWB)"]
     a = [12, 22, 47, 105]
@@ -340,7 +326,6 @@ def radio_escombro():
 
 
 def localizacion():
-    """Error de la posición por IMU: 5 % de la distancia en 2D y 10 % en 3D (Tran-Ngoc 2024)."""
     fig, ax = lienzo(1000, 600)
     d = np.linspace(0, 30, 100)
     ax.fill_between(d, 0.05 * d, 0.10 * d, color=E.AZUL, alpha=0.25, zorder=2)
@@ -359,8 +344,7 @@ def localizacion():
 
 
 def costos():
-    """Costos por unidad. Biobot: piezas a precio de mostrador en México (UNIT Electronics, 09-11-2026)
-    a 18.8 MXN por USD. Lo demás: Murphy 2021, Search Dog Foundation, IEEE Spectrum 2020."""
+    # costos por unidad
     fig, ax = lienzo(1000, 600)
     datos = [("Mochila de prototipo\n(matriz 8×8)", 55, 55, E.VERDE), ("Mochila de prototipo\n(matriz 32×24)", 81, 81, E.VERDE),
              ("Enjambre de 20\ncon relevo", 1300, 1800, E.AZUL), ("Dron pequeño", 1000, 1000, E.GRIS),
@@ -380,7 +364,6 @@ def costos():
 
 
 def recursos_fpga():
-    """Síntesis real en Quartus Prime 24.1 para el 10M50DAF484C7G (quartus/output_files/biobot.fit.rpt)."""
     fig, ax = lienzo(1000, 600)
     mod = [("fsm_politica", 181, 64), ("ventana_termica", 160, 61), ("gen_estimulo", 64, 47), ("media_movil4", 40, 28),
            ("lfsr16", 16, 16), ("detector_quietud", 10, 4), ("detector_presencia", 9, 4)]
@@ -401,7 +384,7 @@ def recursos_fpga():
     return fig
 
 
-# -------------------------------------------------------------------- simulación
+# simulación
 def mapa_trayectorias():
     fig, axs = lienzo(1664, 640, ncols=2)
     m = S.generar_mapa(12, 8.0, 6.0)
@@ -433,7 +416,6 @@ def mapa_trayectorias():
 
 
 def separar(valores, minimo):
-    """Posiciones para rotular varias curvas al final sin que los textos se encimen."""
     orden = np.argsort(valores)
     pos = np.array(valores, dtype=float)
     for a, b in zip(orden[:-1], orden[1:]):
@@ -495,7 +477,7 @@ def enjambre():
 
 
 def por_mapa():
-    """Dispersión entre colapsos: detección a 60 min, mapa por mapa, ordenados por distancia a la persona."""
+    # dispersión entre colapsos
     res = resultados()
     r = res["por_mapa"]
     orden = np.argsort(r["dist_victima"])
@@ -520,7 +502,6 @@ def por_mapa():
 
 
 REGRESO_SERIES = [
-    # caso en resultados.json, rótulo, color, trazo
     ("Solo trampa", "Solo el refugio", E.GRIS, "-"),
     ("Mantenerlo caminando", "Mantenerlo caminando", E.AZUL, "-"),
     ("Rumbo directo", "Rumbo a ciegas", E.ROJO, "-"),
@@ -531,7 +512,7 @@ REGRESO_SERIES = [
 
 
 def regreso():
-    """Recuperación: insectos de vuelta en el refugio de la entrada según cómo se les haga volver."""
+    # recuperación
     r = resultados()["regreso"]
     t = [0] + r["cortes"]
     series = [s for s in REGRESO_SERIES if s[0] in r["casos"]]
@@ -612,7 +593,6 @@ def sensibilidad():
         filas.append((abs(hi - lo), nombres[k], lo, hi))
     filas.sort()
     fig, ax = lienzo(1200, 640)
-    # Margen de muestreo de un porcentaje cercano a 80 % con 160 misiones (95 %): unos 6 puntos
     ax.axvspan(base - 6, base + 6, color=E.GRIS, alpha=0.13, zorder=1)
     ax.text(base - 3, len(filas) - 0.38, "margen de\nmuestreo", ha="center", va="bottom", fontsize=13, color=E.GRIS,
             linespacing=1.1)
@@ -631,7 +611,7 @@ def sensibilidad():
     return fig
 
 
-# ------------------------------------------------------------------- diagramas
+# diagramas
 def marco_modelo():
     return D.marco_modelo({
         "M1": ("El insecto", "Masa, tamaño y fuerza.\nCuánto camina y cuánto\nse detiene.\nQué rendijas pasa.", "Carga útil: 2 a 3 g"),
@@ -698,7 +678,7 @@ FIGURAS = {
     "sensibilidad": sensibilidad, "regreso": regreso,
 }
 
-# --------------------------------------------------- números y tablas para LaTeX
+# tablas para LaTeX
 SENS_NOMBRES = {
     "p_rodea": ("Dobla esquinas pegado a la pared", "0.5", "0.95"),
     "k_refugio": ("Pausas más largas a oscuras", "×1", "×3"),
@@ -716,7 +696,6 @@ SENS_NOMBRES = {
 
 
 def numeros():
-    """Escribe latex/figs/numeros.tex (macros) y las tablas de resultados, todo desde resultados.json."""
     res = resultados()
     pct = lambda x: f"{100 * x:.0f}"
     mac = {}
@@ -792,7 +771,6 @@ def numeros():
             mac["mixtoMejor"], mac["mixtoPeor"] = pct(mx["p60"][mejor]), pct(mx["p60"][peor])
             mac["mixtoMin"] = pct(min(mx["p60"]))
 
-    # Filas de las tablas de resultados, como macros que se expanden dentro del tabular
     fin = " \\\\\n"
     tablas = {"tablaPoliticas": "", "tablaEnjambre": "", "tablaSensibilidad": "", "tablaRegreso": ""}
     if "regreso" in res:

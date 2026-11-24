@@ -1,7 +1,3 @@
-# Para descubrir el cableado: con mochilas cargadas en las tarjetas, dice de cada una
-# su papel y si oye a la otra mochila. Lo usa sim/descubrir_cableado.ps1.
-# Antes pone todas las mochilas en el mismo punto (16, 16) m por la sonda, para que el
-# alcance del radio simulado no dependa de como esten los interruptores.
 source [file join [file dirname [info script]] .. pc tri_lib.tcl]
 set junto "0001[format %010b 256][format %010b 256]000000000000"
 foreach hw [get_hardware_names] {

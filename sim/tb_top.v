@@ -1,19 +1,10 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tb_top.v
-// Banco de prueba del sistema completo, como va en la DE10-Lite: los cuadros
-// entran por UART (0xA5, actividad, 64 pixeles) y la respuesta sale por UART
-// (0x5A y tres bytes de estado). Se usan los cuadros del escenario de
-// acercamiento de vectores.hex y se compara con esperado.hex.
-// La linea corre a 1 Mbaud para acortar la simulacion; el circuito es el
-// mismo que a 9600.
-// ============================================================================
 module tb_top;
 
 `include "casos.vh"
 
-localparam integer N_CUADROS = 500;   // llega hasta la deteccion confirmada
-localparam integer T_BIT     = 1000;  // ns por bit a 1 Mbaud
+localparam integer N_CUADROS = 500;
+localparam integer T_BIT     = 1000;
 
 reg        clk = 1'b0;
 reg        reset_n = 1'b0;
@@ -46,7 +37,7 @@ begin
 end
 endtask
 
-// Receptor de la respuesta: muestrea TX a medio bit
+// respuesta
 task recibir(output [7:0] b);
     integer j;
 begin

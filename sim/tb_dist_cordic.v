@@ -1,24 +1,4 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tb_dist_cordic.v
-// Por que la distancia entre nodos no se calcula con el CORDIC.
-//
-// La primera version de la red sacaba la distancia de la magnitud del CORDIC
-// en vectorizacion: d = (K * |v|) * 9949 / 2^18, truncada a la cuenta. Este
-// banco reproduce esa cuenta con el mismo cordic.v y la compara con el valor
-// exacto, la parte entera de sqrt(dx^2 + dy^2), para los 1 048 576 pares
-// (dx, dy) de 0 a 1023.
-//
-// Resultado (lo imprime al final): el error del CORDIC es de menos de una
-// cuenta, pero al truncar basta para que la lectura caiga una cuenta abajo en
-// mas de la mitad de las distancias exactas. Por ejemplo, 31.00 m sobre el
-// eje Y se leia 30.94 m. Por eso la red usa tri_distancia, una raiz cuadrada
-// entera (sim/tb_distancia.v), y el CORDIC queda para los angulos.
-//
-// No esta en sim/simular.ps1 porque tarda unos 8 minutos:
-//   iverilog -g2005 -s tb_dist_cordic -o tb_dist_cordic.out tb_dist_cordic.v ../hdl/cordic.v
-//   vvp -n tb_dist_cordic.out
-// ============================================================================
 module tb_dist_cordic;
 
 reg clk = 1'b0;
@@ -32,7 +12,7 @@ wire listo;
 cordic #(.W(24), .N(16)) u (.clk(clk), .reset(reset), .start(start), .modo(1'b1),
     .x0(dx <<< 4), .y0(dy <<< 4), .z0(16'd0), .x(mx), .y(my), .z(mz), .listo(listo));
 
-// la cuenta de la primera version: magnitud * 0.60725 / 16, truncada
+// version con CORDIC
 wire [39:0] d_x  = mx * 40'sd9949;
 wire [9:0]  d_hw = (d_x[39:18] > 22'd1023) ? 10'd1023 : d_x[27:18];
 
@@ -61,7 +41,7 @@ initial begin
                 else if (d_hw == ex + 1) mas = mas + 1;
                 else                     lejos = lejos + 1;
             end
-            if (r * r == n) begin                       // la distancia exacta es un entero
+            if (r * r == n) begin
                 cuad = cuad + 1;
                 if (d_hw != ex) begin
                     cuad_mal = cuad_mal + 1;
@@ -71,7 +51,7 @@ initial begin
                     end
                 end
             end
-            if (r >= 500 && r <= 520) begin             // alrededor del corte de 32 m
+            if (r >= 500 && r <= 520) begin
                 anillo = anillo + 1;
                 if (d_hw != ex) anillo_mal = anillo_mal + 1;
             end

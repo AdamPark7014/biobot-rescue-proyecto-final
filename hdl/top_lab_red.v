@@ -1,19 +1,6 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// top_lab_red.v
-// Proyecto final - Sistemas Embebidos (CN113) - BioBot-Rescue
-//
-// Una tarjeta de la red de tres (red_mochilas.v) con una sonda de Quartus
-// (In-System Sources and Probes) que viaja por el cable USB-Blaster. Hace lo
-// mismo que top_red_de10lite y ademas deja que la computadora lea los LED y
-// los displays, y haga lo mismo que el reset, el boton y los interruptores.
-//
-//   ROL: 0 receptor, 1 mochila A, 2 mochila B (se fija en cada proyecto)
-//   sonda  (lectura)    {ROL[1:0], HEX5..HEX0, LEDR}
-//   fuente (escritura)  bit 12 reset, bit 11 boton, bit 10 usar la distancia
-//                       de la fuente en lugar de SW, bits 9-0 esa distancia
-// El script que la usa es sim/prueba_red.tcl.
-// ============================================================================
+
+// red en laboratorio
 module top_lab_red #(
     parameter integer ROL = 1
 ) (

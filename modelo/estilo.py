@@ -1,4 +1,3 @@
-"""Estilo común de las figuras (reporte y presentación)."""
 import os
 
 import matplotlib
@@ -32,7 +31,6 @@ def _fuente():
 
 
 def aplicar(base: float = 19.0):
-    """Tamaños pensados para una figura de 16.6 in de ancho vista a 1664 px."""
     plt.rcParams.update({
         "font.family": _fuente(),
         "font.size": base,

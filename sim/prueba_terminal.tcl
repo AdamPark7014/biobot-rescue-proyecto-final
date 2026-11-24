@@ -1,23 +1,6 @@
-# Prueba de la terminal del operador (pc/tri_lib.tcl) contra el circuito simulado, sin tarjetas.
-#
-# La terminal habla con las tarjetas por la sonda de Quartus. Aqui esas funciones se sustituyen
-# por otras que escriben y leen archivos, y del otro lado esta sim/tb_sonda.v, que simula las
-# tres tarjetas con sus modulos superiores. Asi se comprueba todo el camino: la orden que
-# escribe el operador, los bits que llegan a la FPGA, lo que la FPGA hace y lo que la terminal
-# muestra al leer la sonda.
-#
-#   quartus_sh -t prueba_terminal.tcl genera   ejecuta las ordenes de cada paso con la terminal
-#                                              real y deja los bits de las fuentes en fuentes_sonda.txt
-#   (iverilog + vvp de tb_sonda.v)             simula y deja las sondas de cada paso en sondas.txt
-#   quartus_sh -t prueba_terminal.tcl revisa   interpreta las sondas con la terminal real, comprueba
-#                                              cada paso y guarda lo que veria el operador en
-#                                              terminal_simulada.txt
-# Lo corre completo sim/probar_terminal.ps1.
-
 set AQUI [file dirname [info script]]
 set MODO [lindex $argv 0]
 
-# ---- sustitutos de las funciones de quartus_stp ----------------------------------------------
 array set ROL_DE {SIM-A 1 SIM-B 2 SIM-R 0}
 proc get_hardware_names {}            { return {SIM-A SIM-B SIM-R} }
 proc get_device_names {args}          { return [list "@1: 10M50DA (simulada)"] }
@@ -31,7 +14,7 @@ proc write_source_data {args} {
 
 source [file join $AQUI .. pc tri_lib.tcl]
 
-# ---- los pasos: ordenes, espera en decimas de segundo, titulo y comprobaciones ----------------
+# los pasos
 set PASOS {}
 proc paso {ordenes decimas titulo comprobaciones} {
     lappend ::PASOS [list $ordenes $decimas $titulo $comprobaciones]
@@ -124,9 +107,8 @@ paso {suelta} 35 "suelta: todo vuelve a los interruptores" {
     "los displays del receptor, como al encender"         {$::HEX eq $::HEX_INICIAL}
 }
 
-# ---- genera: ejecuta las ordenes y guarda lo que la terminal escribe en las fuentes -----------
 if {$MODO eq "genera"} {
-    # sondas vacias del ancho correcto, con el rol de cada tarjeta, para que la terminal las reconozca
+    # sondas vacias del ancho correcto
     proc sonda_vacia {ancho hi rol} {
         set v [string repeat 0 $ancho]
         set i [expr {$ancho - 1 - $hi}]
@@ -152,7 +134,7 @@ if {$MODO eq "genera"} {
     exit 0
 }
 
-# ---- revisa: interpreta las sondas simuladas y comprueba cada paso ----------------------------
+# revisa
 if {$MODO ne "revisa"} { puts "uso: prueba_terminal.tcl genera | revisa"; exit 1 }
 
 set f [open [file join $AQUI sondas.txt] r]
@@ -212,8 +194,6 @@ for {set n 0} {$n < [llength $PASOS]} {incr n} {
 }
 close $registro
 
-# ---- lo que la terminal le contesta al operador: posicion real en la rejilla de 6.25 cm, si
-#      queda dentro del alcance y si la temperatura cae en la ventana; y las ordenes mal escritas
 puts "RESPUESTAS de la terminal"
 fuente_inicial
 foreach {texto orden patron} {

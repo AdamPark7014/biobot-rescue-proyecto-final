@@ -1,7 +1,3 @@
-# Prueba de cada mochila por separado, sin cables entre tarjetas: comprueba en la FPGA real
-# el sensor termico simulado (35 a 38 C), el rechazo del objeto caliente, el boton y el
-# detector de tonos (el tono del receptor llega si la mochila esta a menos de 32 m).
-# Uso: quartus_stp -t sim/prueba_sin_cables.tcl
 source [file join [file dirname [info script]] .. pc tri_lib.tcl]
 puts "Tarjetas:"
 encuentra_tarjetas

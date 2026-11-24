@@ -1,24 +1,6 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// top_lab_red_rb.v
-// Proyecto final - Sistemas Embebidos (CN113) - BioBot-Rescue
-//
-// Red de tres nodos con solo dos tarjetas: esta tarjeta lleva el receptor y,
-// dentro del mismo chip, la mochila B. La otra tarjeta es la mochila A.
-//
-//   - Lo que A transmite entra por el pin 37 (RX1) y llega a la vez al
-//     receptor y a la mochila B, como si las dos estuvieran al alcance.
-//   - B reenvia los avisos de A al receptor por un cable interno.
-//   - Los interruptores SW9..SW0 de esta tarjeta son la distancia de B al
-//     receptor, y KEY1 es el boton de B. KEY0 reinicia.
-//   - Displays: los del receptor. LEDR7 = B esta reenviando (puente),
-//     LEDR6 = B encontro a una persona, LEDR5 = B transmite (parpadea).
-//
-//   sonda  (lectura)    {2'd3, HEX5..HEX0, LEDR}   (3 = receptor con B adentro)
-//   fuente (escritura)  bit 12 reset, bit 11 boton de B, bit 10 usar la
-//                       distancia de la fuente en lugar de SW, bits 9-0 esa distancia
-// Cableado: el mismo del montaje de dos tarjetas (A pin 35 -> esta pin 37, tierra).
-// ============================================================================
+
+// receptor y B
 module top_lab_red_rb (
     input  wire       CLOCK_50,
     input  wire [1:0] KEY,
@@ -55,7 +37,7 @@ wire tx_b;
 wire [9:0] led_r, led_b;
 wire [6:0] b0, b1, b2, b3, b4, b5;
 
-// Mochila B: oye a A por el pin 37 y transmite por un cable interno
+// mochila B
 red_nodo #(.ROL(2)) u_b (
     .clk(CLOCK_50), .reset(reset), .boton(~KEY[1] | fuente[11]),
     .pos(fuente[10] ? fuente[9:0] : SW),
@@ -63,7 +45,7 @@ red_nodo #(.ROL(2)) u_b (
     .hex0(b0), .hex1(b1), .hex2(b2), .hex3(b3), .hex4(b4), .hex5(b5)
 );
 
-// Receptor: oye a A directo (pin 37) y a B por el cable interno
+// receptor
 red_nodo #(.ROL(0)) u_r (
     .clk(CLOCK_50), .reset(reset), .boton(1'b0), .pos(10'd0),
     .rx1(s1[1]), .rx2(tx_b), .tx(), .ledr(led_r),

@@ -1,47 +1,9 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tri_top.v
-// Proyecto final - Sistemas Embebidos (CN113) - BioBot-Rescue
-//
-// Modulos superiores de la red de deteccion y triangulacion (tri_red.v) para
-// la DE10-Lite. Cada uno lleva una sonda de Quartus (In-System Sources and
-// Probes) por el cable USB-Blaster: la terminal de la computadora
-// (pc/terminal.tcl) lee los datos, mueve las cucarachas y puede hacer lo
-// mismo que el reset, el boton y los interruptores. Botones e interruptores
-// siguen funcionando igual.
-//
-// Pines de JP1: pin 35 TX, pin 33 TX (copia), pin 37 RX1, pin 39 RX2,
-//               pines 30 y 12 tierra, pin 1 el tono propio (1, 2 o 4 kHz).
-//
-//   top_tri_mochila   ROL 1 = mochila A, ROL 2 = mochila B
-//       KEY0 reset, KEY1 boton de ayuda (la persona lo aplasta)
-//       SW5-SW0 temperatura que lee el sensor termico, en grados C (detecta de 35 a 38)
-//       SW9-SW6 posicion de la cucaracha (16 posiciones fijas) si la terminal no la fija
-//   top_tri_receptor  receptor del operador; manda el resumen a la PC por TX
-//       KEY0 reset, SW1-SW0 vista: 00 r Pd, 01 persona X/Y, 10 distancia A-B, 11 rumbos
-//   top_tri_rb        receptor con la mochila B dentro (para hacerlo con dos tarjetas):
-//       SW5-SW0 temperatura de B, SW8-SW6 posicion de B (0 a 7), SW9 vista, KEY1 boton de B.
-//       Manda las tramas de B por TX1 para que A las oiga y el resumen de la PC por TX2.
-//
-// Sonda (lectura), del bit mas alto al mas bajo:
-//   mochila:  {oye_otra, pot_otra[15:0], pot_rec[15:0],
-//              ROL[1:0], alerta, persona, rumbo_ok, estado[2:0], n_fil[6:0], rumbo_med[15:0],
-//              temp[5:0], x[9:0], y[9:0], d_otra[9:0], d_rec[9:0], otra_detecta, otra_viva,
-//              oye_rec, cuenta[1:0], LEDR[9:0]}                                             125 bits
-//   receptor: {oye_a, oye_b, pot_a[15:0], pot_b[15:0], info_a[41:0], info_b[41:0],
-//              perd_a[7:0], perd_b[7:0], malas[7:0],
-//              2'd0, est_x[9:0], est_y[9:0], modo[2:0], n_ev[2:0], error[1:0], thA[9:0],
-//              thB[9:0], d_ab[9:0], d_a[9:0], d_b[9:0], cuenta[1:0], enlaces[3:0], LEDR[9:0]} 238 bits
-//   rb:       igual que el receptor con 2'd3 en los bits de rol                             238 bits
-// Fuente de la mochila y de rb (36 bits): 35 reset, 34 boton, 33 usar la temperatura de la
-//   fuente, 32 usar la posicion de la fuente, 31-22 x, 21-12 y, 5-0 temperatura.
-// Fuente del receptor (13 bits): 12 reset, 10 usar la vista de la fuente, 1-0 vista.
-// La sonda y la fuente se prueban sin tarjetas con sim/tb_sonda.v y sim/prueba_terminal.tcl.
-// ============================================================================
 
+// tope mochila
 module top_tri_mochila #(
     parameter integer ROL       = 1,
-    parameter integer CLK_FREQ  = 50000000,     // solo se cambian en simulacion (sim/tb_sonda.v)
+    parameter integer CLK_FREQ  = 50000000,
     parameter integer BAUD_RATE = 115200
 ) (
     input  wire       CLOCK_50,
@@ -53,10 +15,9 @@ module top_tri_mochila #(
     output wire       TX2,
     output wire [9:0] LEDR,
     output wire [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5,
-    output wire       TONO                // tono propio, en el pin 1 de JP1 (para un zumbador)
+    output wire       TONO
 );
 
-// A queda girada 12 grados a la izquierda de la persona y B, 9 a la derecha
 localparam [15:0] OFF = (ROL == 1) ? 16'd2185 : 16'd63898;
 
 wire [35:0] fuente;
@@ -101,9 +62,9 @@ tri_mochila #(.ROL(ROL), .CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE), .OFFSET(OFF
 
 endmodule
 
-// ----------------------------------------------------------------------------
+// tope receptor
 module top_tri_receptor #(
-    parameter integer CLK_FREQ  = 50000000,     // solo se cambian en simulacion (sim/tb_sonda.v)
+    parameter integer CLK_FREQ  = 50000000,
     parameter integer BAUD_RATE = 115200
 ) (
     input  wire       CLOCK_50,
@@ -115,7 +76,7 @@ module top_tri_receptor #(
     output wire       TX2,
     output wire [9:0] LEDR,
     output wire [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5,
-    output wire       TONO                // tono propio, en el pin 1 de JP1 (para un zumbador)
+    output wire       TONO
 );
 
 wire [12:0] fuente;
@@ -138,7 +99,7 @@ altsource_probe #(
 reg [1:0] s1 = 2'b11, s2 = 2'b11;
 always @(posedge CLOCK_50) begin s1 <= {s1[0], RX1}; s2 <= {s2[0], RX2}; end
 wire tx_pc;
-assign TX1 = tx_pc;                 // hacia la computadora (puente USB-serie o ESP32)
+assign TX1 = tx_pc;
 assign TX2 = tx_pc;
 
 tri_receptor #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE)) u_receptor (
@@ -153,11 +114,9 @@ tri_receptor #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE)) u_receptor (
 
 endmodule
 
-// ----------------------------------------------------------------------------
-// Receptor y mochila B en la misma tarjeta.
-// ----------------------------------------------------------------------------
+// receptor y B
 module top_tri_rb #(
-    parameter integer CLK_FREQ  = 50000000,     // solo se cambian en simulacion (sim/tb_sonda.v)
+    parameter integer CLK_FREQ  = 50000000,
     parameter integer BAUD_RATE = 115200
 ) (
     input  wire       CLOCK_50,
@@ -169,7 +128,7 @@ module top_tri_rb #(
     output wire       TX2,
     output wire [9:0] LEDR,
     output wire [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5,
-    output wire       TONO                // tono propio, en el pin 1 de JP1 (para un zumbador)
+    output wire       TONO
 );
 
 wire [35:0] fuente;
@@ -216,7 +175,7 @@ tri_receptor #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE)) u_receptor (
     .oye_a(oye_a), .oye_b(oye_b), .pot_a(pot_a), .pot_b(pot_b), .tono(TONO)
 );
 
-assign TX1 = tx_b;                  // B hacia A (pin 35 -> pin 37 de A)
-assign TX2 = tx_pc;                 // resumen hacia la computadora (pin 33)
+assign TX1 = tx_b;
+assign TX2 = tx_pc;
 
 endmodule

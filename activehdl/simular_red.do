@@ -1,12 +1,3 @@
-# Red de tres FPGA: mochila A, mochila B y receptor (sim/tb_tri.v).
-# Se ven las dos lineas de radio (UART con CRC-16), el estado y la alerta de cada mochila,
-# los rumbos medidos, los tonos que oye cada nodo, el conteo de personas en las tres
-# tarjetas, la posicion que triangula el receptor y los LED.
-# Corre el escenario 1 (triangulacion con puente): 2.1 s simulados.
-# Uso:  do ".../activehdl/simular_red.do"   (antes: endsim si hay otra simulacion abierta)
-# Para otro escenario se cambia +desde=N +hasta=N; con +rapido corren el 1 y el 9, y sin
-# argumentos, los nueve (tarda bastante mas).
-
 asim +access +r +desde=1 +hasta=1 tb_tri
 
 wave /tb_tri/reset

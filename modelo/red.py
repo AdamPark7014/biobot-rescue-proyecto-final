@@ -1,9 +1,3 @@
-"""Figuras de la red de tres FPGA: el montaje, el mapa con el alcance y la triangulación, y la trama.
-
-Uso:  python red.py
-Deja en latex/figs: red_tres_fpga.png, red_mapa.png y red_trama.png.
-Las posiciones, el alcance y la trama son los de hdl/tri_red.v.
-"""
 import math
 import os
 
@@ -17,9 +11,9 @@ AQUI = os.path.dirname(os.path.abspath(__file__))
 SALIDA = os.path.join(AQUI, "..", "latex", "figs")
 
 PERSONA = (25.50, 19.25)
-POS_A = (25.75, 19.00)          # posición 1 de la tabla: a 32.00 m del receptor
-POS_B = (25.25, 19.00)          # posición 0: a 31.60 m
-ALCANCE = 32.0                  # ALCANCE_M: se oye a menos de 32 m
+POS_A = (25.75, 19.00)
+POS_B = (25.25, 19.00)
+ALCANCE = 32.0
 
 
 def caja(ax, x, y, w, h, color, relleno, titulo, lineas, tam=14.5):
@@ -40,7 +34,7 @@ def flecha(ax, p0, p1, color, texto="", dx=0.0, dy=0.0, tam=13, ha="center", va=
 
 
 def tres_fpga():
-    """Las tres tarjetas, sus enlaces por UART y la computadora del operador."""
+    # las tres tarjetas
     fig = plt.figure(figsize=(16.64, 7.6))
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xlim(0, 16.64)
@@ -70,9 +64,8 @@ def tres_fpga():
 
 
 def mapa():
-    """El mapa de 64 m con el alcance de 32 m, y el acercamiento donde se cruzan los rumbos."""
     fig, (ax, az) = plt.subplots(1, 2, figsize=(16.64, 7.4), gridspec_kw={"width_ratios": [1.0, 1.0]}, layout="constrained")
-    # ---- mapa completo
+    # mapa completo
     ax.add_patch(Circle((0, 0), ALCANCE, facecolor="#E4ECF5", edgecolor=E.AZUL_OSC, lw=2.0, ls=(0, (5, 3)), zorder=1))
     ax.plot([0], [0], marker="s", ms=13, color=E.AZUL_OSC, zorder=5)
     ax.text(1.0, -2.0, "receptor (0, 0)", fontsize=14, color=E.AZUL_OSC, va="top")
@@ -92,19 +85,18 @@ def mapa():
     ax.set_xlabel("x (m)")
     ax.set_ylabel("y (m)")
     ax.set_title("El mapa: 64 m en 10 bits, 6.25 cm por cuenta", loc="left")
-    # ---- acercamiento
+    # acercamiento
     az.plot([PERSONA[0]], [PERSONA[1]], marker="*", ms=26, color=E.ROJO, zorder=6)
     for (x, y), nombre, color, grados, dist, lado in ((POS_A, "A", E.AMBAR, 135, "a 32.00 m: no se oye", 1),
                                                       (POS_B, "B", E.VERDE, 45, "a 31.60 m: se oye", -1)):
         az.plot([x], [y], marker="o", ms=15, color=color, zorder=5)
         u = (math.cos(math.radians(grados)), math.sin(math.radians(grados)))
         az.plot([x, x + 0.6 * u[0]], [y, y + 0.6 * u[1]], color=color, lw=2.4, ls=(0, (5, 3)), zorder=3)
-        # el rótulo de A va arriba a la derecha, donde no lo cruza el arco del alcance
         az.text(x + (0.10 if lado > 0 else -0.06), y + (0.03 if lado > 0 else -0.02),
                 "mochila %s\nrumbo de %d°\n%s" % (nombre, grados, dist),
                 ha="left" if lado > 0 else "right", va="bottom" if lado > 0 else "top",
                 fontsize=13.5, color=color, linespacing=1.3)
-    # el arco del alcance (32 m) pasa justo por la mochila A: a 32.00 m ya no se oye
+    # arco del alcance
     ts = [math.radians(a / 50.0) for a in range(1700, 2000)]
     az.plot([ALCANCE * math.cos(t) for t in ts], [ALCANCE * math.sin(t) for t in ts], color=E.AZUL_OSC, lw=2.0,
             ls=(0, (2, 3)), zorder=2)
@@ -120,7 +112,6 @@ def mapa():
 
 
 def trama():
-    """Los 16 bytes de la trama de una mochila."""
     campos = [(1, "A5", "sincronía", E.GRIS), (1, "ruta", "origen,\nemisor\ny saltos", E.AZUL),
               (1, "estado", "térmica,\nbotón y\nestado", E.ROJO),
               (6, "medida del origen", "posición x, y · rumbo hacia el calor · distancia estimada · píxeles calientes", E.AMBAR),

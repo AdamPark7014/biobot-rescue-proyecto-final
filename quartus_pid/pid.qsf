@@ -1,5 +1,3 @@
-# Controlador PID en punto fijo (hdl/pid_q.v), solo, para medir recursos y frecuencia.
-# Las entradas y salidas van como pines virtuales: no es un diseno para cargar en la tarjeta.
 set_global_assignment -name FAMILY "MAX 10"
 set_global_assignment -name DEVICE 10M50DAF484C7G
 set_global_assignment -name TOP_LEVEL_ENTITY pid_q

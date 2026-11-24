@@ -1,34 +1,17 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// detectores.v
-// Proyecto final - Sistemas Embebidos (CN113) - BioBot-Rescue
-//
-// Tres bloques pequenos que preparan las senales para la maquina de estados.
-// Todos avanzan una vez por cuadro termico (entrada tick, 10 veces por
-// segundo con la AMG8833).
-//
-//   media_movil4        promedio de los ultimos 4 conteos de pixeles calientes
-//   detector_presencia  compara ese promedio con dos umbrales y confirma
-//   detector_quietud    decide si el insecto esta quieto a partir de la IMU
-//   lfsr16              numeros seudoaleatorios para los giros al azar
-// ============================================================================
 
-// ----------------------------------------------------------------------------
-// Promedio movil de 4 muestras. Quita el parpadeo que mete el vaiven del
-// insecto al caminar (el cuerpo oscila entre 3 y 9 Hz). La suma de cuatro
-// valores se divide entre 4 con un corrimiento de dos bits.
-// ----------------------------------------------------------------------------
+// media movil
 module media_movil4 #(
-    parameter W = 7                   // bits de cada muestra
+    parameter W = 7
 )(
     input  wire         clk,
     input  wire         reset,
-    input  wire         tick,         // pulso: hay una muestra nueva
+    input  wire         tick,
     input  wire [W-1:0] dato,
     output wire [W-1:0] media
 );
 
-reg [W-1:0] m0, m1, m2, m3;           // ventana: m0 es la mas reciente
+reg [W-1:0] m0, m1, m2, m3;
 wire [W+1:0] suma = m0 + m1 + m2 + m3;
 assign media = suma[W+1:2];
 
@@ -45,28 +28,23 @@ end
 
 endmodule
 
-// ----------------------------------------------------------------------------
-// Detector de presencia. Trabaja con el conteo filtrado de pixeles calientes.
-//   pre         hay una mancha pequena: conviene acercarse
-//   sobre       la mancha ya es grande
-//   confirmado  la mancha fue grande N_CONF cuadros seguidos: es una deteccion
-// ----------------------------------------------------------------------------
+// presencia
 module detector_presencia #(
     parameter W      = 7,
-    parameter N_PRE  = 2,             // pixeles para empezar a acercarse
-    parameter N_DET  = 8,             // pixeles para declarar presencia
-    parameter N_CONF = 4              // cuadros seguidos que se exigen
+    parameter N_PRE  = 2,
+    parameter N_DET  = 8,
+    parameter N_CONF = 4
 )(
     input  wire         clk,
     input  wire         reset,
     input  wire         tick,
-    input  wire [W-1:0] n_fil,        // conteo filtrado
+    input  wire [W-1:0] n_fil,
     output wire         pre,
     output wire         sobre,
     output wire         confirmado
 );
 
-reg [3:0] seguidos;                   // cuadros seguidos con sobre = 1
+reg [3:0] seguidos;
 
 assign pre        = (n_fil >= N_PRE);
 assign sobre      = (n_fil >= N_DET);
@@ -85,15 +63,10 @@ end
 
 endmodule
 
-// ----------------------------------------------------------------------------
-// Detector de quietud. La entrada es la "actividad" que entrega la IMU en
-// cada cuadro (magnitud del cambio de aceleracion, 0 a 255). Si se mantiene
-// por debajo de U_ACT durante N_QUIETO cuadros seguidos, el insecto esta
-// quieto. En cuanto hay actividad, la salida baja de inmediato.
-// ----------------------------------------------------------------------------
+// quietud
 module detector_quietud #(
-    parameter U_ACT    = 8'd8,        // umbral de actividad
-    parameter N_QUIETO = 4'd10        // cuadros seguidos (1 s a 10 Hz)
+    parameter U_ACT    = 8'd8,
+    parameter N_QUIETO = 4'd10
 )(
     input  wire       clk,
     input  wire       reset,
@@ -119,13 +92,9 @@ end
 
 endmodule
 
-// ----------------------------------------------------------------------------
-// Registro de corrimiento con realimentacion lineal de 16 bits
-// (x^16 + x^14 + x^13 + x^11 + 1, periodo 65 535). Da los numeros con que la
-// politica decide cuando y hacia donde girar al azar.
-// ----------------------------------------------------------------------------
+// LFSR
 module lfsr16 #(
-    parameter SEMILLA = 16'hACE1      // cualquier valor distinto de cero
+    parameter SEMILLA = 16'hACE1
 )(
     input  wire        clk,
     input  wire        reset,

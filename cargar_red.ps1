@@ -1,14 +1,3 @@
-# Carga la red de triangulación en las tres DE10-Lite y comprueba los enlaces.
-#
-#   pwsh -File cargar_red.ps1            carga lo que falte y verifica los cuatro enlaces
-#   pwsh -File cargar_red.ps1 -Todo      vuelve a cargar las tres aunque ya tengan la red
-#   pwsh -File cargar_red.ps1 -Prueba    además corre los seis escenarios (sim\prueba_tri.tcl)
-#   pwsh -File cargar_red.ps1 -Terminal  al terminar abre la terminal del operador
-#
-# El .sof se pierde cuando la tarjeta se queda sin corriente: basta volver a correr esto.
-# No importa en qué puerto USB quedó cada tarjeta. El cableado decide cuál es el receptor
-# (la tarjeta que recibe de las otras dos); las dos mochilas son intercambiables. Si los
-# enlaces no salen con una asignación, se prueba con otra tarjeta como receptor.
 param([switch]$Todo, [switch]$Prueba, [switch]$Terminal)
 $ErrorActionPreference = 'Stop'
 $raiz = $PSScriptRoot
@@ -46,13 +35,12 @@ if ($cables.Count -lt 3) {
     throw "Hacen falta tres tarjetas por USB y solo hay $($cables.Count). Revisa el cable de la que falta."
 }
 
-# Posibles receptores, empezando por el que ya lo era
+# receptores
 $orden = @($cables | Where-Object { $estado.Papeles[$_] -eq 'R' }) + @($cables | Where-Object { $estado.Papeles[$_] -ne 'R' })
 $bien = $false
 foreach ($receptor in $orden) {
     $mochilas = @($cables | Where-Object { $_ -ne $receptor })
     $plan = @{ $receptor = 'R' }
-    # conserva la letra de las mochilas que ya la tienen
     $yaA = $mochilas | Where-Object { $estado.Papeles[$_] -eq 'A' } | Select-Object -First 1
     $yaB = $mochilas | Where-Object { $estado.Papeles[$_] -eq 'B' } | Select-Object -First 1
     if ($yaA -and $yaB)     { $plan[$yaA] = 'A'; $plan[$yaB] = 'B' }

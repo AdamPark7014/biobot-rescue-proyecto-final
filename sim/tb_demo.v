@@ -1,19 +1,4 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tb_demo.v
-// Banco de pruebas de top_demo_de10lite: la demostracion en una sola tarjeta.
-// Corre los cuatro escenarios con el lazo cerrado (insecto de prueba + nucleo)
-// y revisa que cada uno termine como debe:
-//
-//   01 persona            -> debe llegar a ALERTAR
-//   10 objeto caliente    -> nunca debe ver mancha ni alertar
-//   00 sin persona        -> no alerta y al menos una vez pasa por REACTIVAR
-//   11 insecto que no     -> no alerta, hay estimulos y la espera entre
-//      responde              ellos crece (retroceso)
-//
-// Para que la simulacion sea corta el reloj se declara de 8 kHz y se usa el
-// modo rapido (SW9): un cuadro son 100 ciclos.
-// ============================================================================
 module tb_demo;
 
 localparam CLK_FREQ = 8000;
@@ -38,7 +23,7 @@ integer t_est [0:7], n_marcas;
 integer cuadro_alerta, max_nfil, k;
 reg     vio_pre;
 
-// Cuenta cuadros, estados visitados y estimulos
+// cuenta cuadros
 always @(posedge clk) begin
     if (dut.tick) begin
         cuadros = cuadros + 1;
@@ -57,7 +42,7 @@ task arranca;
     input [1:0] esc;
     begin
         reset_n = 1'b0;
-        sw = {1'b1, 6'd0, esc, 1'b1};        // rapido, escenario, mision en marcha
+        sw = {1'b1, 6'd0, esc, 1'b1};
         repeat (5) @(posedge clk);
         cuadros = 0; cuadro_alerta = -1; max_nfil = 0; vio_pre = 1'b0; n_marcas = 0;
         for (k = 0; k < 8; k = k + 1) visitas[k] = 0;
@@ -76,7 +61,7 @@ endtask
 initial begin
     errores = 0;
 
-    // ---- 01: persona
+    // persona
     arranca(2'b01);
     corre(4000, 1);
     $display("MEDIDA tb_demo persona: alerta en el cuadro %0d (%0d s a 10 cuadros/s), %0d estimulos, %0d obedecidos, distancia final %0d mm",
@@ -90,7 +75,7 @@ initial begin
         $display("ERROR tb_demo persona: no paso por ACERCAR y CONFIRMAR");
     end
 
-    // ---- 10: objeto caliente en ambiente tibio
+    // objeto caliente en ambiente tibio
     arranca(2'b10);
     corre(2000, 0);
     $display("MEDIDA tb_demo objeto caliente: maximo de pixeles calientes %0d, estimulos %0d", max_nfil, dut.n_est);
@@ -99,7 +84,7 @@ initial begin
         $display("ERROR tb_demo objeto caliente: vio mancha o alerto");
     end
 
-    // ---- 00: sin persona
+    // sin persona
     arranca(2'b00);
     corre(4000, 0);
     $display("MEDIDA tb_demo sin persona: cuadros en EXPLORAR %0d, REACTIVAR %0d, REORIENTAR %0d, estimulos %0d",
@@ -113,7 +98,7 @@ initial begin
         $display("ERROR tb_demo sin persona: nunca reactivo al insecto");
     end
 
-    // ---- 11: insecto que no responde
+    // insecto que no responde
     arranca(2'b11);
     corre(9000, 0);
     $display("MEDIDA tb_demo no responde: estimulos %0d, en los cuadros %0d, %0d, %0d, %0d; obedecidos %0d",

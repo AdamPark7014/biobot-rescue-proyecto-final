@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tri_red.v
 
+// transmisor de trama
 module tri_tx_n #(
     parameter integer CLK_FREQ  = 50000000,
     parameter integer BAUD_RATE = 115200,
@@ -29,6 +28,7 @@ reg  [15:0]    crc;
 assign ocupado = (st != 2'd0);
 wire [7:0] byte_k = c[8*N-1:8*N-8];
 
+// CRC-16
 function [15:0] crc16;
     input [15:0] c0;
     input [7:0]  d;
@@ -68,6 +68,7 @@ end
 
 endmodule
 
+// receptor de trama
 module tri_rx_n #(
     parameter integer CLK_FREQ  = 50000000,
     parameter integer BAUD_RATE = 115200,
@@ -95,6 +96,7 @@ reg [15:0]    crc;
 reg [7:0]     crc_alto;
 reg [31:0]    hueco;
 
+// CRC-16
 function [15:0] crc16;
     input [15:0] c0;
     input [7:0]  d0;
@@ -135,6 +137,7 @@ end
 
 endmodule
 
+// posiciones
 module tri_posicion (
     input  wire [3:0] k,
     output reg  [9:0] x,
@@ -162,6 +165,7 @@ always @(*) begin
 end
 endmodule
 
+// raiz entera
 module tri_distancia (
     input  wire       clk,
     input  wire       reset,
@@ -210,6 +214,7 @@ end
 
 endmodule
 
+// escena termica
 module tri_escena #(
     parameter [9:0]  PX     = 10'd408,
     parameter [9:0]  PY     = 10'd308,
@@ -287,6 +292,7 @@ wire signed [15:0] q        = q_32[15:0];
 wire               en_campo = (phi > -16'sd10923) && (phi < 16'sd10923);
 wire [11:0]        d_vis    = (dist_mm > 12'd380) ? 12'd380 : dist_mm;
 
+// radio de la mancha
 reg [9:0] radio2;
 always @(*) begin
     case (d_vis[11:6])
@@ -317,6 +323,7 @@ assign actividad = {6'd0, azar[1:0]};
 
 endmodule
 
+// mochila
 module tri_mochila #(
     parameter integer ROL           = 1,
     parameter integer CLK_FREQ      = 50000000,
@@ -380,6 +387,7 @@ localparam integer ALC2     = (16 * ALCANCE_M) * (16 * ALCANCE_M);
 wire [1:0] yo   = ROL[1:0];
 wire [1:0] otra = (ROL == 1) ? 2'd2 : 2'd1;
 
+// sincronizador
 reg [9:0] sw_m, sw_s;
 always @(posedge clk or posedge reset) begin
     if (reset) begin sw_m <= 10'd0; sw_s <= 10'd0; end
@@ -391,6 +399,7 @@ tri_posicion u_pos (.k(sw_s[9:6]), .x(x_tab), .y(y_tab));
 assign x_yo = pos_ext ? x_ext : x_tab;
 assign y_yo = pos_ext ? y_ext : y_tab;
 
+// reloj de cuadros
 reg [31:0] c_cuadro;
 reg [6:0]  paso;
 reg        calcula, avanza, px_valido, px_ultimo;
@@ -440,6 +449,7 @@ tri_escena #(.PX(PX), .PY(PY), .OFFSET(OFFSET)) u_escena (
     .rumbo_real(rumbo_real), .dist_mm(dist_mm), .listo(esc_listo)
 );
 
+// rearme
 reg [2:0] sin_mancha;
 reg       rearma;
 always @(posedge clk or posedge reset) begin
@@ -455,6 +465,7 @@ always @(posedge clk or posedge reset) begin
 end
 wire reset_nucleo = reset | rearma;
 
+// nucleo
 nucleo_biobot #(.CLK_FREQ(CLK_FREQ), .F_EST(F_EST), .N_PULSOS(N_PULSOS),
                 .T_MIN(T_PIEL_MIN), .T_MAX(T_PIEL_MAX), .DELTA(8'd8)) u_nucleo (
     .clk(clk), .reset(reset_nucleo), .habilita(1'b1),
@@ -527,6 +538,7 @@ tri_rx_n #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE), .N(13)) u_rx2 (.clk(clk),
 wire [95:0] r1 = r1x[103:8], r2 = r2x[103:8];
 wire [7:0]  q1 = r1x[7:0],   q2 = r2x[7:0];
 
+// campos de la trama
 function [1:0] c_org;  input [95:0] c; c_org = c[95:94]; endfunction
 function [1:0] c_emi;  input [95:0] c; c_emi = c[93:92]; endfunction
 function [1:0] c_sal;  input [95:0] c; c_sal = c[91:90]; endfunction
@@ -534,6 +546,7 @@ function [9:0] c_xo;   input [95:0] c; c_xo  = {c[63:62], c[79:72]}; endfunction
 function [9:0] c_yo;   input [95:0] c; c_yo  = {c[61:60], c[71:64]}; endfunction
 function [9:0] c_xe;   input [95:0] c; c_xe  = {c[15:14], c[31:24]}; endfunction
 function [9:0] c_ye;   input [95:0] c; c_ye  = {c[13:12], c[23:16]}; endfunction
+// alcance
 function en_alcance;
     input [95:0] c;
     input [9:0]  xa, ya;
@@ -585,6 +598,7 @@ wire   puente       = (t_fwd != 0);
 
 wire [9:0] dq_otra;
 wire       dl_otra;
+// distancia a la otra
 tri_distancia u_d_otra (.clk(clk), .reset(reset), .start(tick100),
     .x1(xo_otra), .y1(yo_otra), .x2(x_yo), .y2(y_yo), .d(dq_otra), .listo(dl_otra));
 always @(posedge clk or posedge reset) begin
@@ -594,6 +608,7 @@ end
 
 wire [9:0] dq_rec;
 wire       dl_rec;
+// distancia al receptor
 tri_distancia u_d_rec (.clk(clk), .reset(reset), .start(tick100),
     .x1(x_yo), .y1(y_yo), .x2(10'd0), .y2(10'd0), .d(dq_rec), .listo(dl_rec));
 always @(posedge clk or posedge reset) begin
@@ -628,6 +643,7 @@ wire        llega_rec  = cerca(10'd0, 10'd0, x_yo, y_yo);
 wire [2:0]  presente   = (ROL == 1) ? {llega_otra, 1'b0, llega_rec} : {1'b0, llega_otra, llega_rec};
 wire [2:0]  oye_t;
 wire [15:0] p0, p1, p2;
+// tonos
 tri_tonos #(.CLK_FREQ(CLK_FREQ), .YO(ROL)) u_tonos (.clk(clk), .reset(reset), .presente(presente),
     .tono(tono), .oye(oye_t), .pot0(p0), .pot1(p1), .pot2(p2));
 assign oye_rec  = oye_t[0];
@@ -666,6 +682,7 @@ always @(posedge clk or posedge reset) begin
     end
 end
 
+// siete segmentos
 function [6:0] seg;
     input [4:0] c;
     case (c)
@@ -682,6 +699,7 @@ function [6:0] seg;
     endcase
 endfunction
 
+// metros a LED
 function [4:0] metros5;
     input [9:0] c;
     begin
@@ -706,6 +724,7 @@ end
 
 endmodule
 
+// triangulacion
 module tri_triangula #(
     parameter integer T_MAX = 48
 ) (
@@ -745,6 +764,7 @@ reg signed [31:0] den, num, num2;
 reg signed [11:0] ddx, ddy;
 reg signed [43:0] t;
 
+// saturacion
 function [9:0] satura;
     input signed [31:0] v;
     satura = (v < 0) ? 10'd0 : (v > 32'sd1023) ? 10'd1023 : v[9:0];
@@ -810,6 +830,7 @@ end
 
 endmodule
 
+// receptor
 module tri_receptor #(
     parameter integer CLK_FREQ  = 50000000,
     parameter integer BAUD_RATE = 115200,
@@ -861,6 +882,7 @@ function cerca;
     input [9:0] x, y;
     cerca = ({10'd0, x} * {10'd0, x} + {10'd0, y} * {10'd0, y}) < ALC2;
 endfunction
+// alcance
 function en_alcance;
     input [95:0] c;
     en_alcance = cerca({c[15:14], c[31:24]}, {c[13:12], c[23:16]});
@@ -924,6 +946,7 @@ assign tha_o = tha;
 assign thb_o = thb;
 assign n_ev  = term_a + term_b + bot_a + bot_b;
 
+// seguimiento
 function [16:0] sigue;
     input [16:0] e;
     input [7:0]  q;
@@ -969,6 +992,7 @@ assign info_b = {bx, by, temp_b, dat_b[87], dat_b[86], dat_b[85], dat_b[84], est
 
 wire [9:0] px, py, pax, pay, pbx, pby;
 wire       t_listo;
+// triangulacion
 tri_triangula u_tri (.clk(clk), .reset(reset), .start(tick),
     .ax(ax), .ay(ay), .bx(bx), .by(by), .tha(tha), .thb(thb), .ra(ra), .rb(rb),
     .px(px), .py(py), .pax(pax), .pay(pay), .pbx(pbx), .pby(pby), .error(tri_error), .listo(t_listo));
@@ -1005,6 +1029,7 @@ end
 
 wire [9:0] dq_ab, dq_a, dq_b;
 wire       dl_ab, dl_a, dl_b;
+// distancias
 tri_distancia u_d_ab (.clk(clk), .reset(reset), .start(tick),
     .x1(ax), .y1(ay), .x2(bx), .y2(by), .d(dq_ab), .listo(dl_ab));
 tri_distancia u_d_a (.clk(clk), .reset(reset), .start(tick),
@@ -1046,6 +1071,7 @@ wire llega_a = (tc_a != 0) && cerca(xr_a, yr_a);
 wire llega_b = (tc_b != 0) && cerca(xr_b, yr_b);
 wire [2:0]  oye_t;
 wire [15:0] p0;
+// tonos
 tri_tonos #(.CLK_FREQ(CLK_FREQ), .YO(0)) u_tonos (.clk(clk), .reset(reset), .presente({llega_b, llega_a, 1'b0}),
     .tono(tono), .oye(oye_t), .pot0(p0), .pot1(pot_a), .pot2(pot_b));
 assign oye_a = oye_t[1];
@@ -1081,6 +1107,7 @@ end
 tri_tx_n #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE), .N(32), .CAB(8'hA6)) u_tx_pc (.clk(clk), .reset(reset),
     .start(pc_start), .carga(resumen), .tx(tx_pc), .ocupado(pc_ocupado));
 
+// siete segmentos
 function [6:0] seg;
     input [4:0] c;
     case (c)
@@ -1098,6 +1125,7 @@ function [6:0] seg;
         default: seg = 7'b1111111;
     endcase
 endfunction
+// metros a LED
 function [4:0] metros5;
     input [9:0] c;
     begin
@@ -1106,6 +1134,7 @@ function [4:0] metros5;
         else                     metros5 = c[8:4];
     end
 endfunction
+// binario a BCD
 function [11:0] bcd3;
     input [9:0] b;
     integer i;

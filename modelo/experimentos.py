@@ -1,10 +1,3 @@
-"""Experimentos de Monte Carlo con la simulación de misión.
-
-Corre todo y deja los números en resultados.json; figuras.py dibuja a partir de ahí.
-Uso:  python experimentos.py                    (todo; cerca de dos horas)
-      python experimentos.py rapido             (menos corridas, para probar)
-      python experimentos.py solo habituacion   (rehace solo ese bloque; también: por_mapa, mixto)
-"""
 import json
 import os
 import sys
@@ -20,7 +13,7 @@ RAPIDO = len(sys.argv) > 1 and sys.argv[1] == "rapido"
 MAPAS = [11, 12, 13, 14] if RAPIDO else [11, 12, 13, 14, 15, 16, 17, 18]
 CORRIDAS = 12 if RAPIDO else 40
 ANCHO, ALTO = 8.0, 6.0
-T_MAX = 3600.0                       # s por misión
+T_MAX = 3600.0
 CORTES = (900.0, 1800.0, 2700.0, 3600.0)
 
 _mapas = {}
@@ -33,7 +26,6 @@ def mapa(semilla):
 
 
 def lote(p, politica, n, t_max=T_MAX, corridas=None, mapas=None):
-    """Junta las corridas de todos los mapas para una configuración."""
     t_det, cob, est, anda, hab = [], [], [], [], []
     for i, sm in enumerate(mapas or MAPAS):
         r = S.simular(mapa(sm), p, politica, n, corridas or CORRIDAS, t_max, semilla=1000 * sm + n + politica)
@@ -62,7 +54,6 @@ def lote(p, politica, n, t_max=T_MAX, corridas=None, mapas=None):
 
 
 def validar_marcha():
-    """Arena abierta de 1 x 1 m: marcha natural contra marcha con comandos al azar."""
     m = S.generar_mapa(1, 1.0, 1.0, ocupacion=0.0)
     out = {}
     for nombre, pol in (("natural", S.PASIVA), ("comandos", S.ESTOCASTICA)):
@@ -73,7 +64,7 @@ def validar_marcha():
 
 
 def habituacion(base):
-    """E4: habituación y dosificación (10 insectos, 2 h para que se note)."""
+    # E4
     sin_tope = dict(cuenta_lim=1e9, t_refractario=2.0, retro_max=0)
     return {
         "Unipolar sin dosificar": lote(P.con(**P.UNIPOLAR, **sin_tope), S.GUIADA, 10, t_max=7200.0),
@@ -84,7 +75,7 @@ def habituacion(base):
 
 
 def por_mapa(base):
-    """E6: dispersión entre colapsos. Mismas corridas que E1, separadas mapa por mapa."""
+    # E6
     out = {"mapas": MAPAS, "dist_victima": [float(mapa(s).geo[mapa(s).victima]) for s in MAPAS],
            "area_libre": [float(mapa(s).area_libre) for s in MAPAS]}
     for nombre, pol in (("Pasiva", S.PASIVA), ("Guiada", S.GUIADA)):
@@ -97,8 +88,7 @@ def por_mapa(base):
 
 
 def mixto(base):
-    """E7: enjambre mixto, cinco insectos pasivos y cinco guiados. Los agentes no interactúan, así
-    que la misión mixta detecta cuando lo hace el primero de los dos grupos."""
+    # E7
     out = {"mapas": MAPAS, "p45": [], "p60": []}
     todos = []
     for sm in MAPAS:
@@ -124,11 +114,7 @@ CASOS_FARO = [("Faro, sin límite de alcance", S.REGRESO_FARO, {}),
 
 
 def regreso(base, casos=None, previo=None):
-    """E8: recuperación de los insectos. Tras 45 min de búsqueda guiada se ordena el regreso y
-    un refugio-trampa en el boquete recoge a los que llegan. Se comparan cuatro formas de
-    regresar sin ayuda externa, un refugio con más alcance (1 m) y un faro infrarrojo en el
-    boquete que la mochila sigue con dos fotodiodos. Con `previo` se conservan los casos ya
-    calculados y solo se añaden los de `casos`."""
+    # E8
     t_ida, t_vuelta = 2700.0, 7200.0
     cortes = (15, 30, 45, 60, 90, 120)
     if casos is None:
@@ -156,12 +142,11 @@ def regreso(base, casos=None, previo=None):
 
 
 def solo(bloque):
-    """Rehace un bloque y lo guarda en resultados.json sin tocar los demás."""
     ruta = os.path.join(AQUI, "resultados.json")
     with open(ruta, encoding="utf-8") as f:
         res = json.load(f)
     t0 = time.time()
-    if bloque == "faro":      # añade los casos con faro al estudio del regreso ya calculado
+    if bloque == "faro":
         res["regreso"] = regreso(P.con(), casos=CASOS_FARO, previo=res.get("regreso"))
     else:
         res[bloque] = {"habituacion": habituacion, "por_mapa": por_mapa, "mixto": mixto, "regreso": regreso}[bloque](P.con())
@@ -184,18 +169,18 @@ def main():
     res["validacion"] = validar_marcha()
     print("validación", res["validacion"], flush=True)
 
-    # E1: políticas con 10 insectos
+    # E1
     res["politicas"] = {S.NOMBRES[k]: lote(base, k, 10) for k in (S.PASIVA, S.ANTIPAUSA, S.ESTOCASTICA, S.GUIADA)}
     print("E1 %.0f s" % (time.time() - t0), {k: (v["p_det"], v["est_por_hora"]) for k, v in res["politicas"].items()}, flush=True)
 
-    # E2: tamaño del enjambre
+    # E2
     tam = [1, 2, 5, 10, 20, 40]
     res["enjambre"] = {"n": tam}
     for nombre, pol in (("Pasiva", S.PASIVA), ("Guiada", S.GUIADA)):
         res["enjambre"][nombre] = [lote(base, pol, n) for n in tam]
     print("E2 %.0f s" % (time.time() - t0), flush=True)
 
-    # E3: sensor térmico (política guiada, 10 insectos)
+    # E3
     res["sensor"] = {
         "Un píxel, 90°": lote(P.con(**P.UN_PIXEL), S.GUIADA, 10),
         "Matriz 8×8, 60°": lote(P.con(**P.MATRIZ_8X8), S.GUIADA, 10),
@@ -203,11 +188,11 @@ def main():
     }
     print("E3 %.0f s" % (time.time() - t0), flush=True)
 
-    # E4: habituación y dosificación
+    # E4
     res["habituacion"] = habituacion(base)
     print("E4 %.0f s" % (time.time() - t0), flush=True)
 
-    # E5: sensibilidad de la política guiada (10 insectos) a los supuestos
+    # E5
     barridos = {
         "p_rodea": (0.5, 0.95), "k_refugio": (0.0, 2.0), "area_blanco": (0.01, 0.10),
         "p_resp": (0.5, 0.9), "frac_responde": (0.56, 1.0), "t_pausa": (18.4, 73.6),
@@ -228,11 +213,11 @@ def main():
     res["sensibilidad_base"] = {pol_n: (lambda r: {"p45": r["p_det"]["45"], "cob60": r["cob_media"][-1]})(
         lote(base, pol, 10, mapas=mapas_s)) for pol_n, pol in (("Pasiva", S.PASIVA), ("Guiada", S.GUIADA))}
 
-    # E6: dispersión entre mapas; E7: enjambre mixto
+    # E6
     res["por_mapa"] = por_mapa(base)
     res["mixto"] = mixto(base)
 
-    # E8: recuperación de los insectos
+    # E8
     res["regreso"] = regreso(base)
 
     res["meta"]["segundos"] = time.time() - t0

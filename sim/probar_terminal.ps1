@@ -1,10 +1,3 @@
-# Prueba la terminal del operador (pc/tri_lib.tcl) contra las tres FPGA simuladas, sin tarjetas.
-# Uso:  pwsh -File sim\probar_terminal.ps1          (unos 15 minutos)
-# 1. La terminal real ejecuta las ordenes de cada paso; los bits que mandaria a las tarjetas
-#    quedan en fuentes_sonda.txt.
-# 2. tb_sonda.v simula las tres tarjetas con sus modulos superiores y guarda sus sondas.
-# 3. La terminal real interpreta esas sondas y se comprueba cada paso. Lo que veria el
-#    operador queda en terminal_simulada.txt.
 $ErrorActionPreference = 'Stop'
 $sim = $PSScriptRoot
 $hdl = Join-Path $PSScriptRoot '..\hdl'

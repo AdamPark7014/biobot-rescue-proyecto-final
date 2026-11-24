@@ -1,11 +1,3 @@
-"""Figuras del procesamiento numérico en punto fijo: CORDIC y filtros.
-
-Uso:  python numerico.py
-Lee los registros de los bancos de prueba (sim/tb_cordic_iter.log y sim/tb_tonos.log, que deja
-sim/simular.ps1) y escribe en latex/figs: cordic_iteraciones.png y filtros.png.
-Los puntos de las gráficas son lo que midió la simulación del circuito; la única curva teórica es
-la respuesta en frecuencia de la media móvil, y así se rotula.
-"""
 import math
 import os
 import re
@@ -30,7 +22,6 @@ def lee(nombre):
 
 
 def cordic():
-    """Error del CORDIC según el número de iteraciones (medido en la simulación)."""
     filas = re.findall(r"N=(\d+): K=[\d.]+; angulo, error maximo ([\d.]+) grados y eficaz ([\d.]+); "
                        r"magnitud, error maximo ([\d.]+) %; coseno y seno, error maximo ([\d.]+) %",
                        lee("tb_cordic_iter.log"))
@@ -64,11 +55,11 @@ def cordic():
 
 
 def filtros():
-    """Media móvil (FIR) y potencias medidas por los filtros de Goertzel (IIR)."""
+    # media móvil
     fig, (a, b) = plt.subplots(1, 2, figsize=(16.64, 6.0))
     fig.subplots_adjust(left=0.07, right=0.985, top=0.88, bottom=0.2, wspace=0.22)
 
-    # FIR: media de cuatro cuadros a 10 cuadros por segundo
+    # FIR
     fs, m = 10.0, 4
     f = [k * (fs / 2) / 600.0 for k in range(601)]
     h = []
@@ -86,7 +77,7 @@ def filtros():
     a.annotate("nulo en 5 Hz", xy=(5.0, 0.0), xytext=(3.75, 0.52), fontsize=14, color=E.GRIS,
                arrowprops=dict(arrowstyle="-", color=E.GRIS, lw=1.2))
 
-    # IIR: potencias que midió la mochila A en tb_tonos (emite 1 kHz y escucha 2 y 4 kHz)
+    # IIR
     casos = re.findall(r"llegan (\d{3}): oye (\d{3}); potencia 4 kHz (\d+), 1 kHz (\d+), 2 kHz (\d+)", lee("tb_tonos.log"))
     nombres = {"000": "ninguno", "001": "receptor", "100": "B", "101": "B y\nreceptor", "111": "los tres",
                "010": "solo el\npropio"}
@@ -115,7 +106,6 @@ def filtros():
 
 
 def pid():
-    """Respuesta del PID al escalón grande, con y sin integración condicional (sim/trazas/pid.csv)."""
     import csv
     ruta = os.path.join(SIM, "trazas", "pid.csv")
     if not os.path.exists(ruta):

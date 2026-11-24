@@ -1,10 +1,3 @@
-# Crea (una sola vez) el workspace de Active-HDL del proyecto final, agrega
-# los modulos y dos bancos de prueba, compila todo y simula la demostracion
-# en una tarjeta. Despues basta con abrir activehdl/BioBot_Rescue.aws
-#
-# Uso en la consola de Active-HDL:
-#   do "C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate/activehdl/crear_workspace.do"
-
 set PF "C:/Users/adpoz/OneDrive/Documentos/Universidad/2026-Semestre-5/11-Lab-Sistemas-Embebidos-CN113/Entregas/Proyecto-Final-Biobots-Rescate"
 
 workspace create "$PF/activehdl/BioBot_Rescue"

@@ -1,46 +1,14 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// red_mochilas.v
-// Proyecto final - Sistemas Embebidos (CN113) - BioBot-Rescue
-//
-// Red de tres tarjetas: dos mochilas (A y B) y el receptor del rescatista.
-//
-//   - La persona atrapada aprieta el boton de la mochila (KEY1) medio segundo:
-//     la mochila marca "persona encontrada".
-//   - Los interruptores SW9..SW0 de cada mochila dicen a cuantos metros esta del
-//     receptor (10 bits: de 0 a 1023 m).
-//   - Cada mochila manda una trama cada 100 ms con quien es, donde esta y si
-//     encontro a alguien. El radio solo alcanza ALC metros (100 m): una trama
-//     se acepta solo si quien la manda esta a ALC metros o menos.
-//   - Si A esta demasiado lejos del receptor pero B esta entre los dos, B
-//     recibe la trama de A y la reenvia: hace de puente (red multisalto).
-//   - El receptor junta lo que llega: quien encontro a la persona, por que
-//     camino llego el aviso y a que distancia esta. Si las dos mochilas
-//     avisan y estan a CONSENSO metros o menos una de otra, la deteccion se
-//     confirma y la distancia es el promedio de las dos.
-//
-// Trama (6 bytes, 115 200 baudios):
-//   0  0xA5
-//   1  {origen[1:0], emisor[1:0], saltos[1:0], persona, 0}
-//   2  pos_origen[7:0]
-//   3  {pos_origen[9:8], pos_emisor[9:8], 4'b0000}
-//   4  pos_emisor[7:0]
-//   5  bytes 1 a 4 en XOR, y XOR con 0x5A
-// origen = la mochila que detecto; emisor = la que transmite esta copia.
-// Identificadores: 1 = mochila A, 2 = mochila B (0 = receptor, no transmite).
-// ============================================================================
 
-// ----------------------------------------------------------------------------
-// Arma una trama a partir de los bytes que llegan por la UART
-// ----------------------------------------------------------------------------
+// receptor de trama
 module red_rx_trama #(
-    parameter integer T_HUECO = 100000          // ciclos sin bytes que reinician la trama
+    parameter integer T_HUECO = 100000
 ) (
     input  wire       clk,
     input  wire       reset,
     input  wire [7:0] dato,
     input  wire       valido,
-    output reg        listo,                    // pulso: trama completa y correcta
+    output reg        listo,
     output reg  [1:0] origen,
     output reg  [1:0] emisor,
     output reg  [1:0] saltos,
@@ -91,21 +59,19 @@ end
 
 endmodule
 
-// ----------------------------------------------------------------------------
-// Un nodo de la red. ROL: 0 receptor, 1 mochila A, 2 mochila B
-// ----------------------------------------------------------------------------
+// nodo de red
 module red_nodo #(
     parameter integer ROL        = 1,
     parameter integer CLK_FREQ   = 50000000,
     parameter integer BAUD_RATE  = 115200,
-    parameter integer ALC        = 100,          // alcance del radio (m)
-    parameter integer CONSENSO   = 20,           // dos avisos a esta distancia o menos = misma persona (m)
-    parameter integer T_PULSA_MS = 500           // tiempo que hay que sostener el boton (ms)
+    parameter integer ALC        = 100,
+    parameter integer CONSENSO   = 20,
+    parameter integer T_PULSA_MS = 500
 ) (
     input  wire       clk,
     input  wire       reset,
-    input  wire       boton,                     // 1 = apretado
-    input  wire [9:0] pos,                       // metros al receptor (mochilas)
+    input  wire       boton,
+    input  wire [9:0] pos,
     input  wire       rx1,
     input  wire       rx2,
     output wire       tx,
@@ -113,21 +79,21 @@ module red_nodo #(
     output reg  [6:0] hex0, hex1, hex2, hex3, hex4, hex5
 );
 
-localparam integer C_TICK  = CLK_FREQ / 10;                    // 100 ms
+localparam integer C_TICK  = CLK_FREQ / 10;
 localparam integer C_PULSA = (CLK_FREQ / 1000) * T_PULSA_MS;
-localparam integer C_HUECO = CLK_FREQ / 500;                   // 2 ms
-localparam [3:0]   T_FRESCO = 4'd5;                            // 500 ms
-localparam [3:0]   T_VIVO   = 4'd10;                           // 1 s
+localparam integer C_HUECO = CLK_FREQ / 500;
+localparam [3:0]   T_FRESCO = 4'd5;
+localparam [3:0]   T_VIVO   = 4'd10;
 
 wire [1:0] yo     = ROL;
 wire [9:0] pos_yo = (ROL == 0) ? 10'd0 : pos;
 
-function [9:0] dif;                     // |a - b|
+function [9:0] dif;
     input [9:0] a, b;
     dif = (a > b) ? (a - b) : (b - a);
 endfunction
 
-// ---- base de tiempo de 100 ms
+// tick de 100 ms
 reg [31:0] c_tick;
 reg        tick;
 always @(posedge clk or posedge reset) begin
@@ -136,7 +102,7 @@ always @(posedge clk or posedge reset) begin
     else begin c_tick <= c_tick + 1; tick <= 1'b0; end
 end
 
-// ---- boton: sostenerlo T_PULSA_MS marca la deteccion hasta el reset
+// boton
 reg [31:0] c_pulsa;
 reg        persona;
 always @(posedge clk or posedge reset) begin
@@ -148,7 +114,7 @@ always @(posedge clk or posedge reset) begin
     end
 end
 
-// ---- dos receptores UART
+// dos receptores UART
 wire [7:0] d1, d2;
 wire       v1, v2;
 uart_rx #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE)) u_rx1 (.clk(clk), .reset(reset), .rx(rx1), .data_out(d1), .data_valid(v1));
@@ -162,11 +128,11 @@ red_rx_trama #(.T_HUECO(C_HUECO)) u_t1 (.clk(clk), .reset(reset), .dato(d1), .va
 red_rx_trama #(.T_HUECO(C_HUECO)) u_t2 (.clk(clk), .reset(reset), .dato(d2), .valido(v2), .listo(l2),
     .origen(o2), .emisor(e2), .saltos(s2), .persona(p2), .pos_origen(po2), .pos_emisor(pe2));
 
-// Se acepta una trama solo si quien la manda esta dentro del alcance del radio
+// filtro por alcance
 wire ok1 = l1 && (e1 != yo) && (o1 != yo) && (o1 != 2'd0) && (dif(pe1, pos_yo) <= ALC);
 wire ok2 = l2 && (e2 != yo) && (o2 != yo) && (o2 != 2'd0) && (dif(pe2, pos_yo) <= ALC);
 
-// ---- mochilas: guardan lo que oyen de la otra para reenviarlo (puente)
+// reenvio
 reg  [3:0] t_fwd;
 reg  [1:0] f_origen, f_saltos;
 reg        f_persona;
@@ -185,21 +151,21 @@ always @(posedge clk or posedge reset) begin
 end
 wire puente = (t_fwd != 0);
 
-// ---- transmisor: cada 100 ms la trama propia y, si hace de puente, la reenviada
+// transmisor
 reg  [7:0] tx_dato;
 reg        tx_start;
 wire       tx_busy;
 uart_tx #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE)) u_tx (.clk(clk), .reset(reset), .tx_start(tx_start),
     .data_in(tx_dato), .tx(tx), .busy(tx_busy));
 
-reg  [1:0] st;                  // 0 libre, 1 pedir byte, 2 esperar que arranque, 3 esperar que acabe
+reg  [1:0] st;
 reg  [2:0] k;
-reg        segunda;             // 0 trama propia, 1 trama reenviada
+reg        segunda;
 reg        latido;
-reg  [7:0] t1, t2, t3, t4;      // bytes 1 a 4 de la trama en curso
+reg  [7:0] t1, t2, t3, t4;
 wire [7:0] t5 = t1 ^ t2 ^ t3 ^ t4 ^ 8'h5A;
 
-task arma;                       // carga los bytes de una trama
+task arma;
     input [1:0] org;
     input [1:0] sal;
     input       per;
@@ -247,7 +213,7 @@ always @(posedge clk or posedge reset) begin
     end
 end
 
-// ---- receptor: tabla de las dos mochilas
+// tabla de mochilas
 reg  [3:0] t_dir_a, t_rel_a, t_dir_b, t_rel_b;
 reg        per_a, per_b;
 reg  [9:0] pos_a, pos_b;
@@ -292,25 +258,25 @@ wire posible    = det_a ^ det_b;
 wire [10:0] suma = {1'b0, pos_a} + {1'b0, pos_b};
 wire [9:0]  estimada = (det_a && det_b) ? (confirmada ? suma[10:1] : pos_a) : (det_a ? pos_a : pos_b);
 
-// ---- displays
+// displays
 localparam [4:0] S_A = 5'd10, S_B = 5'd11, S_C = 5'd12, S_GUION = 5'd13, S_NADA = 5'd14, S_R = 5'd15, S_DOS = 5'd2;
 
-function [6:0] seg;                      // segmentos g..a, encienden con 0
+function [6:0] seg;
     input [4:0] c;
     case (c)
         5'd0: seg = 7'b1000000;  5'd1: seg = 7'b1111001;  5'd2: seg = 7'b0100100;  5'd3: seg = 7'b0110000;
         5'd4: seg = 7'b0011001;  5'd5: seg = 7'b0010010;  5'd6: seg = 7'b0000010;  5'd7: seg = 7'b1111000;
         5'd8: seg = 7'b0000000;  5'd9: seg = 7'b0010000;
-        5'd10: seg = 7'b0001000;     // A
-        5'd11: seg = 7'b0000011;     // b
-        5'd12: seg = 7'b1000110;     // C
-        5'd13: seg = 7'b0111111;     // -
-        5'd15: seg = 7'b0101111;     // r
-        default: seg = 7'b1111111;   // apagado
+        5'd10: seg = 7'b0001000;
+        5'd11: seg = 7'b0000011;
+        5'd12: seg = 7'b1000110;
+        5'd13: seg = 7'b0111111;
+        5'd15: seg = 7'b0101111;
+        default: seg = 7'b1111111;
     endcase
 endfunction
 
-function [15:0] bcd;                     // binario de 10 bits a cuatro digitos decimales
+function [15:0] bcd;
     input [9:0] b;
     integer i;
     reg [25:0] s;
@@ -339,7 +305,6 @@ always @(*) begin
     hex2 = muestra_num ? seg({1'b0, dec[11:8]})  : seg(S_GUION);
     hex3 = muestra_num ? seg({1'b0, dec[15:12]}) : seg(S_GUION);
     if (ROL == 0) begin
-        // HEX5: quien encontro (A, b, C confirmada, 2 dos avisos lejanos); HEX4: saltos del aviso
         if (confirmada)         begin hex5 = seg(S_C);   hex4 = seg({3'b000, saltos_a}); end
         else if (det_a && det_b) begin hex5 = seg(S_DOS); hex4 = seg({3'b000, saltos_a}); end
         else if (det_a)          begin hex5 = seg(S_A);   hex4 = seg({3'b000, saltos_a}); end
@@ -347,7 +312,6 @@ always @(*) begin
         else                     begin hex5 = seg(S_GUION); hex4 = seg(S_GUION); end
         ledr = {confirmada, posible, 3'b000, det_b, det_a, (t_dir_b != 0), (t_rel_a != 0), (t_dir_a != 0)};
     end else begin
-        // HEX5: A o b; HEX4: r cuando esta reenviando avisos de la otra mochila
         hex5 = seg((ROL == 1) ? S_A : S_B);
         hex4 = puente ? seg(S_R) : seg(S_NADA);
         ledr = {persona, latido, puente, 7'b0000000};
@@ -356,19 +320,15 @@ end
 
 endmodule
 
-// ----------------------------------------------------------------------------
-// Tarjeta DE10-Lite. Pines del conector JP1:
-//   pin 35 (GPIO_30)  TX     pin 33 (GPIO_28)  TX, copia (para llegar a dos tarjetas)
-//   pin 37 (GPIO_32)  RX1    pin 39 (GPIO_34)  RX2       pines 30 y 12: tierra
-// ----------------------------------------------------------------------------
+// tope DE10-Lite
 module top_red_de10lite #(
     parameter integer ROL       = 1,
     parameter integer CLK_FREQ  = 50000000,
     parameter integer BAUD_RATE = 115200
 ) (
     input  wire       CLOCK_50,
-    input  wire [1:0] KEY,                // KEY0 reset, KEY1 boton de la persona
-    input  wire [9:0] SW,                 // distancia al receptor en metros
+    input  wire [1:0] KEY,
+    input  wire [9:0] SW,
     input  wire       RX1,
     input  wire       RX2,
     output wire       TX1,
@@ -377,7 +337,7 @@ module top_red_de10lite #(
     output wire [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 );
 
-reg [1:0] s1 = 2'b11, s2 = 2'b11;         // sincronizadores de las lineas de entrada
+reg [1:0] s1 = 2'b11, s2 = 2'b11;
 always @(posedge CLOCK_50) begin s1 <= {s1[0], RX1}; s2 <= {s2[0], RX2}; end
 
 wire tx;

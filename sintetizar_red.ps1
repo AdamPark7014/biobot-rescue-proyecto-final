@@ -1,7 +1,3 @@
-# Sintetiza las cuatro variantes de la red de tres FPGA con Quartus Prime 24.1 y resume
-# recursos, frecuencia maxima y advertencias. Termina con codigo 1 si alguna no cumple.
-# Uso:  pwsh -File sintetizar_red.ps1            (las cuatro en paralelo, unos diez minutos)
-#       pwsh -File sintetizar_red.ps1 -Resumen   (solo lee los reportes que ya existen)
 param([switch]$Resumen)
 $ErrorActionPreference = 'Stop'
 $raiz      = $PSScriptRoot
@@ -35,7 +31,7 @@ $filas = foreach ($v in $variantes) {
         ForEach-Object { [double]$_.Groups[1].Value } | Measure-Object -Minimum
     $holgura = Lee-Campo $sta 'Slow 1200mV 85C Model Setup Summary[\s\S]*?;\s*CLOCK_50\s*;\s*(-?[\d.]+)\s*;'
     $criticas = @(Get-ChildItem $out -Filter '*.rpt' | Select-String -Pattern '^Critical Warning' ).Count
-    # advertencias del codigo: anchos, senales sin usar, cerrojos
+    # advertencias
     $codigo = @($map | Select-String -Pattern '^Warning \((10230|10036|10776|10240|10235|10199)\)').Count
     if ($fmax.Minimum -lt 50 -or $criticas -gt 0) { $falla = $true }
     [pscustomobject]@{

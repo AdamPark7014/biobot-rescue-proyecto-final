@@ -1,16 +1,3 @@
-# Prueba automatica de la demostracion en UNA DE10-Lite por el cable USB-Blaster.
-# Requiere la version con sonda (quartus_lab_demo) ya cargada.
-#
-# Uso:
-#   quartus_stp -t sim/prueba_una_tarjeta.tcl [cable] [escenario] [rapido] [segundos]
-#     cable      0 o 1: cual USB-Blaster (por omision 0)
-#     escenario  0 sin persona, 1 persona (por omision), 2 objeto caliente, 3 no responde
-#     rapido     1 = ocho veces mas rapido (por omision 1)
-#     segundos   cuanto dura la prueba (por omision 40)
-#
-# Reinicia la tarjeta, pone el escenario, arranca la mision e imprime cada
-# segundo lo que muestran sus LED y displays.
-
 set cable     [expr {[llength $argv] > 0 ? [lindex $argv 0] : 0}]
 set escenario [expr {[llength $argv] > 1 ? [lindex $argv 1] : 1}]
 set rapido    [expr {[llength $argv] > 2 ? [lindex $argv 2] : 1}]
@@ -49,7 +36,7 @@ proc bit {v n}       { return [string index $v [expr {[string length $v] - 1 - $
 proc campo {v hi lo} { return [string range $v [expr {[string length $v] - 1 - $hi}] [expr {[string length $v] - 1 - $lo}]] }
 proc a_entero {b}    { scan $b %b n; return $n }
 
-# fuente: bit 7 reset, bit 3 rapido, bits 2-1 escenario, bit 0 mision
+# fuente
 escribe 10000000
 after 200
 escribe "0000${rapido}[format %02b $escenario]1"
@@ -64,7 +51,7 @@ set n_est_vistos 0
 while {1} {
     set t [expr {([clock milliseconds] - $t0) / 1000.0}]
     set v [lee]
-    # sonda: {HEX5, HEX4, HEX3, HEX2, HEX1, HEX0, LEDR}; LEDR = {alerta, latido, estado[2:0], pre, quieto, led_on[2:0]}
+    # sonda
     set alerta [bit $v 9]
     set estado [a_entero [campo $v 7 5]]
     set pre    [bit $v 4]

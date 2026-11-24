@@ -1,15 +1,6 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// altsource_probe_sim.v
-// Proyecto final - Sistemas Embebidos (CN113) - BioBot-Rescue
-//
-// Modelo de simulacion de la sonda de Quartus (In-System Sources and Probes).
-// En la tarjeta, altsource_probe es un bloque de Intel que se lee y se escribe
-// por el cable USB-Blaster. Aqui solo guarda la fuente en un registro: el banco
-// de pruebas escribe en "valor" lo que mandaria la terminal y lee "probe"
-// directamente. Sirve para simular los modulos superiores (hdl/tri_top.v) tal
-// como se sintetizan. No se sintetiza.
-// ============================================================================
+
+// sonda simulada
 module altsource_probe #(
     parameter         sld_auto_instance_index = "YES",
     parameter integer sld_instance_index      = 0,

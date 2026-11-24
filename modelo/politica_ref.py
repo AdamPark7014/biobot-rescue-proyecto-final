@@ -1,16 +1,7 @@
-"""Modelo de referencia, entero y ciclo a ciclo, del núcleo digital (hdl/nucleo_biobot.v).
-
-Cada llamada a `Nucleo.cuadro` equivale a un cuadro térmico completo: 64 píxeles
-(0.25 °C por cuenta) y la actividad de la IMU. Los registros se actualizan como en
-el Verilog: todo se calcula con los valores viejos y se escribe al final.
-
-`generar_vectores` escribe los estímulos y las respuestas esperadas que lee
-sim/tb_nucleo.v. Uso:  python politica_ref.py
-"""
 import os
 import random
 
-# parámetros, iguales a los de los módulos Verilog
+# parámetros
 COLS, N_PIX = 8, 64
 T_MIN, T_MAX, DELTA = 112, 152, 8
 COL_IZQ, COL_DER = 3, 5
@@ -34,7 +25,7 @@ class Nucleo:
         self.fondo = 255
         self.n_cal = 0
         self.lado = 0
-        # media_movil4, detector_presencia, detector_quietud, lfsr16
+        # media_movil4
         self.m = [0, 0, 0, 0]
         self.seguidos = 0
         self.cnt_q = 0
@@ -78,11 +69,10 @@ class Nucleo:
         self.n_cal, self.lado, self.fondo = cal, lado, suma >> 6
 
     def cuadro(self, pix, actividad, habilita=1):
-        """Procesa un cuadro. Devuelve lo que se observa después del tick."""
+        # procesa un cuadro
         assert len(pix) == N_PIX
-        self._ventana(pix)                       # cierra el cuadro; luego llega el tick
+        self._ventana(pix)
 
-        # --- valores que ven los bloques en el tick (registros viejos)
         n_fil = self.n_fil
         pre, sobre = n_fil >= N_PRE, n_fil >= N_DET
         confirmado = self.seguidos >= N_CONF
@@ -143,7 +133,7 @@ class Nucleo:
             elif self.cuenta < LIM:
                 est_n = EXPLORAR
 
-        # --- escritura de registros (todos a la vez)
+        # escritura de registros
         if (not quieto) or (est == REACTIVAR and self.t_obs == 0):
             cnt_quieto = 0
         elif self.cnt_quieto != 0x1FFF:
@@ -178,7 +168,7 @@ class Nucleo:
         else:
             cnt_baliza = 0
 
-        # media, presencia, quietud y LFSR
+        # media
         self.m = [self.n_cal] + self.m[:3]
         self.seguidos = 0 if not sobre else min(self.seguidos + 1, 15)
         self.cnt_q = 0 if actividad >= U_ACT else min(self.cnt_q + 1, 15)
@@ -193,9 +183,9 @@ class Nucleo:
                 "n_fil": self.n_fil, "cuenta": cuenta, "n_est": n_est, "baliza": baliza}
 
 
-# ------------------------------------------------------------------ escenarios
+# escenarios
 def cuadro_sintetico(rng, ambiente, n_cal=0, lado="centro", t_blanco=132, ruido=1):
-    """Cuadro de 8 x 8: fondo a `ambiente` con ruido y una mancha de n_cal píxeles."""
+    # cuadro de 8 x 8
     pix = [max(0, min(255, ambiente + rng.randint(-ruido, ruido))) for _ in range(N_PIX)]
     cols = {"izquierda": [0, 1, 2], "centro": [3, 4], "derecha": [5, 6, 7], "todo": list(range(8))}[lado]
     celdas = [(f, c) for f in range(8) for c in cols]
@@ -206,7 +196,6 @@ def cuadro_sintetico(rng, ambiente, n_cal=0, lado="centro", t_blanco=132, ruido=
 
 
 def escenarios(semilla=2026):
-    """Lista de (reinicia, habilita, actividad, píxeles) que recorre todos los estados."""
     rng = random.Random(semilla)
     v = []
 
@@ -215,29 +204,29 @@ def escenarios(semilla=2026):
             act = rng.randint(20, 70) if activo else rng.randint(0, 5)
             v.append((int(reinicia and i == 0), 1, act, cuadro_sintetico(rng, ambiente, n_cal, lado, t_blanco)))
 
-    # A. Exploración: marcha, pausas cortas (el estímulo "funciona"), pausa larga (no responde)
+    # A
     tramo(40, reinicia=True)
-    for _ in range(16):                    # pausas de ~17 s seguidas de marcha: gasta el presupuesto
+    for _ in range(16):
         tramo(170, activo=False)
         tramo(rng.randint(25, 60), activo=True)
-    tramo(2600, activo=False)              # no responde: retroceso de la espera
-    tramo(1500, activo=True)               # marcha larga: giros al azar del LFSR
-    # B. Acercamiento y detección
+    tramo(2600, activo=False)
+    tramo(1500, activo=True)
+    # B
     escenarios.inicio_b = len(v)
     tramo(60, reinicia=True)
-    tramo(140, n_cal=3, lado="izquierda")  # mancha chica a la izquierda: gira a la izquierda
-    tramo(70)                              # se pierde: vuelve a explorar
+    tramo(140, n_cal=3, lado="izquierda")
+    tramo(70)
     tramo(120, n_cal=4, lado="derecha")
-    tramo(12, n_cal=12, lado="centro")     # mancha grande pero breve: no confirma
-    tramo(40, n_cal=3, lado="centro", activo=False)   # quieto frente a la mancha: avance
-    tramo(30, n_cal=14, lado="centro")     # mancha grande sostenida: confirma y alerta
-    tramo(160, n_cal=14, lado="centro")    # balizas
-    # C. Ambiente tibio y objeto demasiado caliente
-    tramo(80, ambiente=120, reinicia=True)               # 30 °C: todo en la ventana, nada sobre el fondo
-    tramo(60, ambiente=120, n_cal=10, t_blanco=190)      # 47.5 °C: fuera de la ventana, no cuenta
-    tramo(60, ambiente=120, n_cal=10, t_blanco=138, lado="derecha")   # 34.5 °C: sí cuenta
-    tramo(60, ambiente=150, n_cal=10, t_blanco=150)      # 37.5 °C de ambiente: no hay contraste
-    # D. Entradas al azar
+    tramo(12, n_cal=12, lado="centro")
+    tramo(40, n_cal=3, lado="centro", activo=False)
+    tramo(30, n_cal=14, lado="centro")
+    tramo(160, n_cal=14, lado="centro")
+    # C
+    tramo(80, ambiente=120, reinicia=True)
+    tramo(60, ambiente=120, n_cal=10, t_blanco=190)
+    tramo(60, ambiente=120, n_cal=10, t_blanco=138, lado="derecha")
+    tramo(60, ambiente=150, n_cal=10, t_blanco=150)
+    # D
     v.append((1, 1, 30, cuadro_sintetico(rng, 88)))
     for _ in range(3000):
         lado = rng.choice(["izquierda", "centro", "derecha", "todo"])
@@ -263,7 +252,6 @@ def generar_vectores(carpeta):
             fe.write("%x%x%x%x%02x%04x%04x\n" % (r["estado"], r["disparo"], r["canal"], r["alerta"],
                                                r["n_fil"], r["cuenta"], r["n_est"]))
     with open(os.path.join(carpeta, "casos.vh"), "w") as fc:
-        print("// Generado por modelo/politica_ref.py", file=fc)
         print("localparam integer N_VEC    = %d;" % len(vec), file=fc)
         print("localparam integer INICIO_B = %d;" % escenarios.inicio_b, file=fc)
     return len(vec), visitas, nuc

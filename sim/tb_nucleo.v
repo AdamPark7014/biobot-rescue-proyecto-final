@@ -1,13 +1,4 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tb_nucleo.v
-// Banco de prueba autoverificable del nucleo digital.
-//
-// Lee vectores.hex (un cuadro por linea: banderas, actividad y 64 pixeles) y
-// esperado.hex (lo que debe verse despues de cada cuadro), los dos generados
-// por modelo/politica_ref.py, y compara cuadro por cuadro:
-//     estado, disparo, canal, alerta, n_fil, cuenta y n_est
-// ============================================================================
 module tb_nucleo;
 
 `include "casos.vh"
@@ -28,8 +19,6 @@ wire [6:0]  n_fil;
 wire [7:0]  fondo;
 wire [15:0] cuenta, n_est;
 
-// El generador de pulsos se acorta para no alargar la simulacion: aqui solo
-// interesa la politica (gen_estimulo tiene su propio banco)
 nucleo_biobot #(.CLK_FREQ(1000), .F_EST(50), .N_PULSOS(2)) dut (
     .clk(clk), .reset(reset), .habilita(habilita),
     .px_valido(px_valido), .px_temp(px_temp), .px_ultimo(px_ultimo), .actividad(actividad),
@@ -39,7 +28,7 @@ nucleo_biobot #(.CLK_FREQ(1000), .F_EST(50), .N_PULSOS(2)) dut (
     .n_fil(n_fil), .fondo(fondo), .cuenta(cuenta), .n_est(n_est)
 );
 
-always #10 clk = ~clk;                // 50 MHz
+always #10 clk = ~clk;
 
 reg [527:0] vec [0:N_VEC-1];
 reg [55:0]  esp [0:N_VEC-1];
@@ -60,7 +49,7 @@ initial begin
         v = vec[k];
         e = esp[k];
         @(negedge clk);
-        if (v[520]) begin             // reinicio antes de este cuadro
+        if (v[520]) begin
             reset = 1'b1;
             @(negedge clk);
             @(negedge clk);
@@ -76,8 +65,6 @@ initial begin
         end
         px_valido = 1'b0;
         px_ultimo = 1'b0;
-        // El flanco anterior cerro el cuadro; en el siguiente llega el tick y
-        // se actualiza todo. Medio ciclo despues se compara (disparo dura un ciclo).
         @(negedge clk);
         visitas[estado] = visitas[estado] + 1;
         if (disparo) n_disparos = n_disparos + 1;

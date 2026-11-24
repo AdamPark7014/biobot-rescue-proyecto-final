@@ -1,5 +1,3 @@
-# Version de laboratorio con sonda (In-System Sources and Probes)
-# Proyecto final - BioBot-Rescue - demostracion en una sola DE10-Lite
 set_global_assignment -name FAMILY "MAX 10"
 set_global_assignment -name DEVICE 10M50DAF484C7G
 set_global_assignment -name TOP_LEVEL_ENTITY top_lab_demo
@@ -15,19 +13,18 @@ set_global_assignment -name VERILOG_FILE ../hdl/fsm_politica.v
 set_global_assignment -name VERILOG_FILE ../hdl/gen_estimulo.v
 set_global_assignment -name VERILOG_FILE ../hdl/nucleo_biobot.v
 set_global_assignment -name VERILOG_FILE ../hdl/insecto_sim.v
-# top_biobot_de10lite.v solo aporta el decodificador hex7seg
 set_global_assignment -name VERILOG_FILE ../hdl/top_biobot_de10lite.v
 set_global_assignment -name VERILOG_FILE ../hdl/top_demo_de10lite.v
 set_global_assignment -name VERILOG_FILE ../hdl/top_lab_sondas.v
 set_global_assignment -name SDC_FILE lab_demo.sdc
 
-# Reloj y reset (KEY0)
+# reloj y reset
 set_location_assignment PIN_P11 -to CLOCK_50
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to CLOCK_50
 set_location_assignment PIN_B8 -to RESET_N
 set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to RESET_N
 
-# Interruptores
+# interruptores
 set_location_assignment PIN_C10 -to SW[0]
 set_location_assignment PIN_C11 -to SW[1]
 set_location_assignment PIN_D12 -to SW[2]
@@ -53,7 +50,7 @@ set_location_assignment PIN_A11 -to LEDR[8]
 set_location_assignment PIN_B11 -to LEDR[9]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LEDR[*]
 
-# Displays de siete segmentos
+# displays de siete segmentos
 set_location_assignment PIN_C14 -to HEX0[0]
 set_location_assignment PIN_E15 -to HEX0[1]
 set_location_assignment PIN_C15 -to HEX0[2]
@@ -103,7 +100,7 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX3[*]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX4[*]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX5[*]
 
-# Salidas de estimulo en GPIO_0, GPIO_1 y GPIO_2 (pines 1, 2 y 3 de JP1)
+# salidas de estimulo en GPIO_0
 set_location_assignment PIN_V10 -to ESTIMULO[0]
 set_location_assignment PIN_W10 -to ESTIMULO[1]
 set_location_assignment PIN_V9  -to ESTIMULO[2]

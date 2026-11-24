@@ -1,22 +1,4 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tb_cordic_iter.v
-// Error del CORDIC (hdl/cordic.v) segun el numero de iteraciones. Nueve
-// circuitos iguales, con N = 4, 6, ..., 20 iteraciones, reciben los mismos
-// 360 vectores y los mismos 360 angulos, y cada resultado se compara con el
-// valor exacto calculado con aritmetica real.
-//
-//   vectorizacion: angulo (atan2) y magnitud de un vector de 12 000 cuentas
-//   rotacion:      coseno y seno de un angulo, con (x0, y0) = (2^14 / K_N, 0)
-//
-// K_N es la ganancia de N iteraciones, K_N = producto de sqrt(1 + 2^(-2i)).
-// El error se da en grados para el angulo y en porcentaje de la escala para
-// la magnitud y para el coseno y el seno.
-//
-// La tabla de arcotangentes tiene angulos de 16 bits (1 cuenta = 0.0055
-// grados) y llega hasta la iteracion 14: a partir de ahi el error deja de
-// bajar, y eso es lo que justifica N = 16 en el diseno.
-// ============================================================================
 module tb_cordic_iter;
 
 localparam integer CASOS = 9;
@@ -32,7 +14,6 @@ wire signed [23:0] x [0:CASOS-1];
 wire signed [23:0] y [0:CASOS-1];
 wire [15:0]        z [0:CASOS-1];
 
-// en rotacion cada circuito recibe su propio x0 = 2^14 / K_N
 reg  signed [23:0] x0_rot [0:CASOS-1];
 
 genvar g;
@@ -44,7 +25,7 @@ generate
     end
 endgenerate
 
-real    kn [0:CASOS-1];                       // ganancia de cada circuito
+real    kn [0:CASOS-1];
 real    max_ang [0:CASOS-1], max_mag [0:CASOS-1], max_rot [0:CASOS-1];
 real    sum_ang [0:CASOS-1];
 real    ang, ex, e, mag, k_acum;
@@ -54,7 +35,7 @@ task corre;
     begin
         @(posedge clk); start <= 1'b1;
         @(posedge clk); start <= 1'b0;
-        repeat (26) @(posedge clk);            // el mas lento tarda 22 ciclos
+        repeat (26) @(posedge clk);
     end
 endtask
 
@@ -75,7 +56,7 @@ initial begin
     repeat (3) @(posedge clk);
     reset = 1'b0;
 
-    // ---- vectorizacion: 360 vectores alrededor del circulo
+    // vectorizacion
     modo <= 1'b1;
     for (k = 0; k < 360; k = k + 1) begin
         ang = (k + 0.37) * PI / 180.0;
@@ -83,7 +64,7 @@ initial begin
         y0 <= $rtoi(12000.0 * $sin(ang));
         z0 <= 16'd0;
         corre;
-        ex  = $atan2($itor(y0), $itor(x0)) * 180.0 / PI;            // de -180 a 180
+        ex  = $atan2($itor(y0), $itor(x0)) * 180.0 / PI;
         mag = $sqrt($itor(x0) * $itor(x0) + $itor(y0) * $itor(y0));
         for (j = 0; j < CASOS; j = j + 1) begin
             e = $itor($signed(z[j])) * 360.0 / 65536.0 - ex;
@@ -96,7 +77,7 @@ initial begin
         end
     end
 
-    // ---- rotacion: coseno y seno de 360 angulos
+    // rotacion
     modo <= 1'b0;
     for (k = 0; k < 360; k = k + 1) begin
         z0 <= $rtoi((k + 0.37) * 65536.0 / 360.0);
@@ -104,7 +85,6 @@ initial begin
         corre;
         ang = $itor(z0) * 2.0 * PI / 65536.0;
         for (j = 0; j < CASOS; j = j + 1) begin
-            // la escala de salida es 2^14
             e = ($itor(x[j]) / 16384.0 - $cos(ang)) * 100.0;
             if (abs_r(e) > max_rot[j]) max_rot[j] = abs_r(e);
             e = ($itor(y[j]) / 16384.0 - $sin(ang)) * 100.0;
@@ -116,7 +96,7 @@ initial begin
         $display("MEDIDA tb_cordic_iter N=%0d: K=%0.6f; angulo, error maximo %0.5f grados y eficaz %0.5f; magnitud, error maximo %0.5f %%; coseno y seno, error maximo %0.5f %%",
                  4 + 2 * j, kn[j], max_ang[j], $sqrt(sum_ang[j] / 360.0), max_mag[j], max_rot[j]);
 
-    // el error debe bajar al subir N hasta la iteracion 14, y con N = 16 quedar dentro de la meta
+    // comprobacion
     for (j = 1; j <= 5; j = j + 1)
         if (max_ang[j] >= max_ang[j - 1]) begin
             errores = errores + 1;

@@ -1,6 +1,3 @@
-# Dice que papel tiene cargado cada DE10-Lite conectada y, si se pide, prueba los enlaces.
-# Uso: quartus_stp -t sim/papeles.tcl [enlaces]
-# Lineas de salida:  PAPEL <cable> A|B|R|RB|vacia      ENLACES r_oye_a r_oye_b a_oye_b b_oye_a
 source [file join [file dirname [info script]] .. pc tri_lib.tcl]
 foreach hw [get_hardware_names] {
     set dev [lindex [get_device_names -hardware_name $hw] 0]
@@ -22,7 +19,6 @@ foreach hw [get_hardware_names] {
     puts "PAPEL $hw $papel"
 }
 if {[lindex $argv 0] eq "enlaces" && [info exists HW(0)] && [info exists HW(1)] && [info exists HW(2)]} {
-    # las dos mochilas cerca de la entrada, al alcance de todo
     set COMBINADO 0
     fuente_inicial
     foreach r {1 2} { pon_pos $r 4.5 3.0; manda_mochila $r }

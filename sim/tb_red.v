@@ -1,19 +1,4 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tb_red.v
-// Banco de pruebas de la red de tres tarjetas: mochila A, mochila B y receptor,
-// cableadas como en el laboratorio:
-//   A.TX1 -> receptor.RX1     A.TX2 -> B.RX1     B.TX1 -> receptor.RX2
-//
-//   1. A a 150 m y B a 80 m, A aprieta el boton: el aviso de A llega al receptor
-//      solo a traves de B (A esta fuera de los 100 m del radio).
-//   2. B se aleja a 300 m: ya nadie lleva el aviso de A; el receptor lo pierde.
-//   3. A se acerca a 60 m: el aviso llega directo.
-//   4. B, a 55 m, tambien aprieta su boton: deteccion confirmada a 57 m.
-//
-// Reloj declarado de 200 kHz y linea de 20 000 baudios (10 ciclos por bit),
-// para que la simulacion sea corta.
-// ============================================================================
 module tb_red;
 
 localparam CLK  = 200000;
@@ -38,7 +23,7 @@ always #5 clk = ~clk;
 
 integer errores = 0;
 
-task espera_s;                 // segundos simulados
+task espera_s;
     input integer decimas;
     begin
         repeat (decimas * (CLK / 10)) @(posedge clk);
@@ -61,26 +46,26 @@ initial begin
     repeat (20) @(posedge clk);
     reset = 1'b0;
 
-    // ---- 1: A fuera de alcance, B de puente
+    // A con puente
     boton_a = 1'b1; espera_s(7); boton_a = 1'b0;
     espera_s(10);
     $display("MEDIDA tb_red puente: led_r=%b, A directo %b, A por B %b, B directo %b, A detecta %b, distancia %0d m, B reenvia %b",
              led_r, led_r[0], led_r[1], led_r[2], led_r[3], r.estimada, led_b[7]);
     revisa("1 puente", !led_r[0] && led_r[1] && led_r[2] && led_r[3] && led_r[8] && !led_r[9] && r.estimada == 150 && led_b[7]);
 
-    // ---- 2: B se aleja, el aviso se pierde
+    // B se aleja
     pos_b = 10'd300;
     espera_s(20);
     $display("MEDIDA tb_red sin puente: led_r=%b", led_r);
     revisa("2 sin puente", !led_r[0] && !led_r[1] && !led_r[2] && !led_r[3] && !led_r[8]);
 
-    // ---- 3: A se acerca, llega directo
+    // A directo
     pos_a = 10'd60;
     espera_s(10);
     $display("MEDIDA tb_red directo: led_r=%b, distancia %0d m", led_r, r.estimada);
     revisa("3 directo", led_r[0] && led_r[3] && r.estimada == 60);
 
-    // ---- 4: B tambien encuentra a la persona, cerca de A
+    // dos detecciones
     pos_b = 10'd55;
     boton_b = 1'b1; espera_s(7); boton_b = 1'b0;
     espera_s(10);

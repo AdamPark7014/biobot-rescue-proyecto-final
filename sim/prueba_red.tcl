@@ -1,19 +1,3 @@
-# Prueba automatica de la red de tres DE10-Lite (mochila A, mochila B y receptor)
-# por los cables USB-Blaster. Requiere las versiones con sonda ya cargadas:
-#   quartus_red_a/output_files/red_a.sof, quartus_red_b/output_files/red_b.sof,
-#   quartus_red_receptor/output_files/red_receptor.sof
-# Cada tarjeta dice su papel por la sonda, asi que no importa en que USB quedo.
-#
-# Uso:  quartus_stp -t sim/prueba_red.tcl
-#
-# Mueve las distancias por la sonda (igual que los interruptores) y aprieta los
-# botones; imprime lo que muestra el receptor en cada paso:
-#   1. A a 150 m y B a 80 m; A aprieta su boton  -> el aviso llega por B
-#   2. B se aleja a 300 m                        -> el aviso de A se pierde
-#   3. A se acerca a 60 m                        -> el aviso llega directo
-#   4. B a 55 m aprieta su boton                 -> deteccion confirmada a 57 m
-# Al final deja las tres tarjetas reiniciadas y obedeciendo a sus interruptores.
-
 array set SEG {
     1000000 0 1111001 1 0100100 2 0110000 3 0011001 4 0010010 5 0000010 6 1111000 7
     0000000 8 0010000 9 0001000 A 0000011 b 1000110 C 0111111 - 0101111 r 1111111 " "
@@ -34,10 +18,10 @@ proc lee {hw dev} {
     end_insystem_source_probe
     return $v
 }
-# fuente: bit 12 reset, bit 11 boton, bit 10 usar distancia de la fuente, bits 9-0 distancia
+# fuente
 proc fuente {reset boton usar pos} { return "${reset}${boton}${usar}[format %010b $pos]" }
 
-# ---- quien es quien
+# quien es quien
 set NOMBRE_ROL {receptor A B}
 set combinado 0
 foreach hw [get_hardware_names] {
@@ -45,7 +29,7 @@ foreach hw [get_hardware_names] {
     if {[catch {set v [lee $hw $dev]}]} { puts "$hw: sin sonda de la red"; continue }
     set rol [a_entero [campo $v 53 52]]
     if {$rol == 3} {
-        # top_lab_red_rb: receptor y mochila B en la misma tarjeta
+        # receptor y B
         foreach papel {0 2} { set HW($papel) $hw; set DEV($papel) $dev }
         set combinado 1
         puts "$hw: receptor con la mochila B adentro"
@@ -62,7 +46,6 @@ set hay_b [info exists HW(2)]
 
 proc pon {rol reset boton usar pos} {
     global HW DEV combinado
-    # con receptor y B en la misma tarjeta, la fuente de esa tarjeta es la de B
     if {$combinado && $rol == 0} { return }
     escribe $HW($rol) $DEV($rol) [fuente $reset $boton $usar $pos]
 }
@@ -96,7 +79,7 @@ proc revisa {nombre cond} {
 }
 
 if {!$hay_b} {
-    # Solo A y el receptor (cable de A pin 35 al receptor pin 37 y tierra)
+    # solo A y el receptor
     puts "No esta la mochila B: prueba de dos tarjetas"
     foreach rol {0 1} { pon $rol 1 0 1 0 }
     after 300
@@ -123,7 +106,7 @@ if {!$hay_b} {
     return
 }
 
-# reinicia las tres tarjetas
+# reinicio
 foreach rol {0 1 2} { pon $rol 1 0 1 0 }
 after 300
 pon 0 0 0 1 0
@@ -156,7 +139,7 @@ after 1500
 array set r [muestra "4. B a 55 m aprieta su boton"]
 revisa "deteccion confirmada por las dos mochilas" [expr {$r(conf) == 1 && $r(det_a) == 1 && $r(det_b) == 1}]
 
-# deja todo como estaba: reinicio y de vuelta a los interruptores
+# fin
 foreach rol {0 1 2} { pon $rol 1 0 0 0 }
 after 200
 foreach rol {0 1 2} { pon $rol 0 0 0 0 }

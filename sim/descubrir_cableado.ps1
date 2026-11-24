@@ -1,7 +1,3 @@
-# Descubre qué tarjeta está cableada con cuál, sin mirar los cables.
-# En cada ronda una tarjeta hace de mochila A y las otras dos de mochila B; las B que oyen a
-# la A son las que reciben su línea TX. Con las tres rondas sale quién transmite a quién.
-# Uso: pwsh -File sim\descubrir_cableado.ps1
 $ErrorActionPreference = 'Stop'
 $raiz = Split-Path $PSScriptRoot -Parent
 $q = 'C:\intelFPGA_lite\24.1std\quartus\bin64'
@@ -24,5 +20,5 @@ foreach ($emisor in $cables) {
     $oyen[$emisor] = $receptores
     "Lo que transmite $emisor lo oyen: $(if ($receptores.Count) { $receptores -join ', ' } else { 'nadie' })"
 }
-# Papeles: el receptor es la tarjeta que oye a las otras dos y a la que nadie necesita oír.
+# papeles
 "RESUMEN " + (($cables | ForEach-Object { "$_ -> [$($oyen[$_] -join ' ')]" }) -join ' ; ')

@@ -1,26 +1,6 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// top_biobot_de10lite.v
-// Proyecto final - Sistemas Embebidos (CN113) - BioBot-Rescue
-//
-// Prototipo del nucleo de la mochila en la DE10-Lite. El ESP32 (o la PC por
-// el puente de la Practica 4) manda cada cuadro de la matriz termica y la
-// actividad de la IMU por UART; la tarjeta corre la politica y contesta con
-// el estado. Asi se prueba el circuito real contra un insecto simulado.
-//
-//   SW0        1 = mision en marcha
-//   KEY0       reset
-//   LEDR[2:0]  estimulo activo: avance, izquierda, derecha
-//   LEDR[3]    insecto quieto
-//   LEDR[4]    mancha de calor a la vista
-//   LEDR[7:5]  estado de la politica
-//   LEDR[8]    cambia con cada cuadro recibido
-//   LEDR[9]    alerta: persona detectada
-//   HEX0       estado (0 reposo, 1 explorar, 2 reactivar, 3 reorientar,
-//              4 acercar, 5 confirmar, 6 alertar, 7 descanso)
-//   HEX1       estimulos acumulados en el presupuesto (0 a C)
-//   HEX3-HEX2  pixeles calientes, filtrado (hexadecimal)
-// ============================================================================
+
+// tope mochila
 module top_biobot_de10lite #(
     parameter CLK_FREQ  = 50000000,
     parameter BAUD_RATE = 9600,
@@ -28,7 +8,7 @@ module top_biobot_de10lite #(
     parameter N_PULSOS  = 25
 )(
     input  wire       CLOCK_50,
-    input  wire       RESET_N,        // KEY0, activo en bajo
+    input  wire       RESET_N,
     input  wire       SW0,
     input  wire       UART_RX,
     output wire       UART_TX,
@@ -41,7 +21,7 @@ module top_biobot_de10lite #(
 
 wire reset = ~RESET_N;
 
-// SW0 no esta sincronizado con el reloj: dos flip-flops
+// sincronizador
 reg sw_meta, sw_sync;
 always @(posedge CLOCK_50 or posedge reset) begin
     if (reset) begin
@@ -95,7 +75,7 @@ uart_tx #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE)) u_tx (
     .clk(CLOCK_50), .reset(reset), .tx_start(tx_start), .data_in(tx_dato), .tx(UART_TX), .busy(tx_busy)
 );
 
-// Testigo de cuadros recibidos
+// testigo
 reg latido;
 always @(posedge CLOCK_50 or posedge reset) begin
     if (reset)     latido <= 1'b0;
@@ -111,10 +91,7 @@ hex7seg u_h3 (.x({1'b0, n_fil[6:4]}), .seg(HEX3));
 
 endmodule
 
-// ----------------------------------------------------------------------------
-// Decodificador hexadecimal a siete segmentos. Los displays de la DE10-Lite
-// encienden con 0: seg[0] = a ... seg[6] = g.
-// ----------------------------------------------------------------------------
+// siete segmentos
 module hex7seg (
     input  wire [3:0] x,
     output reg  [6:0] seg

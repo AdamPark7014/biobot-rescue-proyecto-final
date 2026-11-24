@@ -1,8 +1,3 @@
-# Dos tarjetas unidas solo por UART: la mochila y la tarjeta insecto.
-# Se ven las dos lineas serie, lo que decide la mochila y lo que la tarjeta
-# insecto recibe de vuelta.
-# Uso:  do ".../activehdl/simular_dos_tarjetas.do"   (antes: endsim)
-
 asim +access +r tb_dos_tarjetas
 
 wave /tb_dos_tarjetas/reset_n

@@ -1,7 +1,3 @@
-# Comprueba en las tarjetas que la deteccion termica sigue al sensor: el conteo sube al
-# entrar en 35-38 C y baja al salir, en las tres tarjetas. Con el monitor en vivo cerrado
-# y sin tocar los botones mientras corre.
-# Uso: quartus_stp -t sim/prueba_baja.tcl
 source [file join [file dirname [info script]] .. pc tri_lib.tcl]
 puts "Tarjetas:"
 if {![encuentra_tarjetas]} { puts "ERROR: faltan tarjetas"; exit 1 }
@@ -21,7 +17,6 @@ proc paso {texto espera esperado} {
     puts [format "%-34s conteo A/B/receptor = %s  %s" $texto [join $c /] [expr {$bien ? "correcto" : "INCORRECTO (se esperaba [join $esperado /])"}]]
     if {!$bien} { incr errores }
 }
-# las dos junto a la persona y al alcance una de otra; B tambien al alcance del receptor
 pon_pos 1 25.75 19.00; pon_temp 1 22; manda_mochila 1
 pon_pos 2 25.25 19.00; pon_temp 2 22; manda_mochila 2
 reinicia_todo

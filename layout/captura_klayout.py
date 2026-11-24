@@ -1,6 +1,3 @@
-# captura_klayout.py - Dibuja el GDS final con los colores de capa de sky130A y lo guarda en PNG.
-# Se corre con KLayout en modo lote (sin ventana):
-#   klayout -zz -r captura_klayout.py -rd gds=<archivo.gds> -rd lyp=<sky130A.lyp> -rd png=<salida.png>
 import pya
 
 gds = globals().get("gds")
@@ -13,9 +10,7 @@ vista = pya.LayoutView()
 vista.load_layout(gds, True)
 if lyp:
     vista.load_layer_props(lyp)
-# Solo las capas fisicas (difusion, polisilicio, contactos y los cinco metales). Las de
-# marcado tapan el dibujo: areaid.standardc (81/4) pinta de magenta todo el nucleo.
-# Con -rd todas=1 se dibujan todas las capas.
+# solo las capas fisicas
 FISICAS = {(65, 20), (65, 44), (66, 20), (66, 44), (67, 20), (67, 44), (68, 20), (68, 44),
            (69, 20), (69, 44), (70, 20), (70, 44), (71, 20), (71, 44), (72, 20)}
 if globals().get("todas", "") == "":
@@ -29,7 +24,7 @@ vista.max_hier()
 vista.set_config("background-color", "#ffffff")
 vista.set_config("grid-visible", "false")
 vista.set_config("text-visible", "false")
-zona = globals().get("zona", "")   # "x1,y1,x2,y2" en micras para un acercamiento
+zona = globals().get("zona", "")
 if zona:
     x1, y1, x2, y2 = (float(v) for v in zona.split(","))
     vista.zoom_box(pya.DBox(x1, y1, x2, y2))

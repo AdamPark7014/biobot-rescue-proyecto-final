@@ -1,17 +1,8 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tb_gen_estimulo.v
-// Banco de prueba del generador de pulsos. El reloj se baja a 100 kHz para
-// que el tren de 0.5 s quepa en 50 000 ciclos; las proporciones son las del
-// circuito real (50 Hz, 50 % de ciclo, 25 periodos).
-// Revisa: numero de periodos, periodo, ciclo de trabajo, duracion del tren,
-// que las dos fases nunca coincidan, que solo se mueva el canal pedido y que
-// un disparo a medio tren se ignore.
-// ============================================================================
 module tb_gen_estimulo;
 
-localparam integer F_CLK = 100000;    // Hz
-localparam integer T_CLK = 10000;     // ns
+localparam integer F_CLK = 100000;
+localparam integer T_CLK = 10000;
 
 reg        clk = 1'b0;
 reg        reset = 1'b1;
@@ -41,7 +32,6 @@ begin
     disparo = 1'b0;
     flancos = 0; ciclos_a = 0; ciclos_b = 0; ciclos_tren = 0; traslapes = 0; ajenos = 0;
     a_prev = 1'b0; periodo = 0; t_prev = 0;
-    // se muestrea a mitad de ciclo, en el flanco de bajada
     while (!ocupado) @(negedge clk);
     t_ini = $realtime;
     while (ocupado) begin
@@ -57,7 +47,7 @@ begin
             t_prev = $realtime;
         end
         a_prev = fase_a[indice];
-        // a medio tren llega otro disparo por otro canal: debe ignorarse
+        // segundo disparo
         if (flancos == 10 && ciclos_a == 9 * 1000 + 500) begin
             canal = c + 2'b01; disparo = 1'b1;
         end else disparo = 1'b0;
@@ -83,9 +73,9 @@ endtask
 initial begin
     repeat (4) @(posedge clk);
     reset = 1'b0;
-    tren(2'b00, 0);                   // avance
-    tren(2'b01, 1);                   // izquierda
-    tren(2'b10, 2);                   // derecha
+    tren(2'b00, 0);
+    tren(2'b01, 1);
+    tren(2'b10, 2);
     $display("RESULTADO tb_gen_estimulo: %0d de %0d trenes correctos", pruebas - errores, pruebas);
     $finish;
 end

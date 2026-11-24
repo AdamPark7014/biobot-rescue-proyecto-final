@@ -1,8 +1,3 @@
-# Funciones comunes para hablar con las tarjetas de la red de triangulacion por la sonda de
-# Quartus (In-System Sources and Probes). Las usan pc/terminal.tcl y los scripts de sim/.
-# Formatos de la sonda y de la fuente: ver hdl/tri_top.v.
-# Unidades: las tarjetas trabajan en cuentas de 1/16 m (mapa de 0 a 64 m); aqui todo va en metros.
-
 proc bit {v n}       { return [string index $v [expr {[string length $v] - 1 - $n}]] }
 proc campo {v hi lo} { return [string range $v [expr {[string length $v] - 1 - $hi}] [expr {[string length $v] - 1 - $lo}]] }
 proc a_entero {b}    { scan $b %b n; return $n }
@@ -16,13 +11,12 @@ proc cuentas {metros} {
 set ANCHO_MOCHILA  125
 set ANCHO_RECEPTOR 238
 
-# Parametros de la demostracion, iguales a los del circuito (hdl/tri_red.v)
-set T_PERSONA_MIN 35      ;# el sensor detecta a una persona de 35 ...
-set T_PERSONA_MAX 38      ;# ... a 38 grados C
-set ALCANCE_M     32      ;# un nodo se oye (radio y tono) si esta a MENOS de 32 m
+# parametros de la demostracion
+set T_PERSONA_MIN 35
+set T_PERSONA_MAX 38
+set ALCANCE_M     32
 
-# Distancia del receptor (0, 0) a un punto, como la calcula el circuito: exacta y truncada a la
-# cuenta de 1/16 m. Devuelve {metros se_oye}.
+# distancia del receptor
 proc distancia_al_receptor {x_m y_m} {
     global ALCANCE_M
     set cx [cuentas $x_m]
@@ -31,13 +25,12 @@ proc distancia_al_receptor {x_m y_m} {
     set lim [expr {16 * $ALCANCE_M}]
     return [list [m [expr {isqrt($n2)}]] [expr {$n2 < $lim * $lim}]]
 }
-# Los cinco LED de una distancia: metros enteros de 1 a 31; apagados si no se oye
 proc lee_leds {bits} {
     set n [a_entero $bits]
     return [expr {$n == 0 ? "no se oye" : "$n m"}]
 }
 
-# Si un cable USB parpadea (pasa al mover la tarjeta), se reintenta unas veces antes de fallar.
+# reintentos
 proc con_reintentos {cuerpo} {
     for {set k 0} {$k < 6} {incr k} {
         if {![catch {uplevel 1 $cuerpo} res]} { return $res }
@@ -62,7 +55,7 @@ proc escribe {hw dev valor} {
     }
 }
 
-# ---- encuentra las tarjetas: 1 = mochila A, 2 = mochila B, 0 = receptor, 3 = receptor con B adentro
+# encuentra las tarjetas
 proc encuentra_tarjetas {} {
     global HW DEV COMBINADO ANCHO_MOCHILA ANCHO_RECEPTOR
     set COMBINADO 0
@@ -94,9 +87,6 @@ proc encuentra_tarjetas {} {
     return 1
 }
 
-# ---- estado de la fuente de cada mochila (se conserva entre ordenes)
-#      reset boton usar_temp usar_pos x y temp     (x, y en cuentas)
-# y de la del receptor: reset usar_vista vista
 proc fuente_inicial {} {
     global F
     foreach r {1 2} { set F($r) [list 0 0 0 0 0 0 0] }
@@ -131,7 +121,6 @@ proc reinicia_todo {} {
     pon 0 0 0; manda_receptor
 }
 proc suelta_todo {} {
-    # deja las tarjetas obedeciendo a sus interruptores y las reinicia
     global F
     foreach r {1 2} { set F($r) [list 1 0 0 0 0 0 0]; manda_mochila $r }
     set F(0) [list 1 0 0]; manda_receptor
@@ -140,7 +129,7 @@ proc suelta_todo {} {
     pon 0 0 0; manda_receptor
 }
 
-# ---- lectura
+# lectura
 proc lee_mochila {r} {
     global HW DEV
     set v [lee $HW($r) $DEV($r)]
@@ -165,7 +154,6 @@ proc lee_mochila {r} {
     set d(led)      [campo $v 9 0]
     return [array get d]
 }
-# lo que el receptor sabe de una mochila (42 bits que llegaron por radio)
 proc interpreta_info {i} {
     set d(x)        [m [a_entero [campo $i 41 32]]]
     set d(y)        [m [a_entero [campo $i 31 22]]]
@@ -217,7 +205,7 @@ set ESTADOS {REPOSO EXPLORAR REACTIVAR REORIENTAR ACERCAR CONFIRMAR ALERTAR DESC
 set MODOS   {{sin aviso} {aproximada (una mochila)} {TRIANGULADA (dos rumbos)} {rumbos sin cruce: promedio} {solo boton: posicion de la mochila}}
 proc si_no {b} { return [expr {$b ? "SI" : "no"}] }
 
-# ---- vista del operador: solo lo que sabe el receptor (lo que llego por radio y por tonos)
+# vista del operador
 proc lineas_receptor {v} {
     global ESTADOS MODOS
     array set R [interpreta_receptor $v]
@@ -256,7 +244,7 @@ proc lineas_receptor {v} {
     return $L
 }
 
-# ---- vista de detalle: lee las tres tarjetas, cada una por su cable (para pruebas)
+# vista de detalle
 proc muestra_estado {} {
     global ESTADOS MODOS
     array set A [lee_mochila 1]
@@ -279,12 +267,12 @@ proc muestra_estado {} {
     return [list [array get A] [array get B] [array get R]]
 }
 
-# ---- ordenes de la terminal (devuelve un texto con lo que hizo)
+# ordenes de la terminal
 proc rol_de {nombre} {
     switch -- [string toupper $nombre] { A { return 1 } B { return 2 } default { return 0 } }
 }
-set ::ACTUAL A   ;# la cucaracha que mueve la orden «mueve»; la cambia «usa A|B»
-array set ::POS {}   ;# ultima posicion que se le dio a cada una con pos/mueve (no existe si fue por SW9-SW6)
+set ::ACTUAL A
+array set ::POS {}
 proc ejecuta_orden {linea} {
     set p [regexp -all -inline {\S+} $linea]
     set orden [string tolower [lindex $p 0]]
@@ -300,7 +288,6 @@ proc ejecuta_orden {linea} {
             return [ejecuta_orden [concat pos $::ACTUAL [lrange $p 1 end]]]
         }
         dist {
-            # pone la cucaracha elegida a m metros de la otra, en la misma linea (eje X)
             set m [lindex $p 1]
             if {![string is double -strict $m] || $m < 0 || $m >= 64} { error "la distancia va en metros: dist 0.5" }
             set otra [expr {$::ACTUAL eq "A" ? "B" : "A"}]
@@ -324,7 +311,6 @@ proc ejecuta_orden {linea} {
             pon_pos $r $x $y; manda_mochila $r
             set nombre [string toupper [lindex $p 1]]
             set ::POS($nombre) [list $x $y]
-            # se informa la posicion que de verdad queda en la tarjeta (rejilla de 6.25 cm)
             lassign [distancia_al_receptor $x $y] d oye
             set txt [format "Mochila %s puesta en (%.2f, %.2f) m: a %.2f m del receptor, %s." $nombre \
                 [m [cuentas $x]] [m [cuentas $y]] $d \

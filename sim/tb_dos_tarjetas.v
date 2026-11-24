@@ -1,18 +1,4 @@
 `timescale 1ns / 1ps
-// ============================================================================
-// tb_dos_tarjetas.v
-// Banco de pruebas del montaje con dos DE10-Lite: la mochila
-// (top_biobot_de10lite) y la tarjeta que hace de insecto
-// (top_insecto_de10lite), unidas solo por las dos lineas de UART, cruzadas,
-// igual que con los cables.
-//
-//   1. persona            -> la mochila debe llegar a ALERTAR y la tarjeta
-//                            insecto debe verlo en la respuesta
-//   2. objeto caliente    -> la mochila no debe alertar
-//
-// El reloj se declara de 80 kHz y la linea de 10 000 baudios: 8 ciclos por
-// bit y 8000 ciclos por cuadro, para que la simulacion sea corta.
-// ============================================================================
 module tb_dos_tarjetas;
 
 localparam CLK_FREQ  = 80000;
@@ -66,10 +52,10 @@ endtask
 initial begin
     errores = 0;
 
-    // ---- 1: persona
+    // persona
     arranca(2'b01);
     while (cuadros < 2500 && cuadro_alerta < 0) @(posedge clk);
-    repeat (3 * CLK_FREQ / 10) @(posedge clk);       // tres cuadros mas: que llegue la respuesta
+    repeat (3 * CLK_FREQ / 10) @(posedge clk);
     $display("MEDIDA tb_dos_tarjetas persona: alerta en el cuadro %0d, %0d estimulos ordenados, %0d obedecidos, distancia final %0d mm",
              cuadro_alerta, mochila.n_est, insecto.n_obedecidos, insecto.dist);
     if (cuadro_alerta < 0) begin
@@ -86,7 +72,7 @@ initial begin
         $display("ERROR tb_dos_tarjetas persona: ningun estimulo llego al insecto");
     end
 
-    // ---- 2: objeto caliente
+    // objeto caliente
     arranca(2'b10);
     while (cuadros < 600) @(posedge clk);
     $display("MEDIDA tb_dos_tarjetas objeto caliente: %0d cuadros, enlace %b, estado que ve la tarjeta insecto %0d",

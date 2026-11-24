@@ -1,5 +1,3 @@
-"""Diagramas de bloques del proyecto (matplotlib): marco del modelo, máquina de estados
-de la política, núcleo digital, sistema completo y cronograma."""
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Circle, Rectangle, Ellipse
@@ -46,9 +44,8 @@ def etiqueta(ax, x, y, texto, tam=14, color=E.GRIS, ha="center", va="center", fo
             linespacing=1.15, **kw)
 
 
-# ------------------------------------------------------------------ marco del modelo
+# marco del modelo
 def marco_modelo(datos: dict):
-    """Cinco submodelos encadenados y la capa ética que los acota."""
     fig, ax = lienzo(16.64, 5.8, 1664, 580)
     cols = [(E.AZUL_OSC, "#E4EDF6"), (E.AZUL, "#E7F1F9"), (E.VERDE, "#E4F3EF"),
             (E.AMBAR, "#FBF0DC"), ("#6B5B95", "#EFEBF6")]
@@ -83,13 +80,13 @@ def marco_modelo(datos: dict):
     return fig
 
 
-# ---------------------------------------------------------------- máquina de estados
+# máquina de estados
 def fsm_politica(par: dict):
-    """Política de estímulos a bordo. par: subtítulos y textos de las transiciones."""
+    # política de estímulos a bordo
     fig, ax = lienzo(11.6, 6.6, 1160, 660)
     W, H = 2.7, 1.05
-    c1, c2, c3 = 0.3, 4.45, 8.6            # columnas
-    r1, r2, r3 = 5.2, 2.78, 0.35           # filas; EXPLORAR queda al centro
+    c1, c2, c3 = 0.3, 4.45, 8.6
+    r1, r2, r3 = 5.2, 2.78, 0.35
     est = {
         "REPOSO": (c1, r1, "#EEF1F4", E.GRIS),
         "REORIENTAR": (c2, r1, "#FBF0DC", E.AMBAR),
@@ -109,28 +106,22 @@ def fsm_politica(par: dict):
     # arranque
     flecha(ax, (c1 + W, r1 + 0.2), (c2 + 0.25, r2 + H))
     etiqueta(ax, 3.3, 4.55, t["inicio"], tam=T, ha="right")
-    # explorar <-> reorientar
     flecha(ax, (c2 + 0.95, r2 + H), (c2 + 0.95, r1))
     etiqueta(ax, c2 + 0.82, 4.52, t["giro"], tam=T, ha="right")
     flecha(ax, (c2 + 1.75, r1), (c2 + 1.75, r2 + H))
     etiqueta(ax, c2 + 1.88, 4.3, t["hecho"], tam=T, ha="left")
-    # explorar <-> reactivar
     flecha(ax, (c2, r2 + 0.75), (c1 + W, r2 + 0.75))
     etiqueta(ax, 3.72, r2 + 0.85, t["quieto"], tam=T, va="bottom")
     flecha(ax, (c1 + W, r2 + 0.3), (c2, r2 + 0.3))
     etiqueta(ax, 3.72, r2 + 0.2, t["anda"], tam=T, va="top")
-    # explorar <-> acercar
     flecha(ax, (c2 + W, r2 + 0.75), (c3, r2 + 0.75))
     etiqueta(ax, 7.87, r2 + 0.85, t["pre"], tam=T, va="bottom")
     flecha(ax, (c3, r2 + 0.3), (c2 + W, r2 + 0.3))
     etiqueta(ax, 7.87, r2 + 0.2, t["pierde"], tam=T, va="top")
-    # explorar <-> descanso: presupuesto de estímulos
     flecha(ax, (c2 + W - 0.2, r2 + H), (c3 + 0.2, r1), estilo="<|-|>", **gris)
     etiqueta(ax, 8.2, 4.3, t["fallos"], tam=T, ha="left")
-    # descanso -> acercar
     flecha(ax, (c3 + 1.9, r1), (c3 + 1.9, r2 + H), **gris)
     etiqueta(ax, c3 + 2.03, 4.52, t["descanso"], tam=T, ha="left")
-    # acercar <-> confirmar -> alertar
     flecha(ax, (c3 + 0.95, r2), (c3 + 0.95, r3 + H))
     etiqueta(ax, c3 + 0.82, 2.1, t["umbral"], tam=T, ha="right")
     flecha(ax, (c3 + 1.75, r3 + H), (c3 + 1.75, r2), **gris)
@@ -147,9 +138,8 @@ def fsm_politica(par: dict):
     return fig
 
 
-# ------------------------------------------------------------------- núcleo digital
+# núcleo digital
 def nucleo_digital(mod: dict):
-    """Módulos Verilog del prototipo y sus conexiones. mod: nombre -> subtítulo."""
     fig, ax = lienzo(16.64, 6.4)
     ext = dict(fc="#FBF0DC", ec=E.AMBAR)
     enl = dict(fc="#EEF1F4", ec=E.GRIS)
@@ -178,25 +168,24 @@ def nucleo_digital(mod: dict):
     f = lambda a, b, **kw: flecha(ax, a, b, **kw)
     f((2.4, 5.07), (2.95, 5.07))
     f((4.05, 4.45), (4.05, 3.8))
-    f((5.15, 3.45), (5.85, 4.75))                 # píxeles -> ventana
-    f((5.15, 3.17), (5.85, 3.17))                 # actividad -> quietud
+    f((5.15, 3.45), (5.85, 4.75))
+    f((5.15, 3.17), (5.85, 3.17))
     f((8.15, 5.07), (8.45, 5.07))
     f((10.55, 5.07), (10.85, 5.07))
-    f((12.05, 4.45), (11.0, 3.9))                 # presencia -> fsm
-    f((8.15, 3.17), (8.9, 3.17))                  # quietud -> fsm
-    f((8.15, 1.4), (9.2, 2.3))                    # lfsr -> fsm
-    f((8.6, 4.45), (9.6, 3.9), color=E.GRIS, ls=(0, (4, 3)))   # lado: ventana -> fsm
-    f((10.9, 2.3), (11.7, 1.75))                  # fsm -> gen
-    f((11.4, 3.17), (14.0, 3.17))                 # fsm -> emisor
-    f((15.2, 3.8), (15.2, 4.45))                  # emisor -> esp32 (por uart_tx)
-    f((13.25, 1.12), (14.0, 1.12))                # gen -> estímulo
+    f((12.05, 4.45), (11.0, 3.9))
+    f((8.15, 3.17), (8.9, 3.17))
+    f((8.15, 1.4), (9.2, 2.3))
+    f((8.6, 4.45), (9.6, 3.9), color=E.GRIS, ls=(0, (4, 3)))
+    f((10.9, 2.3), (11.7, 1.75))
+    f((11.4, 3.17), (14.0, 3.17))
+    f((15.2, 3.8), (15.2, 4.45))
+    f((13.25, 1.12), (14.0, 1.12))
     etiqueta(ax, 15.42, 4.12, "uart_tx", tam=13, ha="left")
     return fig
 
 
-# --------------------------------------------------------------- sistema completo
+# sistema completo
 def sistema(tx: dict):
-    """Del enjambre a la estación del rescatista."""
     fig, ax = lienzo(16.64, 6.0, 1664, 600)
     rng = np.random.default_rng(4)
     ax.add_patch(Rectangle((0.2, 0.4), 6.6, 5.2, fc="#EDEAE3", ec=E.GRIS, lw=1.6, zorder=1))
@@ -230,9 +219,9 @@ def sistema(tx: dict):
     return fig
 
 
-# ----------------------------------------------------------------------- cronograma
+# cronograma
 def cronograma(fases: list, hitos: list, dia0: int = 9, dias: int = 24):
-    """fases: (nombre, inicio, fin, color) en días de noviembre; hitos: (día, texto)."""
+    # fases
     fig = plt.figure(figsize=(16.64, 5.6))
     ax = fig.add_axes([0.275, 0.17, 0.71, 0.72])
     n = len(fases)

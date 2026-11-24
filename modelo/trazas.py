@@ -1,13 +1,3 @@
-"""Figuras de la red de tres FPGA a partir de las trazas de la simulación.
-
-Uso:  python trazas.py
-Lee sim/trazas/tri_7.csv y tri_9.csv, que escribe el banco sim/tb_tri.v con +traza (una muestra
-cada 10 ms de lo que se ve en las tres tarjetas), y deja en latex/figs:
-  red_seguimiento.png   el conteo de personas sigue al sensor (escenario 7)
-  red_umbral.png        el corte de 32 m con la mochila A en distintas posiciones (escenario 9)
-Para regenerar las trazas, en sim/:
-  vvp -n tb_tri.out +desde=7 +hasta=7 +traza      (y lo mismo con 9)
-"""
 import csv
 import os
 import sys
@@ -32,7 +22,6 @@ def lee(n):
 
 
 def digital(ax, t, senales, colores):
-    """Dibuja señales de un bit apiladas, cada una en su renglón."""
     n = len(senales)
     for i, ((nombre, v), color) in enumerate(zip(senales, colores)):
         base = (n - 1 - i) * 1.5
@@ -45,7 +34,7 @@ def digital(ax, t, senales, colores):
 
 
 def seguimiento():
-    """Escenario 7: la detección térmica sigue al sensor y el conteo baja y sube en las tres tarjetas."""
+    # escenario 7
     d = lee(7)
     t = [m / 100.0 for m in d["muestra"]]
     fig, (a, b, c) = plt.subplots(3, 1, figsize=(16.64, 8.6), sharex=True,
@@ -73,7 +62,7 @@ def seguimiento():
 
 
 def umbral():
-    """Escenario 9: la mochila A cambia de posición; se oye a menos de 32 m y a 32 m o más, no."""
+    # escenario 9
     d = lee(9)
     t = [m / 100.0 for m in d["muestra"]]
     dist = [x / 16.0 for x in d["d_a_rec"]]
@@ -88,7 +77,7 @@ def umbral():
     a.set_ylabel("Distancia de A\nal receptor (m)")
     a.set_ylim(30.6, 32.6)
     a.set_title("El corte del alcance con la mochila A en siete posiciones (simulación de las tres FPGA)", loc="left")
-    # rótulo de cada tramo: dónde está A
+    # rótulos
     x_prev, y_prev, inicio = None, None, 0
     tramos = []
     for i, (x, y) in enumerate(zip(d["xa"], d["ya"])):
