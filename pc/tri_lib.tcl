@@ -284,6 +284,7 @@ proc rol_de {nombre} {
     switch -- [string toupper $nombre] { A { return 1 } B { return 2 } default { return 0 } }
 }
 set ::ACTUAL A   ;# la cucaracha que mueve la orden «mueve»; la cambia «usa A|B»
+array set ::POS {}   ;# ultima posicion que se le dio a cada una con pos/mueve (no existe si fue por SW9-SW6)
 proc ejecuta_orden {linea} {
     set p [regexp -all -inline {\S+} $linea]
     set orden [string tolower [lindex $p 0]]
@@ -298,11 +299,21 @@ proc ejecuta_orden {linea} {
         mueve {
             return [ejecuta_orden [concat pos $::ACTUAL [lrange $p 1 end]]]
         }
+        dist {
+            # pone la cucaracha elegida a m metros de la otra, en la misma linea (eje X)
+            set m [lindex $p 1]
+            if {![string is double -strict $m] || $m < 0 || $m >= 64} { error "la distancia va en metros: dist 0.5" }
+            set otra [expr {$::ACTUAL eq "A" ? "B" : "A"}]
+            if {![info exists ::POS($otra)]} { error "primero di donde esta $otra: usa $otra, mueve x y" }
+            lassign $::POS($otra) ox oy
+            return [ejecuta_orden [concat pos $::ACTUAL [expr {$ox + $m}] $oy]]
+        }
         pos {
             set r [rol_de [lindex $p 1]]
             if {$r == 0} { error "di A o B: pos A 31 0" }
             if {[string tolower [lindex $p 2]] eq "sw"} {
                 pon $r 3 0; manda_mochila $r
+                unset -nocomplain ::POS([string toupper [lindex $p 1]])
                 return "La posicion de [lindex $p 1] vuelve a sus interruptores SW9-SW6."
             }
             set x [lindex $p 2]
@@ -311,11 +322,19 @@ proc ejecuta_orden {linea} {
                 error "la posicion va en metros, de 0 a 63.94: pos A 31 0"
             }
             pon_pos $r $x $y; manda_mochila $r
+            set nombre [string toupper [lindex $p 1]]
+            set ::POS($nombre) [list $x $y]
             # se informa la posicion que de verdad queda en la tarjeta (rejilla de 6.25 cm)
             lassign [distancia_al_receptor $x $y] d oye
-            return [format "Mochila %s puesta en (%.2f, %.2f) m: a %.2f m del receptor, %s." [string toupper [lindex $p 1]] \
+            set txt [format "Mochila %s puesta en (%.2f, %.2f) m: a %.2f m del receptor, %s." $nombre \
                 [m [cuentas $x]] [m [cuentas $y]] $d \
                 [expr {$oye ? "dentro del alcance (menos de $::ALCANCE_M m)" : "fuera del alcance ($::ALCANCE_M m o mas)"}]]
+            set otra [expr {$nombre eq "A" ? "B" : "A"}]
+            if {[info exists ::POS($otra)]} {
+                lassign $::POS($otra) ox oy
+                append txt [format " A %.2f m de %s." [expr {hypot($x - $ox, $y - $oy)}] $otra]
+            }
+            return $txt
         }
         temp {
             set r [rol_de [lindex $p 1]]

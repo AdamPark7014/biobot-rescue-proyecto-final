@@ -13,6 +13,7 @@
 #                   se oye si queda a menos de 32 m: a 31 m si, a 32 m ya no
 #   usa A|B         elige la cucaracha que mueve 'mueve' (empieza en A)
 #   mueve x y       pone la elegida en (x, y), igual que pos
+#   dist m          pone la elegida a m metros de la otra, en la misma linea (usa 'pos' o 'mueve' antes)
 #   pos A|B sw      la posicion vuelve a los interruptores SW9-SW6
 #   temp A|B t      el sensor termico lee t grados C, de 0 a 63 (detecta de 35 a 38)
 #   temp A|B sw     la temperatura vuelve a los interruptores SW5-SW0
@@ -32,7 +33,7 @@ if {![encuentra_tarjetas]} {
 }
 fuente_inicial
 
-set AYUDA "Ordenes: usa B | mueve 31 0 | pos A 31 0 | pos B sw | temp A 36 | temp A sw | boton B | vista 0..3 | vista sw | reset | suelta"
+set AYUDA "Ordenes: usa B | mueve 31 0 | dist 0.5 | pos A 31 0 | pos B sw | temp A 36 | temp A sw | boton B | vista 0..3 | vista sw | reset | suelta"
 
 if {[lindex $argv 0] eq "detalle"} {
     muestra_estado
