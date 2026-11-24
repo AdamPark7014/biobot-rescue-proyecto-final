@@ -1,0 +1,18 @@
+NUCLEO DE BIOBOT-RESCUE EN SKY130 - AREA Y CORRIENTE
+
+Dado              217.7 x 228.4 um = 49,732 um2 = 0.0497 mm2
+Celdas colocadas  22,615 um2 = 0.0226 mm2 (ocupacion 53.7 %)
+  Compuertas           10,474 um2   46.3 %
+  Flip-flops            6,648 um2   29.4 %
+  Búferes de tiempo     3,820 um2   16.9 %
+  Árbol de reloj          950 um2    4.2 %
+  Celdas de pozo          724 um2    3.2 %
+
+Reloj de 50 MHz                 tipica 1.80 V          lenta 1.60 V         rapida 1.95 V
+En espera                  1.038 mW  0.577 mA     0.828 mW  0.517 mA     1.207 mW  0.619 mA 
+Estimulo                   1.051 mW  0.584 mA     0.838 mW  0.524 mA     1.222 mW  0.627 mA 
+Cuadro continuo            1.117 mW  0.621 mA     0.891 mW  0.557 mA     1.299 mW  0.666 mA 
+Por omisión                2.115 mW  1.175 mA     1.687 mW  1.054 mA     2.451 mW  1.257 mA 
+Fuga                       0.026 uW  0.014 uA    14.331 uW  8.957 uA     0.042 uW  0.022 uA 
+
+Densidad de potencia en espera: 20.9 mW/mm2 de dado

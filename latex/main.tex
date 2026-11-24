@@ -1,14 +1,3 @@
-% =====================================================================
-%  BioBot-Rescue -- Reporte del proyecto final y practica 5
-%  O26-LRT3032-2 Sistemas Embebidos -- UDLAP
-%  Roberto Orozco Ramirez (184595), Adam Del Pozo Ontiveros (185611) y
-%  Enrique Bernal Martin Prieto (184878)
-%
-%  Compilar con ..\compilar.ps1 (dos pasadas de pdflatex; latexmk no sirve:
-%  este MiKTeX no trae Perl). Las figuras de figs\ las generan los programas
-%  de ..\modelo\ (figuras.py, red.py, numerico.py y trazas.py) a partir de las
-%  simulaciones y de los datos citados.
-% =====================================================================
 \documentclass[11pt,letterpaper]{article}
 
 \usepackage[spanish,es-tabla,es-noshorthands]{babel}
@@ -42,6 +31,8 @@
 \usepackage{lastpage}
 \usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black,citecolor=blue!50!black]{hyperref}
 \usepackage{bookmark}
+\usepackage{multicol}
+\usepackage{flafter}
 
 \sisetup{output-decimal-marker={.},group-separator={\,},range-phrase={--},range-units=single}
 \setstretch{1.08}
@@ -50,10 +41,13 @@
 \setlength{\headheight}{26pt}
 \setlength{\emergencystretch}{3em}
 \raggedbottom
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.10}
+\setlength{\floatsep}{6pt}
+\setlength{\textfloatsep}{8pt}
+\setlength{\intextsep}{6pt}
 \captionsetup{font=small,labelfont={bf,color=Primary},skip=4pt}
 
-% ---- paleta (la de los reportes de práctica) ----
+% paleta
 \definecolor{Primary}{HTML}{0E2A47}
 \definecolor{Secondary}{HTML}{1D6FA5}
 \definecolor{Accent}{HTML}{D98B12}
@@ -86,9 +80,11 @@
   arc=2.2mm,left=2mm,right=2mm,top=1.5mm,bottom=1.5mm,breakable,#1}
 
 \newcommand{\sig}[1]{\texttt{#1}}
+\newcommand{\modulo}[3]{\needspace{4\baselineskip}\par\vspace{4pt}\noindent
+  \colorbox{SoftBlue}{\makebox[\dimexpr\linewidth-2\fboxsep][l]{\textbf{\color{Primary}\sig{#1}}\hspace{0.9em}%
+  {\footnotesize\color{TextDark}\sig{#2}}\hfill{\footnotesize\bfseries\color{Secondary}#3}}}\par\nopagebreak\vspace{1pt}}
 \newcommand{\especie}{\textit{Gromphadorhina portentosa}}
 \newcommand{\Gp}{\textit{G.~portentosa}}
-% Etiqueta de origen de un parámetro: F fuente publicada, D derivado, S supuesto
 \newcommand{\orig}[1]{\textsuperscript{\textsf{\scriptsize[#1]}}}
 
 \tikzset{
@@ -102,7 +98,7 @@
   lbl/.style={font=\scriptsize,text=TextDark},
 }
 
-% ---- datos del documento ----
+% datos
 \newcommand{\autorA}{Roberto Orozco Ramírez}
 \newcommand{\idA}{184595}
 \newcommand{\autorB}{Adam Del Pozo Ontiveros}
@@ -111,7 +107,7 @@
 \newcommand{\idC}{184878}
 \newcommand{\materia}{Sistemas Embebidos}
 \newcommand{\clave}{O26-LRT3032-2}
-\newcommand{\fechadoc}{21 de noviembre de 2026}
+\newcommand{\fechadoc}{24 de noviembre de 2026}
 \newcommand{\titulo}{BioBot-Rescue}
 \newcommand{\subtitulo}{Red de mochilas embebidas en FPGA para localizar personas atrapadas con
   \especie}
@@ -130,7 +126,6 @@
                   label=\textcolor{Secondary}{$\bullet$}}
 \setlist[enumerate]{leftmargin=1.6em,itemsep=1pt,topsep=2pt}
 
-% Números de la simulación: los escribe ..\modelo\figuras.py a partir de resultados.json
 \input{figs/numeros}
 
 \begin{document}
@@ -147,7 +142,7 @@
 \input{sections/05_comparativo}
 \input{sections/06_etica}
 \input{sections/07_conclusiones}
-\input{sections/08_referencias}
 \input{sections/09_repositorio}
+\input{sections/08_referencias}
 
 \end{document}

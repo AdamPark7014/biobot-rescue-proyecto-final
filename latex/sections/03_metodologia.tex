@@ -1,34 +1,191 @@
 \section{Metodología}
 \label{sec:metodologia}
 
-El trabajo avanzó de los datos al circuito, y cada paso entrega al siguiente un número con el
-que se puede diseñar (tabla~\ref{tab:metodo}). Primero se fijó, con lo publicado, qué puede
-cargar y hacer el insecto. Con eso se armó un modelo de la misión que permite comparar
-políticas de estímulo por simulación. La política elegida se describió en Verilog como el
-núcleo de la mochila, y sobre el núcleo se construyó la red de tres FPGA que detecta, se
-comunica y ubica a la persona. Al final, el núcleo se llevó a un layout.
+El trabajo avanzó de los datos al circuito, y cada paso entrega al siguiente un número con el que se puede
+diseñar. Con lo publicado se fijó qué puede cargar y hacer el insecto; con eso se armó un modelo de la misión
+que compara políticas de estímulo por simulación. La política elegida se describió en Verilog como el núcleo
+de la mochila, sobre el núcleo se construyó la red de tres FPGA, y al final el núcleo se llevó a un layout.
 
-\begin{table}[H]
+\subsection{El portador y la mochila}
+\label{sec:portador}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.96\textwidth]{figs/insecto_mochila.png}
+\caption{\Gp{} con la mochila, a escala. Dibujo propio; medidas de~\cite{tranngoc2023,li2019} y paso por
+rendijas de~\cite{kai2026}.}
+\label{fig:insecto}
+\end{figure}
+
+\begin{table}[!htb]
 \centering\footnotesize
-\caption{Etapas del trabajo, herramienta de cada una y forma de evaluarla.}
-\label{tab:metodo}
+\caption{Capacidades de \Gp{} y lo que implican para la mochila.}
+\label{tab:capacidades}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{5.2cm}@{}}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{5.2cm}@{}}
 \toprule
-\rowcolor{TableHead} Etapa & Qué se hace y con qué & Cómo se evalúa \\
+\rowcolor{TableHead} Capacidad & Dato publicado & Consecuencia de diseño \\
 \midrule
-Portador (\ref{sec:portador}) & Revisión de lo publicado sobre \Gp: masa, carga, marcha y sentidos & Cada dato lleva su fuente; los supuestos se marcan \\
-Modelo de la misión (\ref{sec:modelo}) & Cinco submodelos y una simulación con agentes, en Python & Marcha simulada frente a la publicada; \numMisiones{} misiones por caso; sensibilidad \\
-Núcleo de la mochila (\ref{sec:nucleo}) & Siete módulos en Verilog; modelo de referencia en Python con las mismas cuentas enteras & Comparación cuadro por cuadro en Icarus Verilog; síntesis en Quartus; dos tarjetas reales \\
-Red de tres FPGA (\ref{sec:red}) & Protocolo de enlace, tonos, distancias y triangulación; terminal del operador por JTAG & Nueve escenarios autoverificables; la terminal real contra las tarjetas simuladas; síntesis \\
-Aritmética (\ref{sec:numerico}) & CORDIC, filtros FIR e IIR, controlador PID, raíz cuadrada entera y divisor, en punto fijo & Error contra el valor exacto o contra el mismo bloque en aritmética real; barrido de todo el mapa \\
-Layout (\ref{sec:flujo-layout}) & Flujo abierto de RTL a GDS en SKY130 & DRC, LVS y tiempos en nueve esquinas \\
+Masa y tamaño & $6.32\pm1.5$~g y $5.7\pm0.6$~cm~\cite{tranngoc2023}; 2.2~cm de ancho, 1.3~cm de alto~\cite{li2019} & Mochila para un animal de 6~g \\
+Carga & Con 15~g se detiene por completo~\cite{montagut2024}; con 4~g ya empeora el control~\cite{latif2012} & Meta de 2 a 3~g (30 a 45~\% de su masa) \\
+Altura & Rendija de 8~mm: pasa el 95~\% sin mochila y el 15~\% con una de 4~mm~\cite{kai2026} & Componentes lado a lado, no apilados \\
+Velocidad & 1.9~cm/s natural~\cite{dirafzoon2017}; 3.7 a 5.0~cm/s guiada~\cite{tranngoc2024} & El modelo usa 1.9 y 5~cm/s (4~s por estímulo) \\
+Pausas & Quieta cerca del 60~\% del tiempo, 37~s por pausa~\cite{dirafzoon2017} & La política debe reiniciar la marcha \\
+Enderezarse & 98~\% sin carga; 31 a 69~\% con mochila~\cite{li2019,montagut2024} & Mochila baja y ligera \\
+Temperatura & Actividad máxima cerca de 30~\textdegree C; a 34 y 38~\textdegree C inmóvil más de la mitad del tiempo~\cite{gracidas2026} & Ventana de operación de 22 a 30~\textdegree C \\
+Energía & 5~mW en reposo, 17 a 31~mW caminando (calculado de~\cite{herreid1981}) & La locomoción la paga el insecto \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\input{sections/03a_portador}
-\input{sections/03b_modelo}
+La revisión obligó a corregir cuatro cifras de la propuesta inicial: la carga útil (de 15~g a 2--3~g), la
+velocidad (de 0.3~m/s a 1.9--5~cm/s), el umbral térmico fijo de 35.5--38.5~\textdegree C, que es temperatura
+central y no de piel, y el tamaño del circuito, que no son 60 celdas sino 477 elementos lógicos.
+
+\textbf{Masa y energía.} Se adopta una matriz térmica, radio de baja potencia, IMU y una batería de 40~mAh, unos
+2.9~g en total (figura~\ref{fig:presupuestos}). Con el sensor encendido consume cerca de 30~mW, de modo que la
+autonomía estimada es $t=0.85\times40~\text{mAh}\times3.7~\text{V}/30~\text{mW}\approx4$~h; como referencia
+medida, la mochila de NTU gasta 205.5~mW y dura 2.2~h con 120~mAh~\cite{tranngoc2023}. El cómputo casi no pesa:
+una iCE40 UltraLite de 1\,248 LUT mide $1.4\times1.4$~mm y pesa unos 2~mg~\cite{lattice}, y el nRF52840, unos
+15~mg~\cite{nordic}. Por eso conviene gastar lógica, que es gratis en masa, para ahorrar energía y estímulos.
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{0.48\textwidth}
+\includegraphics[width=\linewidth]{figs/presupuesto_masa.png}
+\caption{Masa por configuración.}
+\end{subfigure}\hfill
+\begin{subfigure}{0.48\textwidth}
+\includegraphics[width=\linewidth]{figs/energia.png}
+\caption{Quién gasta qué.}
+\end{subfigure}
+\caption{Presupuestos de la mochila. Masas de batería y sensor medidas~\cite{tranngoc2023}; las de los chips
+son estimadas.}
+\label{fig:presupuestos}
+\end{figure}
+
+\subsection{El modelo de la misión}
+\label{sec:modelo}
+
+\textbf{Marcha.} Sin estímulo se usa el modelo de Dirafzoon et al.~\cite{dirafzoon2017} con los valores de
+Tran-Ngoc et al.~\cite{tranngoc2024}: tramos rectos exponenciales de media $l^*=17.6$~cm a $v=1.94$~cm/s; al
+terminar cada uno se detiene con probabilidad $P_s=0.211$ un tiempo medio $T_s=36.8$~s, y la pared que sigue
+solo la suelta con probabilidad $p_e=0.005$. De ahí sale la fracción del tiempo que camina,
+\begin{equation}
+F_m=\frac{l^*/v}{l^*/v+P_s\,T_s}=\frac{9.1}{9.1+7.8}=0.54 ,
+\end{equation}
+dentro del intervalo medido de $0.37\pm0.20$.
+
+\textbf{Estímulo.} Se adopta la luz ultravioleta: no requiere cirugía, no se ha observado habituación en 150
+ensayos~\cite{refat2025} y la colonia de la universidad responde a ella~\cite{gracidas2026}. Los electrodos de
+superficie~\cite{lin2023,tranngoc2025} (81~\% y 74~\% de éxito) quedan como alternativa y el generador de
+pulsos sirve para los dos. La tabla~\ref{tab:estimulos} compara las
+opciones. El insecto obedece con probabilidad $p\,(1-H)$, con $p=0.78$~\cite{lin2023}; la
+habituación $H$ sube con cada estímulo y baja con el descanso:
+\begin{equation}
+H\leftarrow H+\alpha\,(1-H) \quad\text{por estímulo},\qquad H(t+\Delta t)=H(t)\,e^{-\Delta t/\tau}.
+\end{equation}
+Con $\tau=600$~s~\cite{sanchez2015} y $\alpha=0.09$ el modelo reproduce los datos de pulsos unipolares: queda
+el 46~\% de la respuesta tras diez estímulos cada 15~s (medido: 43~\%~\cite{ma2023}) y el 22~\% tras cuarenta
+(medido: 20~\%~\cite{erickson2015}). Con onda bifásica o con luz, $\alpha$ es al menos cuarenta veces menor
+(figura~\ref{fig:habituacion}); la simulación usa $\alpha=0.01$, un valor conservador.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.96\textwidth]{figs/habituacion.png}
+\caption{Izquierda: giro por estímulo según el método~\cite{lin2023,lin2025,ma2023}. Derecha: modelo de
+habituación frente a los datos medidos.}
+\label{fig:habituacion}
+\end{figure}
+
+\begin{table}[!htb]
+\centering\footnotesize
+\caption{Tipos de estímulo para dirigir a \Gp.}
+\label{tab:estimulos}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{4.0cm} >{\raggedright\arraybackslash}p{1.4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{TableHead} Estímulo & Cirugía & Eficacia publicada & Inconveniente \\
+\midrule
+Electrodo en la antena~\cite{latif2012,erickson2015} & Sí & 56~\% de los individuos & Inutiliza la antena; dura días \\
+Electrodo en los cercos~\cite{tranngoc2023} & Sí & 94~\% de navegaciones & El sentido del giro varía \\
+Electrodo torácico~\cite{lin2025} & Poca & Giro de más de 70\textdegree{} en 0.4~s & Ensamble preciso \\
+Electrodo de superficie~\cite{lin2023,tranngoc2025} & No & 81~\% y 74~\% por estímulo & Impedancia de 70 a 123~k$\Omega$ \\
+Luz ultravioleta~\cite{refat2025,gracidas2026} & No & Sin habituación en 150 ensayos & Falta medir el ángulo por pulso \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Detección.}\phantomsection\label{sec:deteccion} Un sensor de un solo píxel promedia todo su campo
+$\varphi$; un blanco de área $A$ a distancia $d$ llena la fracción $f$ y la lectura es
+\begin{equation}
+T_{\text{leída}}=T_f+f\,(T_p-T_f),\qquad f=\min\!\left(1,\ \frac{A}{\pi\,d^2\tan^2(\varphi/2)}\right).
+\end{equation}
+Con una cara ($0.03$~m$^2$) a 33~\textdegree C sobre un fondo de 22~\textdegree C y $\varphi=90$\textdegree, a
+medio metro se leen 22.4~\textdegree C. Una matriz lo resuelve porque cada píxel ve un ángulo $\theta$ y el
+blanco ocupa $n=A/(d\tan\theta)^2$ píxeles. El núcleo cuenta como caliente el píxel que está entre 28 y
+38~\textdegree C, el criterio de NTU~\cite{tranngoc2023}, \emph{y además} 2~\textdegree C por encima de la media
+del cuadro anterior. Con 2 píxeles empieza a acercarse y con 8 durante cuatro cuadros seguidos declara la
+detección (figura~\ref{fig:deteccion}). La matriz de $8\times8$ (AMG8833~\cite{panasonic}, 599~MXN~\cite{unit})
+confirma a 0.9~m y la de $32\times24$ (MLX90640~\cite{melexis}, 1\,100~MXN), a 2.0~m.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.98\textwidth]{figs/deteccion_termica.png}
+\caption{Izquierda: lectura de un píxel de 90\textdegree{} frente a la distancia. Derecha: píxeles calientes con
+dos matrices; el círculo marca el acercamiento y el cuadro, la confirmación.}
+\label{fig:deteccion}
+\end{figure}
+
+\textbf{Límites físicos.} Por encima de unos 30~\textdegree C se pierde el contraste con la piel y el insecto
+deja de moverse (figura~\ref{fig:limites}); el CO$_2$ exhalado~\cite{huo2011} y el sonido son las señales
+complementarias. El concreto atenúa unos 22~dB por metro a 915~MHz y 47~dB a
+2.4~GHz~\cite{itu2040,stone1997}, así que la radio debe ser de menos de 1~GHz y con relevo en el boquete.
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{0.47\textwidth}
+\includegraphics[width=\linewidth]{figs/ventana_operativa.png}
+\caption{Ventana de temperatura.}
+\end{subfigure}\hfill
+\begin{subfigure}{0.47\textwidth}
+\includegraphics[width=\linewidth]{figs/radio_escombro.png}
+\caption{Pérdida de la radio en concreto.}
+\end{subfigure}
+\caption{(a) Contraste térmico disponible y actividad del insecto~\cite{gracidas2026}. (b) Atenuación con el
+modelo de la UIT~\cite{itu2040}.}
+\label{fig:limites}
+\end{figure}
+
+\textbf{Localización y misión.} La alerta dice por qué boquete entró el insecto; la IMU estima cuánto caminó, con
+un error de 5 a 10~\% de la distancia~\cite{tranngoc2024}, y el último medio metro lo da una baliza. La misión
+se simula con agentes en colapsos sintéticos de $8\times6$~m; como referencia analítica, la teoría de búsqueda
+da $P_d=1-e^{-C}$ con $C=W v t N/A_h$~\cite{frost2001}. Los parámetros están en la tabla~\ref{tab:parametros}.
+
+\begin{table}[!htb]
+\centering\footnotesize
+\caption{Parámetros de la simulación. F: publicado; D: decisión de diseño; S: supuesto que se explora en la
+sensibilidad.}
+\label{tab:parametros}
+\rowcolors{2}{SoftGray}{white}
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X l l | >{\raggedright\arraybackslash}X l l@{}}
+\toprule
+\rowcolor{TableHead} \textbf{Parámetro} & \textbf{Valor} & & \textbf{Parámetro} & \textbf{Valor} & \\
+\midrule
+Velocidad natural & $1.94\pm0.29$~cm/s & F~\cite{dirafzoon2017} & Recuperación, $\tau$ & 600~s & F~\cite{sanchez2015} \\
+Tramo recto, media & 17.6~cm & F~\cite{dirafzoon2017} & Espera antes de reactivar & 15~s, hasta $\times8$ & D \\
+Pausa por tramo & 0.211 & F~\cite{dirafzoon2017} & Mínimo entre estímulos & 10~s & D \\
+Duración de la pausa & $36.8\pm24.1$~s & F~\cite{dirafzoon2017} & Giros al azar & cada 51~s & D \\
+Soltar la pared & 0.005 & F~\cite{dirafzoon2017} & Presupuesto & 12; $\tau=600$~s & D \\
+Obedece un estímulo & 0.78 & F~\cite{lin2023} & Píxeles: acercar, confirmar & 2 y 8 & D \\
+Giro por estímulo & $52\pm23$\textdegree & F~\cite{lin2023,ma2023} & Piel a la vista & 0.03~m$^2$ & S \\
+Avance & 5~cm/s, 4~s & F~\cite{tranngoc2024} & Dobla esquinas & 0.80 & S \\
+Habituación, $\alpha$ & 0.01 & F~\cite{erickson2015} & Insectos perdidos por hora & 0 & S \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \input{sections/03c_nucleo}
 \input{sections/03d_red}
 \input{sections/03e_numerico}

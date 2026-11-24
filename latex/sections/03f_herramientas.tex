@@ -1,63 +1,68 @@
-\subsection{Herramientas y procedimiento de verificación}
-\label{sec:herramientas}
+\subsection{Resumen de interfaces}
+\label{sec:interfaces}
 
-\begin{table}[H]
-\centering\footnotesize
-\caption{Herramientas del proyecto.}
-\label{tab:herramientas}
+La tabla~\ref{tab:interfaces} reúne lo que entra, lo que sale y lo que tarda cada módulo, con el reloj de 50~MHz de
+la tarjeta (20~ns por ciclo) y cuadros de 100~ms.
+
+\begin{table}[!htb]
+\centering\scriptsize
+\caption{Entradas, salidas y latencia de los módulos.}
+\label{tab:interfaces}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{4.4cm} >{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\ttfamily\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{4.0cm}@{}}
 \toprule
-\rowcolor{TableHead} Herramienta & Para qué se usó \\
+\rowcolor{TableHead} \normalfont\textbf{Módulo} & \textbf{Entradas principales} & \textbf{Salidas principales} & \textbf{Latencia} \\
 \midrule
-Python 3.12 & Simulación de la misión, modelo de referencia del núcleo y figuras \\
-Icarus Verilog 12~\cite{icarus} & Simulación de todos los bancos de prueba \\
-Active-HDL 17, edición estudiantil & Proyecto con todos los módulos y macros para ver las formas de onda \\
-Quartus Prime Lite 24.1 & Síntesis, colocación, ruteo y análisis de tiempos para la MAX~10 \sig{10M50DAF484C7G} \\
-DE10-Lite~\cite{terasic}, tres tarjetas & Pruebas en hardware: una, dos y tres tarjetas unidas por UART \\
-Sonda de Quartus por JTAG~\cite{intelissp} & Leer los registros de las tarjetas y fijar sus entradas desde la computadora \\
-LibreLane 3.0.17 con la PDK \sig{sky130A}~\cite{librelane,skywater} & Layout del núcleo, de RTL a GDS, en una máquina virtual con Ubuntu 24.04 \\
+ventana\_termica & Píxel de 8 bits, válido, último & Conteo, lado, media, \sig{tick} & 1 ciclo tras el último píxel \\
+media\_movil4 & Conteo, \sig{tick} & Conteo filtrado & 1 cuadro; retardo de grupo 1.5 \\
+detector\_presencia & Conteo filtrado & \sig{pre}, \sig{sobre}, \sig{confirmado} & 4 cuadros para confirmar \\
+detector\_quietud & Actividad de la IMU & \sig{quieto} & 10 cuadros (1~s) \\
+lfsr16 & \sig{tick} & 16 bits al azar & 1 cuadro por número \\
+fsm\_politica & Quietud, presencia, lado, azar & Estado, disparo, canal, alerta, baliza & 1 cuadro \\
+gen\_estimulo & Disparo y canal & Fases A y B, LED, ocupado & 2 ciclos; el tren dura 0.5~s \\
+uart\_rx / uart\_tx & Línea RX / byte e inicio & Byte y válido / línea TX & 9.5 y 10 bits \\
+receptor\_trama & Bytes del enlace & Píxeles y actividad & 1 ciclo por byte \\
+emisor\_estado & Telemetría y \sig{tick} & Cuatro bytes & 4.2~ms a 9\,600 baudios \\
+cordic & Vector o ángulo, modo & $x$, $y$, $z$ & 18 ciclos (0.36~$\mu$s) \\
+divisor\_u & Dividendo y divisor & Cociente & 21 o 45 ciclos \\
+tri\_distancia & Dos puntos de 10 bits & Distancia de 10 bits & 12 ciclos (0.24~$\mu$s) \\
+tri\_tonos & Canal simulado & Tono propio, oídos, potencias & 4~ms por bloque; 8~ms para decidir \\
+pid\_q & Referencia y medida & Salida y saturación & 1 ciclo por muestra \\
+tri\_tx\_n / tri\_rx\_n & Carga / línea & Línea / carga, \sig{listo}, \sig{mala} & 16 bytes: 1.4~ms \\
+tri\_escena & Posición, temperatura, estímulo & 64 píxeles, actividad, rumbo & unos 20 ciclos por cuadro \\
+tri\_mochila & Interruptores, botón, RX1 y RX2 & TX, displays, LED, tono & 100~ms \\
+tri\_triangula & Posiciones, rumbos y rangos & Punto, aproximaciones, error & unos 90 ciclos (1.8~$\mu$s) \\
+tri\_receptor & RX1, RX2 y vista & Posición, conteo, displays, resumen & 100~ms \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Cada bloque se verificó solo antes de conectarlo, en este orden:
+De ahí sale por qué la red responde en 1.10~s: no manda el cálculo, que toma microsegundos, sino lo que se espera a
+propósito. La media móvil necesita varios cuadros para pasar de 8 píxeles, la confirmación exige cuatro más, y el
+aviso viaja en la trama de los siguientes 100~ms, o dos tramas después si pasa por el puente.
+
+\subsection{Herramientas, verificación y layout}
+\label{sec:herramientas}
+
+Se usaron Python 3.12 (modelo de referencia, simulación de misión y figuras), Icarus Verilog 12~\cite{icarus} y
+Active-HDL (simulación), Quartus Prime Lite 24.1 (síntesis para la MAX~10 \sig{10M50DAF484C7G}), tres
+DE10-Lite~\cite{terasic} y LibreLane 3.0.17 con la PDK \sig{sky130A}~\cite{librelane,skywater}. Cada bloque se
+verificó solo antes de conectarlo:
 \begin{enumerate}
-  \item \textbf{Modelo de referencia.} Antes de escribir el Verilog del núcleo se programó en Python un
-        modelo que hace las mismas cuentas con enteros, registro por registro. Ese modelo genera
-        los cuadros de prueba y la respuesta esperada.
-  \item \textbf{Bancos autoverificables.} Cada banco compara contra un valor esperado y termina con una
-        línea de resultado; ninguno se revisa a ojo. Los bloques numéricos se comparan contra el
-        valor exacto en aritmética real, y la distancia, contra todos los puntos del mapa.
-  \item \textbf{Integración.} El banco \sig{tb\_tri} cablea las tres FPGA como en el laboratorio y recorre
-        nueve escenarios; lee los displays y los LED como los vería una persona.
-  \item \textbf{Síntesis y tiempos.} Las cuatro variantes de la red se compilan con el reloj de 50~MHz
-        y se exige holgura positiva en el peor caso y cero advertencias críticas. Después de cada
-        cambio se comparan los recursos con la síntesis anterior: una diferencia inesperada delata
-        lógica eliminada.
-  \item \textbf{Tarjetas.} Los mismos escenarios se repiten en las DE10-Lite fijando las entradas y
-        leyendo los registros por la sonda de JTAG, sin instrumentos externos.
-  \item \textbf{La terminal sin tarjetas.} Para probar el programa de la computadora cuando no hay
-        tarjetas, sus funciones de JTAG se sustituyen por archivos y del otro lado se simulan las
-        tres FPGA con sus módulos superiores: la orden que escribe el operador, los bits que llegan
-        a la FPGA, lo que el circuito hace y lo que la terminal muestra se comprueban de corrido.
+  \item \textbf{Bancos autoverificables.} Comparan contra un valor esperado y terminan con una línea de resultado.
+        Los bloques numéricos se comparan con aritmética real, y la distancia, con todos los puntos del mapa.
+  \item \textbf{Integración.} \sig{tb\_tri} cablea las tres FPGA como en el laboratorio, recorre nueve escenarios y lee
+        displays y LED como los vería una persona.
+  \item \textbf{Síntesis.} Las cuatro variantes se compilan a 50~MHz con holgura positiva y cero advertencias
+        críticas. Tras cada cambio se comparan los recursos: una diferencia inesperada delata lógica eliminada.
+  \item \textbf{Tarjetas.} Los escenarios se repiten en las DE10-Lite fijando entradas y leyendo registros por JTAG.
+  \item \textbf{Terminal sin tarjetas.} Sus funciones de JTAG se sustituyen por archivos y del otro lado se simulan las
+        tres FPGA: se comprueba desde la orden del operador hasta lo que se muestra.
 \end{enumerate}
 
-\subsubsection{Flujo del layout}
-\label{sec:flujo-layout}
-
-El núcleo de la mochila, que es lo que iría en un circuito integrado, se pasó por el flujo
-abierto completo de RTL a GDS con la PDK \sig{sky130A} de SkyWater~\cite{skywater} y la
-biblioteca de celdas \sig{sky130\_fd\_sc\_hd}. La herramienta fue LibreLane 3.0.17~\cite{librelane},
-el sucesor de OpenLane~\cite{shalan2020}: usa los mismos programas (Yosys para la síntesis,
-OpenROAD para el plano, la colocación, el árbol de reloj y el ruteo, y Magic, Netgen y KLayout
-para la verificación física) y el repositorio de OpenLane remite a él para diseños nuevos. La
-entrada son los cinco archivos Verilog del núcleo, sin modificar.
-
-La configuración tiene tres decisiones. El reloj es de 20~ns, el de 50~MHz de la tarjeta,
-porque el generador de estímulo cuenta sus pulsos con esa frecuencia. La ocupación del núcleo
-se pidió en 40~\% y la densidad de colocación en 55~\%, para rutear sin congestión. Y se activó
-la reparación de transiciones lentas después del ruteo global, con márgenes de 50~\%: con los
-valores por omisión la corrida pasaba DRC y LVS pero dejaba 140 transiciones de más de 0.75~ns
-en la esquina lenta, causadas por los búferes débiles que agrega la reparación de \emph{hold};
-con ese ajuste quedaron en cero. Los resultados están en la sección~\ref{sec:layout}.
+\textbf{Flujo del layout.}\phantomsection\label{sec:flujo-layout} Los cinco archivos del núcleo, sin modificar,
+pasaron por LibreLane, sucesor de OpenLane~\cite{shalan2020}: Yosys (síntesis), OpenROAD (plano, colocación, árbol
+de reloj y ruteo) y Magic, Netgen y KLayout (verificación), con la biblioteca \sig{sky130\_fd\_sc\_hd}. El reloj es
+de 20~ns, la ocupación del núcleo del 40~\% y la densidad de colocación del 55~\%. Se activó la reparación de
+transiciones lentas después del ruteo global, con márgenes de 50~\%: con los valores por omisión pasaba DRC y LVS
+pero dejaba 140 transiciones de más de 0.75~ns en la esquina lenta; con ese ajuste quedaron en cero.

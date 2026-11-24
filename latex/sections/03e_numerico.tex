@@ -1,73 +1,74 @@
-\subsection{Procesamiento numérico en punto fijo}
+\subsection{Módulos numéricos en punto fijo (práctica 5)}
 \label{sec:numerico}
 
-La red necesita ángulos, cosenos, potencias de un tono y distancias, y en la FPGA no hay punto
-flotante. Este apartado reúne los bloques numéricos del proyecto, que son los de la práctica~5
-(CORDIC, filtros FIR e IIR y controlador PID), con el formato de cada uno y su error medido
-contra el valor exacto. La tabla~\ref{tab:formatos} resume los formatos.
+La red necesita ángulos, cosenos, potencias de un tono y distancias, y en la FPGA no hay punto flotante. La
+tabla~\ref{tab:formatos} resume los formatos; cada bloque se comparó contra el valor exacto.
 
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\footnotesize
 \caption{Formatos de punto fijo del proyecto.}
 \label{tab:formatos}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}p{4.3cm} >{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{4.4cm} >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{TableHead} Magnitud & Formato & Resolución y razón \\
 \midrule
-Temperatura de un píxel & 8 bits sin signo & 0.25~\textdegree C por cuenta, la del sensor AMG8833; cubre de 0 a 63.75~\textdegree C \\
-Posición y distancia & 10 bits sin signo & 6.25~cm por cuenta sobre 64~m; la matriz confirma a menos de 1~m, así que 6~cm sobran \\
-Ángulo & 16 bits, un giro completo & $360/65\,536=0.0055$\textdegree{} por cuenta; el desbordamiento es el paso por 360\textdegree, sin lógica extra. En la trama viajan los 10 bits altos (0.35\textdegree) \\
-CORDIC, $x$ e $y$ & 24 bits con signo y 4 bits de guarda & Los bits de guarda dejan el redondeo de los corrimientos por debajo de una cuenta de la salida \\
-Coseno y seno & 18 bits con signo, 14 de fracción & $2^{-14}=6.1\times10^{-5}$; caben $\pm1$ con margen para los productos de la triangulación \\
-Coeficientes de Goertzel & Q2.14 con signo & $c=2\cos(2\pi k/64)$ queda entre $-2$ y $2$ \\
-Estado de Goertzel & 18 bits con signo & La entrada mide $\pm9$ a lo sumo (dos tonos de amplitud 4 y ruido de $\pm1$) y el filtro acumula 64 muestras: el estado no pasa de $2^{11}$ \\
-PID: error y salida & 16 bits con signo & Una cuenta de la medida; la resta lleva un bit de guarda \\
-PID: ganancias & Q8.8 con signo & $1/256=0.0039$; caben ganancias de $-128$ a $128$ \\
-PID: integrador & 32 bits con signo, 8 de fracción & Guarda $K_i\sum e$ sin truncar; un tope evita el desbordamiento \\
+Temperatura & 8 bits sin signo & 0.25~\textdegree C por cuenta, la del AMG8833 \\
+Posición y distancia & 10 bits sin signo & 6.25~cm por cuenta sobre 64~m \\
+Ángulo & 16 bits, un giro completo & 0.0055\textdegree{} por cuenta; el desbordamiento es el paso por 360\textdegree \\
+CORDIC, $x$ e $y$ & 24 bits con signo y 4 de guarda & El redondeo queda por debajo de una cuenta \\
+Coseno y seno & 18 bits, 14 de fracción & $2^{-14}=6.1\times10^{-5}$ \\
+Goertzel & $c$ en Q2.14; estado de 18 bits & El estado no pasa de $2^{11}$ con 64 muestras \\
+PID & Señales de 16 bits; ganancias Q8.8; integrador de 32 & $K_i\sum e$ sin truncar, con tope \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsubsection{CORDIC}
-\label{sec:cordic}
-
-El CORDIC~\cite{volder1959,andraka1998} gira un vector por ángulos cada vez menores, elegidos
-para que cada giro se haga con sumas y corrimientos:
+\modulo{cordic}{hdl/cordic.v}{532 EL, 96 R}
+\label{sec:cordic}%
+Gira un vector por ángulos cada vez menores, de modo que cada giro se haga con sumas y
+corrimientos~\cite{volder1959,andraka1998}:
 \begin{equation}
-x_{i+1}=x_i-d_i\,y_i\,2^{-i},\qquad
-y_{i+1}=y_i+d_i\,x_i\,2^{-i},\qquad
-z_{i+1}=z_i-d_i\arctan 2^{-i},
+x_{i+1}=x_i-d_i\,y_i\,2^{-i},\qquad y_{i+1}=y_i+d_i\,x_i\,2^{-i},\qquad z_{i+1}=z_i-d_i\arctan 2^{-i},
 \end{equation}
-con $d_i=\pm1$. El módulo \sig{cordic} es secuencial, una iteración por ciclo, y trabaja en los
-dos modos. En \textbf{rotación} lleva $z$ a cero: con $(x_0,y_0)=(1/K,0)$ entrega
-$(\cos z_0,\ \sin z_0)$, que es lo que usa la triangulación. En \textbf{vectorización} lleva $y$
-a cero: entrega el ángulo $\operatorname{atan2}(y_0,x_0)$ y la magnitud multiplicada por la
-ganancia $K=\prod\sqrt{1+2^{-2i}}=1.646760$; lo usa el sensor simulado para saber en qué
-dirección queda la persona. Antes de iterar, el problema se lleva al semiplano derecho con un
-giro de 180\textdegree, porque el algoritmo solo converge para ángulos de $\pm99.9$\textdegree.
-La latencia es de $N+2$ ciclos.
+con $d_i=\pm1$. Es secuencial, una iteración por ciclo, con una tabla de arcotangentes y sin multiplicadores. En
+\textbf{rotación} lleva $z$ a cero: con $(1/K,0)$ entrega $(\cos z_0,\sin z_0)$, que usa la triangulación. En
+\textbf{vectorización} lleva $y$ a cero: entrega $\operatorname{atan2}(y_0,x_0)$ y la magnitud por
+$K=1.646760$; lo usa el sensor simulado. Antes de iterar lleva el problema al semiplano derecho con un giro de
+180\textdegree, porque solo converge para $\pm99.9$\textdegree. Latencia: $N+2$ ciclos (figura~\ref{fig:rtlcordic}).
 
-\textbf{Cuántas iteraciones.} Nueve circuitos iguales, con $N$ de 4 a 20, recibieron los mismos
-360 vectores y los mismos 360 ángulos, y cada resultado se comparó con el valor exacto
-(figura~\ref{fig:cordiciter} y tabla~\ref{tab:cordiciter}). El error se divide entre cuatro cada dos
-iteraciones hasta $N=14$ y ahí se estanca: la tabla de arcotangentes tiene ángulos de 16 bits y
-se agota en la iteración 14, de modo que iterar más ya no aporta. Se eligió $N=16$: está en el
-piso del error, con dos iteraciones de margen sobre el punto donde la curva deja de bajar. Su
-error máximo en el ángulo es de 0.017\textdegree, veinte veces menos que el paso de
-0.35\textdegree{} con que el rumbo viaja por la red.
-
-\begin{figure}[H]
+\begin{figure}[!htb]
 \centering
-\includegraphics[width=\textwidth]{figs/cordic_iteraciones.png}
-\caption{Error del CORDIC según el número de iteraciones, medido en la simulación del circuito contra
-el valor exacto: 360 vectores en vectorización y 360 ángulos en rotación por cada valor de $N$.}
+\begin{subfigure}{\textwidth}
+\includegraphics[width=\linewidth]{figs/rtl/rtl_cordic.png}
+\caption{El módulo completo; a la izquierda, la tabla de arcotangentes.}
+\end{subfigure}
+
+\medskip
+\begin{subfigure}{0.52\textwidth}
+\includegraphics[width=\linewidth]{figs/rtl/zoom_cordic.png}
+\caption{Acercamiento a una iteración: corrimiento de $x$, suma y resta, y el sentido de giro \sig{dir}.}
+\end{subfigure}
+\caption{\sig{cordic} en el RTL Viewer.}
+\label{fig:rtlcordic}
+\end{figure}
+
+Nueve circuitos iguales, con $N$ de 4 a 20, recibieron los mismos 360 vectores y 360 ángulos
+(figura~\ref{fig:cordiciter} y tabla~\ref{tab:cordiciter}). El error se divide entre cuatro cada dos iteraciones
+hasta $N=14$ y ahí se estanca, porque la tabla de 16 bits se agota. Con $N=16$ el error máximo es de
+0.017\textdegree, veinte veces menos que el paso de 0.35\textdegree{} con que el rumbo viaja por la red.
+\sig{tb\_cordic} prueba además los cuatro cuadrantes y 200 divisiones: 248 de 248.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.96\textwidth]{figs/cordic_iteraciones.png}
+\caption{Error del CORDIC según el número de iteraciones, medido en la simulación del circuito.}
 \label{fig:cordiciter}
 \end{figure}
 
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\footnotesize
-\caption{Error máximo del CORDIC, medido con el banco \sig{tb\_cordic\_iter}.}
+\caption{Error máximo del CORDIC (\sig{tb\_cordic\_iter}).}
 \label{tab:cordiciter}
 \rowcolors{2}{SoftGray}{white}
 \begin{tabularx}{0.86\textwidth}{@{}>{\bfseries}c >{\raggedleft\arraybackslash}X >{\raggedleft\arraybackslash}X >{\raggedleft\arraybackslash}X >{\raggedleft\arraybackslash}X@{}}
@@ -83,131 +84,92 @@ el valor exacto: 360 vectores en vectorización y 360 ángulos en rotación por 
 \end{tabularx}
 \end{table}
 
-Cada CORDIC ocupa unos 530 elementos lógicos y ningún multiplicador. El otro banco,
-\sig{tb\_cordic}, prueba los cuatro cuadrantes con 48 casos más 200 divisiones: 248 de 248.
+\modulo{divisor\_u}{hdl/cordic.v}{84 a 195 EL}
+Divisor con restauración: por ciclo baja un bit del dividendo al resto, prueba si cabe el divisor y, si cabe, lo
+resta y pone un 1 en el cociente. Tarda un ciclo por bit más uno. La triangulación usa uno de 44 entre 32 bits y
+el rumbo, uno de 20 entre 7.
 
-\subsubsection{Filtro FIR: media móvil}
+\modulo{tri\_distancia}{hdl/tri\_red.v}{87 a 109 EL, 60 R}
+\label{sec:raiz}%
+Calcula $d=\lfloor\sqrt{\Delta x^2+\Delta y^2}\rfloor$ con la raíz dígito por dígito: baja dos bits del radicando
+de 22 por ciclo, prueba si cabe $4q+1$ en el resto y, si cabe, lo resta y agrega un 1 a la raíz. En 12 ciclos da la
+parte entera exacta. La regla del alcance usa la misma suma de cuadrados, $\Delta x^2+\Delta y^2<(16\times32)^2$,
+así que la distancia que se muestra y el corte de los 32~m no pueden contradecirse (figura~\ref{fig:rtldist}).
 
-El conteo de píxeles calientes oscila con el vaivén del insecto al caminar. Antes de comparar
-con los umbrales, el núcleo lo pasa por un filtro FIR de cuatro coeficientes iguales:
-\begin{equation}
-y[n]=\tfrac14\bigl(x[n]+x[n-1]+x[n-2]+x[n-3]\bigr).
-\end{equation}
-Con coeficientes de $1/4$ no hace falta ningún multiplicador: son tres sumas y un corrimiento
-de dos bits, 40 elementos lógicos y 28 registros. No tiene realimentación, así que es estable, y
-su fase es lineal: retrasa la señal un cuadro y medio sin deformarla. Con diez cuadros por
-segundo tiene nulos en 2.5 y 5~Hz (figura~\ref{fig:filtros}, izquierda). El costo es la latencia,
-porque la detección espera a que el promedio suba, y forma parte de los 1.10~s medidos en la
-sección~\ref{sec:casored}. El filtro se verifica dentro del núcleo, que coincide con su modelo
-de referencia en los 11\,424 cuadros.
-
-\subsubsection{Filtro IIR: Goertzel}
-\label{sec:goertzel}
-
-Para saber si un tono está presente no hace falta una transformada completa: basta la potencia
-en una frecuencia. El filtro de Goertzel~\cite{goertzel1958} la obtiene con un IIR de segundo
-orden y una sola multiplicación por muestra:
-\begin{equation}
-s[n]=x[n]+c\,s[n-1]-s[n-2],\qquad c=2\cos\frac{2\pi k}{N_b},
-\end{equation}
-\begin{equation}
-P=s[N_b-1]^2+s[N_b-2]^2-c\,s[N_b-1]\,s[N_b-2].
-\end{equation}
-Con bloques de $N_b=64$ muestras a 16~kHz, los tonos de 1, 2 y 4~kHz caen exactamente en las
-líneas $k=4$, 8 y 16, de modo que un tono no se cuela en el filtro de otro. Los coeficientes
-valen 1.847759, 1.414214 y 0; en Q2.14 son 30\,274, 23\,170 y 0, con un error de cuantización
-menor que $4\times10^{-5}$, y el de 4~kHz se ahorra la multiplicación.
-
-Un IIR puede volverse inestable al cuantizar sus coeficientes, y este tiene los polos sobre el
-círculo unitario. Aquí no hay riesgo, por dos razones: el filtro solo corre 64 muestras y su
-estado se borra al terminar cada bloque, así que ningún error se acumula; y el estado tiene 18
-bits para una señal que no pasa de $2^{11}$.
-
-La figura~\ref{fig:filtros} (derecha) muestra lo que mide la mochila A: con el tono presente la
-potencia va de 27\,000 a 33\,000 unidades; sin él no pasa de 50 en este banco, ni de 104 en la
-simulación de la red completa, aunque llegue otro tono a la vez. El umbral de 4\,000 queda a un
-factor de siete del primer caso y de cuarenta del segundo. Los tres filtros y el generador de
-tono ocupan 355 elementos lógicos y 225 registros.
-
-\begin{figure}[H]
+\begin{figure}[!htb]
 \centering
-\includegraphics[width=\textwidth]{figs/filtros.png}
-\caption{Izquierda: respuesta en frecuencia de la media móvil del núcleo (curva teórica). Derecha:
-potencia medida por los filtros de Goertzel de la mochila A en la simulación del circuito
-(\sig{tb\_tonos}), según qué tonos llegan; el propio se ignora.}
+\begin{subfigure}{\textwidth}
+\includegraphics[width=\linewidth]{figs/rtl/rtl_tri_distancia.png}
+\caption{El módulo completo.}
+\end{subfigure}
+
+\medskip
+\begin{subfigure}{0.86\textwidth}
+\includegraphics[width=\linewidth]{figs/rtl/zoom_tri_distancia.png}
+\caption{Acercamiento: restas, los dos cuadrados (\sig{Mult0} y \sig{Mult1}), su suma y el registro del radicando.}
+\end{subfigure}
+\caption{\sig{tri\_distancia} en el RTL Viewer.}
+\label{fig:rtldist}
+\end{figure}
+
+\textbf{FIR: media móvil.}\phantomsection\label{sec:fir} El filtro del núcleo es
+$y[n]=\tfrac14(x[n]+x[n-1]+x[n-2]+x[n-3])$. No tiene realimentación, así que es estable, y su fase es lineal:
+retrasa la señal un cuadro y medio sin deformarla. Con diez cuadros por segundo tiene nulos en 2.5 y 5~Hz
+(figura~\ref{fig:filtros}, izquierda).
+
+\modulo{tri\_tonos}{hdl/tonos.v}{355 EL, 225 R}
+\label{sec:goertzel}%
+Cada nodo emite un tono propio y escucha los otros dos: con saber a quién oye, sabe quién está a su alcance. El
+micrófono, simulado como la suma de las ondas cuadradas que llegan más ruido, se muestrea a 16~kHz y cada 64
+muestras (4~ms) tres filtros de Goertzel~\cite{goertzel1958} miden la potencia:
+\begin{equation}
+s[n]=x[n]+c\,s[n-1]-s[n-2],\qquad P=s[N_b-1]^2+s[N_b-2]^2-c\,s[N_b-1]\,s[N_b-2],
+\end{equation}
+con $c=2\cos(2\pi k/N_b)$. Los tonos de 1, 2 y 4~kHz caen en las líneas $k=4$, 8 y 16, de modo que uno no se cuela
+en el filtro de otro; los coeficientes son 30\,274, 23\,170 y 0 en Q2.14. Un IIR con polos sobre el círculo
+unitario podría acumular error, pero este corre 64 muestras y borra su estado. Un tono se da por oído si su
+potencia pasa de 4\,000 en dos bloques seguidos y por perdido si queda debajo en dos: con el tono presente mide de
+27\,000 a 33\,000 y sin él no pasa de 104 (figura~\ref{fig:filtros}, derecha). El tono propio sale por el pin~1 de
+JP1, listo para un zumbador; con un micrófono real solo se sustituye la suma simulada.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.97\textwidth]{figs/filtros.png}
+\caption{Izquierda: respuesta de la media móvil (curva teórica). Derecha: potencia medida por los filtros de
+Goertzel de la mochila A en la simulación del circuito (\sig{tb\_tonos}).}
 \label{fig:filtros}
 \end{figure}
 
-\subsubsection{Raíz cuadrada entera y divisor}
-\label{sec:raiz}
-
-La distancia entre dos nodos sale de $\Delta x^2+\Delta y^2$, que cabe en 22 bits. El módulo
-\sig{tri\_distancia} le saca la raíz con el método de dígito por dígito, el mismo de la raíz a
-mano en binario: baja dos bits del radicando por ciclo, prueba si cabe $4q+1$ en el resto y, si
-cabe, lo resta y pone un 1 en la raíz. En 12 ciclos entrega la parte entera exacta, sin error
-de redondeo, con unos 100 elementos lógicos y 60 registros. La sección~\ref{sec:cuantitativo}
-explica por qué no se usa aquí el CORDIC, que también da la magnitud.
-
-El divisor \sig{divisor\_u} es un divisor con restauración, un bit del cociente por ciclo. La
-triangulación usa uno de 44 bits entre 32 (195 elementos lógicos) y el rumbo, uno de 20 entre 7.
-
-\subsubsection{Controlador PID}
-\label{sec:pid}
-
-El módulo \sig{pid\_q} es un PID en forma posicional, una muestra por pulso:
+\modulo{pid\_q}{hdl/pid\_q.v}{213 EL, 66 R, 79.96 MHz}
+\label{sec:pid}%
+PID en forma posicional, una muestra por pulso:
 \begin{equation}
-e[n]=r[n]-y[n],\qquad
-u[n]=K_p\,e[n]+K_i\sum_{k\le n}e[k]+K_d\,\bigl(e[n]-e[n-1]\bigr).
+e[n]=r[n]-y[n],\qquad u[n]=K_p\,e[n]+K_i\sum_{k\le n}e[k]+K_d\,\bigl(e[n]-e[n-1]\bigr).
 \end{equation}
-El término proporcional y el derivativo son un producto cada uno; el integral es un acumulador
-de 32 bits que guarda $K_i\sum e$ con sus ocho bits de fracción, de modo que no pierde nada al
-sumar. La salida se satura en $\pm U_{\max}$, que es lo que da el actuador, y la saturación se
-decide con la suma completa, antes de quitar la fracción.
+El integral es un acumulador de 32 bits que guarda $K_i\sum e$ con sus ocho bits de fracción. La salida se satura
+en $\pm U_{\max}$ y la saturación se decide con la suma completa de 40 bits. Si el actuador está en el tope y el
+error empuja hacia el mismo lado, el acumulador se congela (integración condicional); un parámetro quita la
+protección para compararla (figura~\ref{fig:rtlpid}). \sig{tb\_pid} cierra el lazo sobre $y[n+1]=y[n]+(4u[n]-y[n])/20$ junto a un PID en
+aritmética real (figura~\ref{fig:pid}): la salida difiere en menos de una cuenta. El escalón de 200 tiene 9.3~\% de
+sobrepaso y entra al 2~\% en 49 muestras; el de 1\,000, con el actuador saturado, 0.2~\% y 66 muestras, mientras
+que sin protección la salida sigue en el tope 400 muestras después.
 
-\textbf{El integrador saturado.} Si el actuador está en el tope y el error persiste, el
-acumulador sigue creciendo sin efecto y después tarda en descargarse. El módulo lo evita con
-integración condicional: congela el acumulador mientras la salida está saturada y el error
-empuja hacia el mismo lado. Un parámetro permite quitar la protección para compararla.
-
-\textbf{Verificación.} El banco \sig{tb\_pid} cierra el lazo sobre una planta de primer orden,
-$y[n+1]=y[n]+(4u[n]-y[n])/20$, y corre junto al circuito un PID en aritmética real
-(tabla~\ref{tab:pid} y figura~\ref{fig:pid}). Con las mismas muestras de entrada, la salida del
-circuito difiere de la del PID en reales en menos de una cuenta, que es el truncado final. La
-cuantización de las ganancias a Q8.8 ($K_i=13/256=0.0508$ en lugar de 0.05) cambia la respuesta
-de la planta en menos de dos cuentas sobre mil.
-
-\begin{table}[H]
-\centering\footnotesize
-\caption{Resultados del controlador PID con $K_p=0.5$, $K_i=0.0508$, $K_d=0.25$ y tope de 255
-(\sig{tb\_pid}: 3 de 3 escenarios).}
-\label{tab:pid}
-\rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}X@{}}
-\toprule
-\rowcolor{TableHead} Escenario & Lo medido \\
-\midrule
-Escalón de 200, sin saturar & Sobrepaso de 9.3~\%; dentro del 2~\% en 49 muestras; valor final 200.00. Diferencia máxima de $u$ contra el PID en reales: 0.996 cuentas \\
-Escalón de 1\,000, actuador saturado & Con integración condicional: 36 muestras en el tope, sobrepaso de 0.2~\%, dentro del 2~\% en 66 muestras y valor final 1\,000.00. Sin ella: 400 muestras después la salida sigue en el tope y la planta queda en 1\,020, 2~\% arriba de la referencia \\
-Escalón de $-600$ & Sobrepaso de 7.4~\%; valor final $-600.00$; la salida nunca pasa de $\pm255$ \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\begin{figure}[H]
+\begin{figure}[!htb]
 \centering
-\includegraphics[width=\textwidth]{figs/pid_respuesta.png}
-\caption{Escalón de 1\,000 con el actuador saturado, con los datos de la simulación del circuito. Sin
-protección, el integrador acumulado mantiene la salida en el tope y la planta no vuelve a la referencia.}
+\includegraphics[width=\textwidth]{figs/rtl/rtl_pid_q.png}
+\caption{\sig{pid\_q} en el RTL Viewer: error, producto integral, integrador con tope, congelamiento (\sig{congela}) y
+saturación de la salida.}
+\label{fig:rtlpid}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.86\textwidth]{figs/pid_respuesta.png}
+\caption{Escalón de 1\,000 con el actuador saturado. Sin protección, la planta no vuelve a la referencia.}
 \label{fig:pid}
 \end{figure}
 
-Sintetizado solo, ocupa 213 elementos lógicos, 66 registros y 2 multiplicadores de 9 bits, con
-79.96~MHz de frecuencia máxima. Usa tan pocos multiplicadores porque las ganancias son
-parámetros: 0.5 y 0.25 se resuelven con corrimientos.
-
-\textbf{Su lugar en el proyecto.} La búsqueda no usa un PID: su actuador es un pulso que el
-insecto obedece o no, y lo que hay que acotar es cuántos recibe, así que el control es una
-máquina de estados con presupuesto (sección~\ref{sec:nucleo}). El PID corresponde al modo de
-regreso de la sección~\ref{sec:regreso}: llevar a cero la diferencia entre los dos fotodiodos
-que miran al faro, con la tasa de estímulos como actuador, que se satura en el presupuesto. Ese
-modo no está en la demostración; aquí el controlador queda verificado con una planta de prueba.
+La búsqueda no usa un PID, porque su actuador es un pulso que el insecto obedece o no. Corresponde al modo de
+regreso (sección~\ref{sec:regreso}): llevar a cero la diferencia entre dos fotodiodos que miran al faro, con la
+tasa de estímulos como actuador. Ese modo no está en la demostración; aquí queda verificado con una planta de
+prueba.

@@ -22,6 +22,10 @@ latex/*.toc
 latex/*.out
 latex/*.synctex.gz
 latex/main.pdf
+latex/congreso/*.aux
+latex/congreso/*.log
+latex/congreso/*.out
+latex/congreso/articulo.pdf
 latex/hoja.pdf
 
 # Simulación: ejecutables y bitácoras de Icarus

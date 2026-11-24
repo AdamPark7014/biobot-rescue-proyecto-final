@@ -1,118 +1,106 @@
 \section{Casos de estudio}
 \label{sec:casos}
 
-Cuatro casos, de menor a mayor alcance: el núcleo solo, la red de tres FPGA, la misión completa
-en simulación y el núcleo como circuito integrado.
+Cuatro casos, de menor a mayor alcance: el núcleo solo, la red de tres FPGA, la misión completa en simulación y el
+núcleo como circuito integrado.
 
 \subsection{Caso 1: el núcleo en una y en dos tarjetas}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{figs/sistema.png}
-\caption{Sistema completo: del enjambre al rescatista.}
-\label{fig:sistema}
-\end{figure}
+Para cerrar el lazo sin sensor ni insecto, una segunda DE10-Lite hace de insecto y de matriz térmica: calcula los
+64 píxeles según la distancia y el rumbo, los manda por UART y mueve a un insecto de prueba según los estímulos que
+recibe. El 11 de noviembre de 2026 se corrieron los cuatro escenarios en las tarjetas, en tiempo real, y los LED y
+displays se leyeron por la sonda de JTAG (tabla~\ref{tab:tarjetas}). La figura~\ref{fig:sistema} muestra el sistema
+al que apunta el prototipo.
 
-Para cerrar el lazo sin sensor ni insecto, una segunda DE10-Lite hace de insecto y de matriz
-térmica: calcula los 64 píxeles que vería la mochila según la distancia y el rumbo, los manda
-por UART y mueve a un insecto de prueba según los estímulos que recibe. Las unen dos líneas de
-UART cruzadas y tierra. El 11 de noviembre de 2026 se corrieron los cuatro escenarios en las
-tarjetas, en tiempo real; los LED y los displays se leyeron por la sonda de JTAG.
-
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\footnotesize
 \caption{Los cuatro escenarios del núcleo en dos DE10-Lite reales.}
 \label{tab:tarjetas}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.6cm}@{}}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.8cm}@{}}
 \toprule
 \rowcolor{TableHead} Escenario & Lo medido en las tarjetas & Simulación \\
 \midrule
-Persona a 1.65~m & Acercar a los 26.3~s con 2 píxeles; 8 píxeles a los 54.6~s; alerta a los 55.1~s, cuatro cuadros después; la otra tarjeta recibe la alerta & Alerta a los 55.6~s \\
+Persona a 1.65~m & Acercar a los 26.3~s; 8 píxeles a los 54.6~s; alerta a los 55.1~s, cuatro cuadros después & Alerta a los 55.6~s \\
 Objeto a 47.5~\textdegree C & Ningún píxel caliente, ni a 0.2~m; sin alerta en 45~s & Sin alerta \\
-Sin persona & Un pulso de avance cuando el insecto se detuvo; sin alerta en 75~s & Sin alerta \\
-Insecto que no responde & Reactivar a los 16 y a los 49~s; sin alerta en 75~s & Reactivar a los 16 y a los 49~s \\
+Sin persona & Un pulso de avance al detenerse; sin alerta en 75~s & Sin alerta \\
+No responde & Reactivar a los 16 y a los 49~s; sin alerta en 75~s & A los 16 y a los 49~s \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-El insecto de prueba no es el modelo de marcha de la simulación de misiones; es un banco con
-valores redondos que solo sirve para cerrar el lazo.
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.96\textwidth]{figs/sistema.png}
+\caption{Sistema completo: del enjambre al rescatista.}
+\label{fig:sistema}
+\end{figure}
 
 \subsection{Caso 2: la red de tres FPGA}
 \label{sec:casored}
 
-El banco \sig{tb\_tri} cablea las dos mochilas y el receptor como en el laboratorio y recorre
-nueve escenarios (tabla~\ref{tab:escenarios}). En siete de ellos lee además los seis displays
+El banco \sig{tb\_tri} recorre nueve escenarios (tabla~\ref{tab:escenarios}); en siete lee además los seis displays
 de cada tarjeta.
 
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\footnotesize
 \caption{Los nueve escenarios de la red. Resultado: 9 de 9 correctos.}
 \label{tab:escenarios}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries}c >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}c >{\raggedright\arraybackslash}p{3.1cm} >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{TableHead} N.º & Escenario & Qué se comprueba y qué se midió \\
 \midrule
-1 & Triangulación con puente & A a 32.00~m, fuera de alcance, y B a 31.56~m, las dos a 36~\textdegree C. El aviso de A llega por B; conteo 2 en las tres tarjetas; persona estimada a 6.2~cm de la real, 1.10~s después del encendido. Displays: \sig{APd2b-}, \sig{bPd2Ar}, \sig{rPd2-b} \\
+1 & Triangulación con puente & A a 32.00~m, fuera de alcance, y B a 31.56~m. El aviso de A llega por B; conteo 2 en las tres; persona a 6.2~cm de la real, 1.10~s después del encendido. Displays: \sig{APd2b-}, \sig{bPd2Ar}, \sig{rPd2-b} \\
 2 & Objeto caliente y bordes & 47~\textdegree C no cuenta. 34 y 39~\textdegree C no detectan; 35 y 38~\textdegree C sí \\
-3 & Una sola mochila & A detecta; B, cerca de la entrada y sin detectar, hace de puente. Conteo 1 en las tres. LED de B: 26~m a A y 5~m al receptor \\
+3 & Una sola mochila & A detecta; B, sin detectar, hace de puente. Conteo 1 en las tres \\
 4 & Rumbos opuestos & Las rectas no se cruzan: el receptor lo indica y promedia \\
-5 & Botón & Nada caliente; se aprieta el botón de B: conteo 1 en las tres y la posición es la de la mochila \\
-6 & Sin alcance & B lejos: las mochilas se oyen entre sí a 18~m, pero ninguna llega al receptor. Conteo 2, 2 y 0 \\
-7 & Seguir al sensor & Al salir de la ventana el conteo baja, y al volver, sube: 2, 1, 0, 1 (figura~\ref{fig:seguimiento}) \\
-8 & Ruido en la línea & Tres segundos de pulsos sobre la línea de B: 16 tramas descartadas por CRC y 18 perdidas contadas por número de secuencia; ningún dato equivocado. Al terminar triangula con el mismo error \\
-9 & Corte del alcance & A en siete posiciones: a 31.00~m se oye, por el eje X y por el eje Y; a 32.00~m, no. En diagonal, a 31.96~m se oye y a 32.0005~m no (figura~\ref{fig:umbral}) \\
+5 & Botón & Nada caliente; botón de B: conteo 1 en las tres, en la posición de la mochila \\
+6 & Sin alcance & Las mochilas se oyen a 18~m, pero ninguna llega al receptor. Conteo 2, 2 y 0 \\
+7 & Seguir al sensor & Al salir de la ventana el conteo baja y al volver sube: 2, 1, 0, 1 (figura~\ref{fig:seguimiento}) \\
+8 & Ruido en la línea & Tres segundos de pulsos: 16 tramas descartadas por CRC y 18 perdidas contadas por secuencia; ningún dato equivocado \\
+9 & Corte del alcance & A 31.00~m se oye por los dos ejes; a 32.00~m, no. En diagonal, a 31.96~m sí y a 32.0005~m no (figura~\ref{fig:umbral}) \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\begin{figure}[H]
+\begin{figure}[!htb]
 \centering
-\includegraphics[width=0.95\textwidth]{figs/red_seguimiento.png}
-\caption{Escenario 7, con los datos de la simulación del circuito. La detección aparece y desaparece
-unos 0.8~s después del cambio de temperatura; las mochilas actualizan su conteo un cuadro (0.1~s)
-antes que el receptor.}
+\includegraphics[width=0.88\textwidth]{figs/red_seguimiento.png}
+\caption{Escenario 7, con datos de la simulación del circuito. La detección aparece y desaparece unos 0.8~s después
+del cambio de temperatura.}
 \label{fig:seguimiento}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htb]
 \centering
-\includegraphics[width=0.95\textwidth]{figs/red_umbral.png}
-\caption{Escenario 9. Los tonos se pierden en cuanto la mochila pasa de 32~m; el enlace de radio se da
-por perdido un segundo después, cuando caduca la última trama. Los LED del receptor marcan 31~m o
-se apagan.}
+\includegraphics[width=0.88\textwidth]{figs/red_umbral.png}
+\caption{Escenario 9. Los tonos se pierden en cuanto la mochila pasa de 32~m; el enlace se da por perdido un segundo
+después, cuando caduca la última trama.}
 \label{fig:umbral}
 \end{figure}
 
-\textbf{La terminal del operador} se probó contra las tres tarjetas simuladas con sus módulos
-superiores: 71 de 71 comprobaciones, 57 en 14 pasos sobre el circuito y 14 sobre lo que la
-terminal contesta. Esto es lo que ve el operador con las dos detecciones:
+\textbf{La terminal del operador} se probó contra las tres tarjetas simuladas: 71 de 71 comprobaciones. Esto es parte
+de lo que ve el operador con las dos detecciones:
 
-{\scriptsize
+\noindent\begin{minipage}{\textwidth}\scriptsize
 \begin{verbatim}
-=============== BioBot-Rescue: vista del operador (receptor) ===============
-PERSONAS DETECTADAS: 2
-Persona estimada en (25.56, 19.25) m  ->  TRIANGULADA (dos rumbos)
-
+PERSONAS DETECTADAS: 2     Persona estimada en (25.56, 19.25) m  ->  TRIANGULADA (dos rumbos)
 Mochila A   [radio: por el puente B]   posicion (25.75, 19.00) m, a 32.00 m del receptor
             termica SI, 36 C | boton no | ALERTAR | pixeles calientes 14 | rumbo 133.6 grados
-            tonos: oye a B SI, oye al receptor no
 Mochila B   [radio: directo]   posicion (25.25, 19.00) m, a 31.56 m del receptor
             termica SI, 37 C | boton no | ALERTAR | pixeles calientes 12 | rumbo 43.2 grados
-            tonos: oye a A SI, oye al receptor SI
-
 Receptor    tonos: oye a A (1 kHz) no [potencia 43], oye a B (2 kHz) SI [potencia 27600]
             distancia entre A y B 0.50 m | LED 00000 11111 (A: no se oye | B: 31 m)
 Enlace      tramas perdidas: de A 0, de B 0 | descartadas por CRC 0
 \end{verbatim}
-}
+\end{minipage}
 
-\begin{table}[H]
+
+\begin{table}[!htb]
 \centering\footnotesize
-\caption{Síntesis de la red en Quartus Prime Lite 24.1 para la MAX~10 \sig{10M50DAF484C7G} (49\,760
-elementos lógicos), con reloj de 50~MHz. Frecuencia del peor caso (modelo lento, 85~\textdegree C).}
+\caption{Síntesis de la red en Quartus 24.1 (49\,760 elementos lógicos), reloj de 50~MHz. Peor caso: modelo lento,
+85~\textdegree C.}
 \label{tab:sintesisred}
 \rowcolors{2}{SoftGray}{white}
 \begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}X r r r r r@{}}
@@ -127,70 +115,109 @@ Receptor con la mochila B & 7\,525 (15~\%) & 4\,060 & 107 & 59.42 & 3.17 \\
 \end{tabularx}
 \end{table}
 
-Las cuatro variantes cumplen el reloj sin advertencias críticas. En la mochila, el núcleo ocupa
-405 elementos lógicos; el sensor simulado, 856; la recepción de tramas con CRC, 739; los tonos,
-355, y las dos distancias, 196. En el receptor, la triangulación ocupa 1\,509.
-
-\textbf{En las tarjetas.} El 18 de noviembre de 2026 las tres DE10-Lite corrieron seis escenarios
-correctos con la versión anterior del enlace (mapa de 20~m, suma de verificación simple y sin
-tonos), con 2.8~cm de error de triangulación y el aviso de A llegando por el puente; el sensor
-simulado detectó con 35, 36 y 38~\textdegree C y no con 34, 39, 47 ni 22~\textdegree C. La versión
-que aquí se describe, con CRC-16, tonos, mapa de 64~m y distancias exactas, está verificada por
-simulación y síntesis; su prueba en las tarjetas usa el mismo guion, \sig{sim/prueba\_tri.tcl}.
+\textbf{En las tarjetas.} El 18 de noviembre de 2026 las tres DE10-Lite corrieron seis escenarios correctos con la
+versión anterior del enlace (mapa de 20~m, suma de verificación y sin tonos), con 2.8~cm de error y el aviso de A
+por el puente; el sensor simulado detectó con 35, 36 y 38~\textdegree C y no con 34, 39, 47 ni 22~\textdegree C. La
+versión que aquí se describe está verificada por simulación y síntesis.
 
 \input{sections/04c_mision}
 
-\clearpage
 \subsection{Caso 4: el núcleo como circuito integrado}
 \label{sec:layout}
 
-El núcleo pasó el flujo de la sección~\ref{sec:flujo-layout} y produjo un GDS sin errores
-(figura~\ref{fig:layout} y tabla~\ref{tab:layout}).
+El núcleo produjo un GDS sin errores (figura~\ref{fig:layout} y tabla~\ref{tab:layout}). Mide
+$217.7\times228.4~\mu$m, \textbf{0.050~mm$^2$}, y consume \textbf{0.58~mA} a 1.8~V en espera. La frecuencia máxima
+se estima con el margen medido, $f\approx1/(20~\text{ns}-\text{margen})$.
 
-\begin{figure}[H]
+\begin{figure}[!htb]
 \centering
-\begin{subfigure}{0.47\textwidth}
+\begin{subfigure}{0.42\textwidth}
 \includegraphics[width=\linewidth]{../layout/resultados/nucleo_biobot_klayout.png}
-\caption{El dado completo: $217.7\times228.4~\mu$m.}
-\end{subfigure}\hfill
-\begin{subfigure}{0.47\textwidth}
+\caption{El dado: $217.7\times228.4~\mu$m.}
+\end{subfigure}\hspace{0.04\textwidth}
+\begin{subfigure}{0.42\textwidth}
 \includegraphics[width=\linewidth]{../layout/resultados/nucleo_biobot_detalle.png}
-\caption{Acercamiento de $25\times25~\mu$m: filas de celdas con sus transistores.}
+\caption{Acercamiento de $25\times25~\mu$m.}
 \end{subfigure}
 
 \medskip
-\begin{subfigure}{0.62\textwidth}
-\includegraphics[width=\linewidth]{../layout/resultados/klayout_escritorio_vm.png}
-\caption{El GDS abierto en KLayout, en la máquina virtual.}
+\begin{subfigure}{0.42\textwidth}
+\includegraphics[width=\linewidth]{../layout/resultados/chip_color.png}
+\caption{Los cinco metales y los pines.}
+\end{subfigure}\hspace{0.04\textwidth}
+\begin{subfigure}{0.42\textwidth}
+\includegraphics[width=\linewidth]{../layout/resultados/chip_color_acercamiento.png}
+\caption{Acercamiento a las filas de celdas.}
 \end{subfigure}
-\caption{Layout del núcleo de la mochila en SKY130. Se dibujan las capas físicas: difusión (verde),
-polisilicio (rojo), interconexión local (crema), metal~1 (azul), metal~2 (magenta) y metal~3 (cian). Los
-metales~4 y~5 llevan la alimentación.}
+\caption{Layout del núcleo en SKY130: difusión (verde), polisilicio (rojo), interconexión local (crema), metal~1
+(azul), metal~2 (magenta) y metal~3 (cian).}
 \label{fig:layout}
 \end{figure}
 
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\footnotesize
 \caption{Resultados del layout (LibreLane 3.0.17, \sig{sky130\_fd\_sc\_hd}, reloj de 20~ns).}
 \label{tab:layout}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{0.92\textwidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{6.3cm}@{}}
+\begin{tabularx}{0.92\textwidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{7.0cm}@{}}
 \toprule
 \rowcolor{TableHead} \textbf{Medida} & \textbf{Valor} \\
 \midrule
-Área del dado & 49\,731~$\mu$m$^2$ = 0.050~mm$^2$ \\
-Área de las celdas colocadas & 22\,615~$\mu$m$^2$ = 0.023~mm$^2$ (ocupación de 53.7~\%) \\
+Área del dado; de las celdas colocadas & 0.050~mm$^2$; 0.023~mm$^2$ (ocupación de 53.7~\%) \\
 Celdas estándar & 2\,671, de ellas 253 flip-flops \\
-Búferes de reparación de tiempos y árbol de reloj & 485 y 67 \\
-Margen de \emph{setup} a 50~MHz, peor esquina & +4.94~ns (+6.07~ns entre registros) \\
-Margen de \emph{hold}, peor esquina & +0.11~ns \\
+Búferes de reparación y de árbol de reloj & 485 y 67 \\
+Margen de \emph{setup} y de \emph{hold}, peor esquina & +4.94~ns y +0.11~ns \\
 Frecuencia máxima estimada & 72~MHz (lenta), 143~MHz (típica), 220~MHz (rápida) \\
-Potencia a 50~MHz, sin vectores & 2.47~mW \\
-DRC (Magic y KLayout), LVS (Netgen) y antenas & 0 errores; LVS: los circuitos coinciden \\
+Corriente a 1.8~V y 50~MHz, en espera & 0.577~mA (1.04~mW) \\
+DRC (Magic y KLayout), LVS (Netgen) y antenas & 0 errores; los circuitos coinciden \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-La frecuencia máxima se estima con el margen medido, $f\approx1/(20~\text{ns}-\text{margen})$, sin
-volver a optimizar para esa frecuencia. La potencia supone una actividad de conmutación por
-omisión; en la mochila la lógica cambia diez veces por segundo, así que el consumo real es menor.
+\subsubsection{Área y consumo de corriente}
+\label{sec:areacorriente}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=\textwidth]{../layout/resultados/layout_area_corriente.png}
+\caption{Área y corriente del layout: medidas del dado, reparto del área de celdas y corriente por esquina.}
+\label{fig:areacorriente}
+\end{figure}
+
+El área sale del layout terminado. Del dado, el núcleo interior ocupa 0.042~mm$^2$ y las celdas 0.0226~mm$^2$: el
+46~\% son compuertas, el 29~\% flip-flops, el 17~\% búferes de tiempo, el 4~\% árbol de reloj y el 3~\% celdas de pozo
+(figura~\ref{fig:areacorriente}). La corriente se calculó con OpenSTA sobre el netlist final, con los parásitos del
+ruteo, en dos formas: con la actividad de conmutación por omisión, que es la cota alta, y con la actividad real de una
+simulación del netlist de compuertas, guardada en un VCD. Se midieron tres condiciones: en espera, con un tren de
+estímulo en curso y con cuadros seguidos, un píxel por ciclo, que es el peor caso (tabla~\ref{tab:corriente}).
+
+\begin{table}[!htb]
+\centering\footnotesize
+\caption{Potencia y corriente del núcleo a 50~MHz, $I=P/V_{DD}$.}
+\label{tab:corriente}
+\rowcolors{2}{SoftGray}{white}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}X r r r r r r@{}}
+\toprule
+\rowcolor{TableHead} & \multicolumn{2}{c}{\textbf{Lenta, 1.60~V, 100~\textdegree C}} & \multicolumn{2}{c}{\textbf{Típica, 1.80~V, 25~\textdegree C}} & \multicolumn{2}{c}{\textbf{Rápida, 1.95~V, $-40$~\textdegree C}} \\
+\rowcolor{TableHead} Condición & mW & mA & mW & mA & mW & mA \\
+\midrule
+En espera & 0.828 & 0.517 & 1.038 & 0.577 & 1.207 & 0.619 \\
+Tren de estímulo & 0.838 & 0.524 & 1.051 & 0.584 & 1.222 & 0.627 \\
+Cuadros seguidos & 0.891 & 0.557 & 1.117 & 0.621 & 1.299 & 0.666 \\
+Actividad por omisión & 1.687 & 1.054 & 2.115 & 1.175 & 2.451 & 1.257 \\
+Fuga & 0.0143 & 0.0090 & 0.00003 & 0.00001 & 0.00004 & 0.00002 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Casi toda la corriente es del reloj: en espera, la mitad la gasta su árbol y la otra mitad los flip-flops que lo
+reciben, y la lógica no llega a un microamperio. Como la potencia dinámica es proporcional a la frecuencia y el núcleo
+procesa diez cuadros por segundo, con un reloj de 1~MHz serían unos 12~$\mu$A; el módulo ya recibe la frecuencia como
+parámetro (\sig{CLK\_FREQ}). La caída en la red de alimentación es de 0.42~mV en el peor punto, el 0.02~\% de 1.8~V.
+
+\textbf{Frente a la FPGA y a la mochila.} El analizador de Quartus estima, sumando todas las alimentaciones de la
+MAX~10, 63.5~mA para el prototipo del núcleo, 83.8~mA para la mochila de la red y 87.2~mA para el receptor, de los que
+solo 4.4, 24.0 y 27.0~mA son dinámicos del núcleo lógico; la herramienta marca la confianza como baja por no tener
+actividad medida. El chip baja esa cuenta unas cien veces. En la mochila completa, que gasta unos 30~mW (8.1~mA de una
+batería de 3.7~V), el núcleo es cerca del 3~\% de la potencia: mandan el sensor y la radio.
+

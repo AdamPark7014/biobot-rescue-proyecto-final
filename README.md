@@ -154,6 +154,10 @@ de 3 m, el receptor lo indica y usa la aproximación de cada mochila por separad
 
 ![Bloques del núcleo digital](latex/figs/nucleo_digital.png)
 
+El mismo núcleo en el RTL Viewer de Quartus:
+
+![Núcleo en el RTL Viewer](latex/figs/rtl/rtl_nucleo.png)
+
 `nucleo_biobot` recibe los 64 píxeles de la matriz térmica y la actividad del insecto. Cuenta los píxeles
 dentro de la ventana de temperatura de la piel, los filtra con una media móvil y decide si hay presencia;
 una máquina de ocho estados elige qué hacer en cada momento. El estímulo sale como un tren de pulsos de 50 Hz.
@@ -406,8 +410,8 @@ Lo que **no** está hecho:
 Trabajo futuro:
 
 - **Circuito integrado.** El núcleo ya tiene layout en SKY130 con el flujo abierto LibreLane, el
-  sucesor de OpenLane: 0.050 mm², DRC y LVS sin errores y unos 72 MHz en la esquina lenta
-  ([layout/LEEME.md](layout/LEEME.md)). Falta fabricarlo en una corrida compartida y medirlo.
+  sucesor de OpenLane: 0.050 mm², 0.58 mA a 1.8 V y 50 MHz en espera, DRC y LVS sin errores y unos 72 MHz
+  en la esquina lenta ([layout/LEEME.md](layout/LEEME.md)). Falta fabricarlo en una corrida compartida y medirlo.
 - **Sensores reales**: matriz térmica AMG8833 o MLX90640, micrófono MEMS y sensor de CO₂, con un
   clasificador a bordo que fusione las tres señales.
 - **Distancia por tonos**: medir la potencia recibida o el tiempo de llegada para estimar la distancia, y no
@@ -421,7 +425,8 @@ Trabajo futuro:
 
 - [Reporte del proyecto final y práctica 5 (PDF)](Reporte_Proyecto_Final_y_Practica_5_BioBot-Rescue.pdf), con
   estructura de artículo y las referencias en formato IEEE.
-- [Layout del núcleo en SKY130](layout/LEEME.md): GDS, métricas e imágenes.
+- [Artículo de congreso (PDF)](Articulo_Congreso_BioBot-Rescue.pdf), ocho páginas en formato IEEE.
+- [Layout del núcleo en SKY130](layout/LEEME.md): GDS, área, consumo de corriente e imágenes.
 - [Resumen de una página (PDF)](BioBot-Rescue_en_una_pagina.pdf).
 - [Guía de laboratorio](GUIA_LABORATORIO.md).
 - [Notas de investigación](investigacion/): biología, estimulación, hardware, búsqueda y rescate, ética y

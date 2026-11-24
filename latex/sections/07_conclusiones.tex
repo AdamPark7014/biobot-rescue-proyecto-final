@@ -1,79 +1,54 @@
 \section{Conclusiones y trabajo futuro}
 \label{sec:conclusiones}
 
-\subsection{Limitaciones}
-
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\footnotesize
 \caption{Limitaciones del trabajo.}
 \label{tab:riesgos}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{4.6cm} >{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{5.0cm} >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{TableHead} Limitación & Consecuencia y manejo \\
 \midrule
-El sensor térmico y los tonos están simulados dentro de la FPGA & No se conectó una matriz térmica ni un micrófono. Los bloques que procesan esas señales son los definitivos; falta medir alcance y falsas alarmas con sensores reales \\
+Sensor térmico y tonos simulados en la FPGA & Los bloques que los procesan son los definitivos; falta medir alcance y falsas alarmas \\
 No hubo pruebas con insectos & La respuesta al estímulo y la marcha vienen de la literatura \\
-El radio es un cable & El alcance de 32~m es un parámetro; la atenuación real entre escombros está calculada, no medida \\
-La posición de cada mochila se da por conocida & En el sistema real saldría de la navegación inercial y de los tonos, con el error de la sección~\ref{sec:deteccion} \\
-El receptor solo escucha & Si las dos mochilas quedan a 32~m o más entre sí, cada una muestra su propia detección y solo el receptor muestra el total \\
-La versión final de la red no se ha repetido en las tarjetas & Está verificada por simulación y síntesis; en hardware se probó la versión anterior del enlace \\
-La simulación de misión no es un colapso real & Los mapas son sintéticos y en dos dimensiones. Sirve para comparar políticas, no para predecir tiempos de rescate \\
-La detección falla con ambiente caliente & Límite físico por encima de unos 30~\textdegree C; se propone CO$_2$ como señal adicional \\
-Recuperar insectos y mochilas está resuelto a medias & En simulación, un refugio y un faro en la entrada recuperan \regFaroDos~\% en dos horas; el faro no se ha medido \\
-La ley exige confinamiento & El proyecto se limita a recinto cerrado \\
+El radio es un cable & El alcance de 32~m es un parámetro; la atenuación está calculada, no medida \\
+Posición conocida de cada mochila & En el sistema real saldría de la navegación inercial y de los tonos \\
+El receptor solo escucha & Si A y B quedan a 32~m o más entre sí, solo el receptor muestra el total \\
+Versión final de la red sin repetir en tarjetas & Verificada por simulación y síntesis; en hardware se probó la versión anterior \\
+Colapsos sintéticos y en dos dimensiones & Sirven para comparar políticas, no para predecir tiempos de rescate \\
+Ambiente caliente y confinamiento legal & Límites del animal y de la ley: definen dónde no debe usarse \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Conclusiones}
-
 \begin{enumerate}
-  \item \textbf{El insecto carga menos de lo que se cita.} La meta defendible es una mochila de 2 a 3~g y
-        de perfil bajo. La masa del cómputo es despreciable; mandan la batería y el sensor.
-  \item \textbf{El núcleo existe, está verificado y cabe en un chip.} 477 elementos lógicos, idéntico a
-        su modelo de referencia en 11\,424 cuadros y probado en dos tarjetas reales. En SKY130 ocupa
-        0.050~mm$^2$, pasa DRC y LVS y alcanza la misma frecuencia que en la FPGA.
-  \item \textbf{Tres FPGA bastan para detectar, avisar y ubicar sin computadora.} La red cuenta las
-        personas en las tres tarjetas, retransmite el aviso de la mochila que quedó fuera de alcance
-        y triangula con 6.2~cm de error a 31.95~m, en 1.10~s. Pasa los nueve escenarios, incluidos el
-        ruido en la línea y el corte exacto en 32~m.
-  \item \textbf{En punto fijo, el error se mide, no se supone.} Dieciséis iteraciones del CORDIC dan
-        0.017\textdegree; más iteraciones no mejoran. La distancia por CORDIC truncado fallaba en más
-        de la mitad de las distancias exactas, y una raíz cuadrada entera la dejó sin error con la
-        quinta parte de la lógica. El PID difiere del de aritmética real en menos de una cuenta, y
-        sin la protección del integrador su salida se queda en el tope.
-  \item \textbf{Guiar ayuda, sin milagros.} En la simulación, la política guiada sube la detección en
-        una hora de \pPasivaSesenta~\% a \pGuiadaSesenta~\% con diez insectos. Pesan más el número
-        de insectos y la forma del colapso que la política, y en uno de los ocho colapsos guiar
+  \item \textbf{El insecto carga menos de lo que se cita.} La meta defendible es una mochila de 2 a 3~g y de perfil
+        bajo; la masa del cómputo es despreciable y mandan la batería y el sensor.
+  \item \textbf{El núcleo existe, está verificado y cabe en un chip.} 477 elementos lógicos, idéntico a su modelo de
+        referencia en 11\,424 cuadros y probado en dos tarjetas. En SKY130 ocupa 0.050~mm$^2$, pasa DRC y LVS y
+        alcanza la misma frecuencia que en la FPGA, con 0.58~mA a 1.8~V en espera.
+  \item \textbf{Tres FPGA bastan para detectar, avisar y ubicar sin computadora.} La red retransmite el aviso de la
+        mochila fuera de alcance y triangula con 6.2~cm de error a 31.95~m, en 1.10~s. Pasa los nueve escenarios,
+        incluidos el ruido y el corte exacto en 32~m.
+  \item \textbf{En punto fijo, el error se mide, no se supone.} Dieciséis iteraciones del CORDIC dan 0.017\textdegree{} y
+        más no mejoran; la distancia por CORDIC truncado fallaba en más de la mitad de las distancias exactas y una
+        raíz entera la dejó sin error con la quinta parte de la lógica; el PID difiere del de aritmética real en menos
+        de una cuenta.
+  \item \textbf{Guiar ayuda, sin milagros.} La detección en una hora sube de \pPasivaSesenta~\% a \pGuiadaSesenta~\%
+        con diez insectos, pero pesan más el número de insectos y la forma del colapso, y en uno de los ocho guiar
         empeora el resultado.
-  \item \textbf{Para que vuelvan hace falta una señal en la entrada.} Esperarlos en un refugio recupera
-        \regTrampaDos~\% en dos horas; con un faro que la mochila pueda seguir vuelve \regFaroDos~\%.
-        Ningún método los recupera a todos.
-  \item \textbf{Los límites son del animal y de la ley.} Temperatura, recuperación y confinamiento
-        definen dónde no debe usarse, y decirlo es parte del resultado.
+  \item \textbf{Para que vuelvan hace falta una señal en la entrada.} El refugio recupera \regTrampaDos~\% en dos horas
+        y un faro, \regFaroDos~\%; ningún método los recupera a todos.
 \end{enumerate}
 
-\textbf{Sobre la hipótesis.} Se sostiene en parte: la política aumenta la detección sin habituación
-y cabe en miligramos de silicio, pero la mejora depende del colapso. La segunda mitad, que dos
-mochilas bastan para ubicar a la persona, se cumplió en simulación y síntesis con el sensor
-simulado; falta repetirla con sensores reales.
+\textbf{Sobre la hipótesis.} Se sostiene en parte: la política aumenta la detección sin habituación y cabe en
+miligramos de silicio, pero la mejora depende del colapso. Que dos mochilas bastan para ubicar a la persona se
+cumplió en simulación y síntesis con el sensor simulado; falta repetirlo con sensores reales.
 
-\subsection{Trabajo futuro}
-
-\begin{itemize}
-  \item \textbf{Fabricar el chip.} El GDS del núcleo ya pasa la verificación física; el siguiente paso es
-        enviarlo en una corrida compartida de bajo costo, como las de Tiny Tapeout~\cite{tinytapeout},
-        y medir consumo y frecuencia en silicio. Después, llevar al mismo flujo el detector de tonos.
-  \item \textbf{Sensores reales.} Una matriz térmica AMG8833 o MLX90640, un micrófono MEMS con su
-        convertidor en lugar del canal simulado, y un sensor de CO$_2$ para el ambiente caliente.
-  \item \textbf{Distancia por tonos.} Medir la potencia recibida o el tiempo de llegada para estimar la
-        distancia, y no solo saber a quién se oye; con eso la posición de cada mochila dejaría de
-        darse por conocida.
-  \item \textbf{Red con más nodos y receptor que retransmite,} para que el conteo sea el mismo en todas
-        las mochilas aunque no se oigan entre sí.
-  \item \textbf{Regreso de los insectos:} un faro infrarrojo en la entrada que la mochila siga con dos
-        fotodiodos, cerrando el lazo con el controlador PID ya verificado.
-  \item \textbf{Pruebas en recinto cerrado} con la colonia de la universidad, con el protocolo de la
-        sección~\ref{sec:etica}, para medir el ángulo de giro por pulso de luz ultravioleta.
-\end{itemize}
+\textbf{Trabajo futuro.} (1) Enviar el GDS a una corrida compartida como Tiny Tapeout~\cite{tinytapeout}, medirlo en
+silicio y llevar al mismo flujo el detector de tonos. (2) Conectar una matriz AMG8833 o MLX90640, un micrófono MEMS y
+un sensor de CO$_2$. (3) Estimar la distancia por tonos, para que la posición deje de darse por conocida. (4) Más
+nodos y un receptor que retransmita. (5) El regreso con faro y dos fotodiodos, cerrando el lazo con el PID ya
+verificado. (6) Pruebas en recinto cerrado con la colonia de la universidad y el protocolo de la
+sección~\ref{sec:etica}.

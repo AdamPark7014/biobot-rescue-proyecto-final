@@ -1,201 +1,268 @@
-\subsection{La red de tres FPGA}
+\subsection{La red de tres FPGA, módulo por módulo}
 \label{sec:red}
 
-Una mochila que detecta sola no le dice al rescatista dónde cavar, y su radio no atraviesa el
-concreto (sección~\ref{sec:deteccion}). La red resuelve las dos cosas con lo que ya hay en el
-escombro: otra mochila. Dos mochilas que ven a la misma persona desde lugares distintos
-bastan para ubicarla, y la que quedó cerca de la entrada retransmite el aviso de la que quedó
-lejos. La demostración usa tres DE10-Lite (figura~\ref{fig:tresfpga}): dos hacen de mochilas
-de dos insectos, A y B, y la tercera es el receptor del operador, en la entrada del derrumbe.
+Una mochila que detecta sola no le dice al rescatista dónde cavar, y su radio no atraviesa el concreto. La red
+resuelve las dos cosas con otra mochila: dos que ven a la misma persona desde lugares distintos bastan para
+ubicarla, y la que quedó cerca de la entrada retransmite el aviso de la que quedó lejos. La demostración usa tres
+DE10-Lite (figura~\ref{fig:tresfpga}): dos son las mochilas A y B y la tercera, el receptor del operador.
 
-\begin{figure}[H]
+\begin{figure}[!htb]
 \centering
-\includegraphics[width=\textwidth]{figs/red_tres_fpga.png}
+\includegraphics[width=0.97\textwidth]{figs/red_tres_fpga.png}
 \caption{Las tres tarjetas, sus enlaces por UART y la computadora del operador.}
 \label{fig:tresfpga}
 \end{figure}
 
-\subsubsection{Qué hace cada nodo}
+Los interruptores SW5--SW0 fijan en grados la temperatura que lee la matriz simulada; una mochila detecta entre 35
+y 38~\textdegree C, o si se sostiene KEY1 (el botón de ayuda que va sobre el insecto) 0.1~s. Los parámetros son
+parámetros de los módulos (tabla~\ref{tab:parametrosred}) y la tabla~\ref{tab:displays} dice qué se ve en cada
+tarjeta.
 
-\begin{itemize}
-  \item \textbf{Cada mochila} corre el núcleo de la sección~\ref{sec:nucleo}, sin cambiarle nada, sobre
-        un sensor térmico simulado: los interruptores SW5--SW0 fijan, en grados y en binario, la
-        temperatura que lee la matriz. Detecta a una persona de dos formas redundantes: por
-        temperatura, entre 35 y 38~\textdegree C, y por el botón de ayuda que va sobre el insecto.
-        Mide en qué dirección ve el calor, emite un tono propio, transmite su estado diez veces por
-        segundo y retransmite una vez las tramas de la otra mochila.
-  \item \textbf{El receptor} junta lo que llega, cuenta las personas detectadas, cruza los rumbos de
-        las dos mochilas para estimar dónde está la persona y deja todo en registros que la
-        computadora lee.
-  \item \textbf{La computadora} muestra esos registros en una terminal y manda órdenes de prueba.
-        No hace ninguna cuenta del sistema (tabla~\ref{tab:reparto}).
-\end{itemize}
-
-Los parámetros de la demostración son parámetros de los módulos, con nombre
-(tabla~\ref{tab:parametrosred}).
-
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\footnotesize
 \caption{Parámetros de la demostración y dónde están en el código.}
 \label{tab:parametrosred}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{4.3cm}@{}}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{4.6cm}@{}}
 \toprule
 \rowcolor{TableHead} Parámetro & Valor & En el código \\
 \midrule
-Ventana de temperatura de una persona & 35 a 38~\textdegree C, las dos incluidas & \sig{T\_PERSONA\_MIN}, \sig{T\_PERSONA\_MAX} \\
-Sensor térmico simulado & SW5--SW0: grados en binario, de 0 a 63 & \sig{sw[5:0]} de \sig{tri\_mochila} \\
-Segunda detección & KEY1 sostenido 0.1~s; queda marcado hasta el reset & \sig{T\_PULSA\_MS} \\
-Conteo de personas & 0, 1 o 2, igual en las tres tarjetas y en la terminal; baja si la temperatura sale de la ventana & \sig{cuenta\_pd}, \sig{REARMA} \\
-Alcance del radio y de los tonos & Menos de 32~m: a 31~m se oye; a 32~m o más, no & \sig{ALCANCE\_M} \\
-Escala de distancias & 10 bits, de 0 a 64~m: 6.25~cm por cuenta. Cinco metros son 80 cuentas, el 7.8~\% de la escala & \sig{tri\_distancia} \\
-Tonos & A 1~kHz, B 2~kHz y receptor 4~kHz; umbral de potencia de 4\,000 & \sig{tri\_tonos}, \sig{UMBRAL} \\
-Enlace & UART 8N1 a 115\,200 baudios; trama de 16 bytes cada 100~ms & \sig{BAUD\_RATE}, \sig{tri\_tx\_n}, \sig{tri\_rx\_n} \\
+Ventana de persona & 35 a 38~\textdegree C, las dos incluidas & \sig{T\_PERSONA\_MIN}, \sig{T\_PERSONA\_MAX} \\
+Conteo de personas & 0, 1 o 2, igual en las tres; baja si la temperatura sale de la ventana & \sig{cuenta\_pd}, \sig{REARMA} \\
+Alcance & Menos de 32~m: a 31~m se oye; a 32~m, no & \sig{ALCANCE\_M} \\
+Escala & 10 bits, 0 a 64~m: 6.25~cm por cuenta (5~m = 80 cuentas, 7.8~\%) & \sig{tri\_distancia} \\
+Tonos & A 1~kHz, B 2~kHz, receptor 4~kHz; umbral de 4\,000 & \sig{tri\_tonos}, \sig{UMBRAL} \\
+Enlace & UART 8N1 a 115\,200 baudios; trama de 16 bytes cada 100~ms & \sig{tri\_tx\_n}, \sig{tri\_rx\_n} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsubsection{Lo que se ve en cada tarjeta}
-
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\footnotesize
-\caption{Displays y LED de la red. Un guion en HEX1 o HEX0 quiere decir que no se oye a ese nodo.}
+\caption{Displays y LED. Un guion en HEX1 o HEX0 quiere decir que no se oye a ese nodo.}
 \label{tab:displays}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{0.92\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{TableHead} Indicador & En una mochila & En el receptor \\
 \midrule
-HEX5 & Quién es: \sig{A} o \sig{b} & \sig{r} \\
-HEX4--HEX3 & \sig{Pd}, personas detectadas & \sig{Pd} \\
-HEX2 & Cuántas: 0, 1 o 2 & Lo mismo \\
-HEX1 & La letra de la otra mochila, si oye su tono & \sig{A}, si oye el tono de A \\
-HEX0 & \sig{r}, si oye el tono del receptor & \sig{b}, si oye el tono de B \\
-LEDR9--5 & Metros a la otra mochila, en binario & Metros a la mochila A \\
-LEDR4--0 & Metros al receptor & Metros a la mochila B \\
+HEX5; HEX4--3; HEX2 & \sig{A} o \sig{b}; \sig{Pd}; personas: 0, 1 o 2 & \sig{r}; \sig{Pd}; lo mismo \\
+HEX1; HEX0 & Letra de la otra mochila; \sig{r}, si oye su tono & \sig{A}; \sig{b}, si oye su tono \\
+LEDR9--5; LEDR4--0 & Metros a la otra mochila; al receptor & Metros a A; a B \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Con cinco LED se cuentan hasta 31~m, que es justo el alcance. Los metros van sin redondear
-(31.9~m marca 31), y un nodo que se oye marca al menos 1 aunque esté a menos de un metro: así,
-los cinco LED apagados quieren decir siempre «no lo oigo».
+Los metros van en binario y sin redondear (31.9~m marca 31), y un nodo que se oye marca al menos 1: los cinco LED
+apagados quieren decir siempre «no lo oigo». La persona está en $(25.50,\,19.25)$~m, a 31.95~m del receptor, justo
+en el borde del alcance: de dos mochilas junto a ella, una puede quedar dentro y la otra fuera, y entonces la
+primera hace de puente (figura~\ref{fig:mapared}).
 
-\subsubsection{Mapa, escala y alcance}
-
-Las posiciones van en 10 bits sobre un mapa de 0 a 64~m, de modo que una cuenta vale 6.25~cm.
-El receptor está en $(0,0)$ y la persona en $(25.50,\,19.25)$~m, a 31.95~m: justo en el borde
-del alcance. Por eso, de dos mochilas que están junto a la persona, una puede quedar dentro
-del alcance y la otra fuera, y entonces la primera hace de puente (figura~\ref{fig:mapared}).
-
-\begin{figure}[H]
+\begin{figure}[!htb]
 \centering
-\includegraphics[width=\textwidth]{figs/red_mapa.png}
+\includegraphics[width=0.97\textwidth]{figs/red_mapa.png}
 \caption{El mapa de 64~m con el alcance de 32~m, y el acercamiento donde se cruzan los dos rumbos.}
 \label{fig:mapared}
 \end{figure}
 
-La distancia entre dos nodos se calcula exacta, con una raíz cuadrada entera
-(sección~\ref{sec:raiz}), y la regla del alcance usa la misma suma de cuadrados:
-\begin{equation}
-d=\left\lfloor\sqrt{\Delta x^2+\Delta y^2}\,\right\rfloor\ \text{cuentas},\qquad
-\text{se oye si}\quad \Delta x^2+\Delta y^2<(16\times32)^2 .
-\label{eq:alcance}
-\end{equation}
-Como las dos salen del mismo número, no pueden contradecirse: un nodo se oye exactamente
-cuando su distancia marca menos de 32.00~m.
-
 \subsubsection{Protocolo de enlace}
 
-El enlace es UART 8N1 a 115\,200 baudios, el de la práctica~4, con una trama propia de 16 bytes
-que cada mochila transmite cada 100~ms (figura~\ref{fig:trama}).
+Cada mochila transmite cada 100~ms una trama propia de 16 bytes (figura~\ref{fig:trama}). El byte de ruta
+distingue al \emph{origen}, la mochila que midió, del \emph{emisor}, la que transmite esta copia.
 
-\begin{figure}[H]
+\begin{figure}[!htb]
 \centering
 \includegraphics[width=\textwidth]{figs/red_trama.png}
 \caption{Los 16 bytes de la trama de una mochila.}
 \label{fig:trama}
 \end{figure}
 
-El byte de ruta distingue al \emph{origen}, la mochila que midió, del \emph{emisor}, la que
-transmite esta copia. Quien recibe aplica cinco reglas:
+Quien recibe aplica cinco reglas: descarta la trama si el CRC-16 no coincide o si se corta más de 2~ms; solo la
+acepta si el emisor está a menos de 32~m; una mochila reenvía una sola vez las tramas de la otra, con el contador
+de saltos incrementado; con el número de secuencia cuenta las tramas perdidas y reconoce las repetidas, y si en un
+segundo no llega nada, da por perdida a esa mochila. El CRC usa el polinomio \sig{0x1021} con valor inicial
+\sig{0xFFFF}, y un código cíclico de 16 bits detecta toda ráfaga de 16 bits o menos~\cite{peterson1961}.
+
+\modulo{tri\_tx\_n}{hdl/tri\_red.v}{209 EL, 172 R}
+Transmite una cabecera, $N$ bytes de carga y el CRC. Una máquina de cuatro estados pide un byte a \sig{uart\_tx},
+espera a que arranque y a que termine. La carga está en un registro de corrimiento y el CRC se actualiza byte por
+byte con una función que desenrolla las ocho divisiones, así que cuesta un ciclo por byte. Con $N=13$ arma la
+trama de 16 bytes; con $N=32$ y cabecera \sig{0xA6}, el resumen de 35 bytes del receptor (364~EL).
+
+\modulo{tri\_rx\_n}{hdl/tri\_red.v}{370 EL, 305 R}
+Hace lo contrario: espera la cabecera, guarda $N$ bytes mientras calcula el CRC y lo compara con los dos últimos.
+Si coincide entrega la carga con un pulso \sig{listo}; si no, o si pasan 2~ms sin bytes, levanta \sig{mala}. Cada
+nodo tiene dos, uno por línea de entrada.
+
+\subsubsection{La mochila}
+
+\modulo{tri\_posicion}{hdl/tri\_red.v}{15 EL}
+Tabla combinacional de 16 posiciones $(x,y)$ que eligen SW9--SW6 cuando la terminal no fija otra: cinco junto a la
+persona y las demás entre la entrada y fuera del alcance.
+
+\modulo{tri\_escena}{hdl/tri\_red.v}{856 EL, 196 R}
+Sustituye a la matriz, a la IMU y al insecto. En cada cuadro un CORDIC en vectorización convierte la diferencia
+entre la persona y la mochila en rumbo y distancia. Al cambiar de posición, el insecto queda girado 12\textdegree{}
+(A) o $-9$\textdegree{} (B) respecto a la persona, y cada estímulo de giro lo rota 15\textdegree. El ángulo
+relativo se pasa a cuartos de columna (1.875\textdegree) y, si cae dentro de $\pm60$\textdegree, se dibuja una
+mancha circular cuyo radio sale de una tabla según la distancia, recortada a 0.38~m para que siempre alcance el
+umbral en la demostración. Dentro de la mancha el píxel vale la temperatura de los interruptores y fuera,
+22~\textdegree C, con un bit de ruido. El núcleo recibe esos 64 píxeles como los recibiría del sensor.
+
+\modulo{tri\_mochila}{hdl/tri\_red.v}{3\,605 EL, 2\,027 R}
+Es la mochila completa (figura~\ref{fig:dmochila}) y hace seis cosas a la vez:
 \begin{itemize}
-  \item Descarta la trama si el CRC-16 no coincide o si se interrumpe más de 2~ms. El CRC usa el
-        polinomio \sig{0x1021} con valor inicial \sig{0xFFFF} sobre los bytes 1 a 13; un código
-        cíclico de 16 bits detecta toda ráfaga de errores de 16 bits o menos~\cite{peterson1961}.
-  \item Solo la acepta si el emisor está a menos de 32~m: así se simula el alcance del radio.
-  \item Una mochila reenvía una sola vez las tramas de la otra, con el contador de saltos
-        incrementado. Es lo que permite el puente.
-  \item Con el número de secuencia, el receptor cuenta las tramas perdidas y reconoce la que le
-        llega repetida por dos caminos.
-  \item Si en un segundo no llega nada de una mochila, la da por perdida.
+  \item \textbf{Cuadros.} Cada 100~ms pide la escena, espera al CORDIC, entrega los 64 píxeles al núcleo, uno por
+        ciclo, y después deja avanzar al insecto.
+  \item \textbf{Rearme.} Si hay alerta y pasan cinco cuadros sin mancha, reinicia el núcleo: la detección sigue al
+        sensor. El botón se marca aparte y dura hasta el reset.
+  \item \textbf{Rumbo.} Suma las columnas de los píxeles calientes, las multiplica por 1\,365 (7.5\textdegree{} en la
+        escala de 16 bits) y un divisor de 20 entre 7 bits da el centroide; restado del rumbo del insecto, es el
+        rumbo hacia el calor. Con el conteo filtrado estima además la distancia, de 12~cm a 1.06~m.
+  \item \textbf{Radio.} Dos receptores aceptan solo tramas de la otra mochila con el emisor dentro del alcance. Manda
+        su trama cada 100~ms y, si oyó una hace menos de 0.5~s con menos de dos saltos, la reenvía.
+  \item \textbf{Vecinos.} Calcula las distancias a la otra mochila y al receptor y escucha los tonos.
+  \item \textbf{Displays y LED.} Muestra quién es, el conteo, a quién oye y a cuántos metros.
 \end{itemize}
 
-\subsubsection{Reconocer a los vecinos por tonos}
+\begin{figure}[!htb]
+\centering
+\begin{tikzpicture}[every node/.style={font=\footnotesize}]
+\node[ext,minimum width=2.5cm] (sw) at (0,0) {SW, KEY1\\sonda JTAG};
+\node[blk,minimum width=2.6cm] (po) at (3.6,1.1) {\sig{tri\_posicion}};
+\node[blk,minimum width=2.6cm] (es) at (3.6,0) {\sig{tri\_escena}\\(\sig{cordic})};
+\node[blk,minimum width=2.6cm] (nu) at (7.4,0) {\sig{nucleo\_biobot}};
+\node[blk,minimum width=2.6cm] (ru) at (7.4,1.3) {centroide y\\\sig{divisor\_u}: rumbo};
+\node[blk,minimum width=2.6cm] (re) at (7.4,-1.2) {rearme\\(5 cuadros)};
+\node[blk,minimum width=2.6cm] (tx) at (11.4,0.7) {trama propia\\y reenvío\\\sig{tri\_tx\_n}};
+\node[ext,minimum width=1.5cm] (lt) at (14.6,0.7) {TX};
+\node[ext,minimum width=2.5cm] (rx) at (0,-2.6) {RX1, RX2};
+\node[blk,minimum width=2.6cm] (rn) at (3.6,-2.6) {dos \sig{tri\_rx\_n}\\y filtro de alcance};
+\node[blk,minimum width=2.6cm] (di) at (7.4,-2.6) {dos \sig{tri\_distancia}\\y \sig{tri\_tonos}};
+\node[blk,minimum width=2.6cm] (hx) at (11.4,-2.6) {conteo, displays\\y LED};
+\node[ext,minimum width=1.5cm] (sa) at (14.6,-2.6) {HEX, LEDR\\tono};
+\draw[arr] (sw.north) |- (po.west);
+\draw[arr] (sw) -- node[lbl,above]{temp.} (es);
+\draw[arr] (po) -- (es);
+\draw[arr] ([yshift=2mm]es.east) -- node[lbl,above]{píxeles} ([yshift=2mm]nu.west);
+\draw[arr] ([yshift=-2mm]nu.west) -- node[lbl,below]{estímulo} ([yshift=-2mm]es.east);
+\draw[arr] (es.north east) -- (ru.west);
+\draw[arr] (nu) -- (re);
+\draw[arr] (re.east) -- ++(4mm,0) |- node[lbl,pos=0.2,right]{reset} ([yshift=-1.5mm]nu.east);
+\draw[arr] ([yshift=1.5mm]nu.east) -- ++(9mm,0) |- (tx.west);
+\draw[arr] (ru.east) -- ++(7mm,0) |- ([yshift=2mm]tx.west);
+\draw[arr] (tx) -- (lt);
+\draw[arr] (rx) -- (rn);
+\draw[arr] (rn) -- (di);
+\draw[arr] (di) -- (hx);
+\draw[arr] (hx) -- (sa);
+\draw[arr] (rn.north) -- ++(0,2.2mm) -- node[lbl,above,pos=0.2]{puente} (9.85,-1.88) |- ([yshift=-3mm]tx.west);
+\end{tikzpicture}
+\caption{Interior de \sig{tri\_mochila}.}
+\label{fig:dmochila}
+\end{figure}
 
-La radio dice qué mide cada mochila, pero no quién le queda cerca. Para eso cada nodo emite todo
-el tiempo un tono distinto (A 1~kHz, B 2~kHz y el receptor 4~kHz) y escucha los otros dos: con
-saber a quién oye, sabe quién está a su alcance, sin conocer su posición. Cada nodo muestrea su
-micrófono a 16~kHz y, cada 64 muestras (4~ms), tres filtros de Goertzel~\cite{goertzel1958}
-miden la potencia en las tres frecuencias (sección~\ref{sec:goertzel}). Un tono se da por oído
-si su potencia pasa del umbral en dos bloques seguidos, y por perdido si queda debajo en dos.
+\subsubsection{El receptor}
 
-En la demostración no hay bocinas ni micrófonos. El canal acústico va simulado dentro de la
-FPGA: la señal del micrófono es la suma de las ondas cuadradas de los nodos que están a menos
-de 32~m, más ruido, y los filtros trabajan sobre esa señal como lo harían sobre la real. Para
-probarlo con hardware bastan dos cambios, y ninguno toca los filtros: el tono propio ya sale
-por el pin~1 del conector JP1, listo para un zumbador, y la suma simulada se sustituye por las
-muestras de un micrófono con su convertidor.
-
-\subsubsection{Rumbo y triangulación}
-
-Cada mochila mide el rumbo hacia el calor: el centroide de las columnas calientes de la matriz,
-que da el ángulo respecto al frente del insecto, más el rumbo del insecto. El receptor cruza las
-dos rectas que salen de A y de B con esos rumbos:
+\modulo{tri\_triangula}{hdl/tri\_red.v}{1\,509 EL, 631 R}
+Cruza las rectas que salen de A y de B con sus rumbos:
 \begin{equation}
-P=A+t\,\hat u_A,\qquad t=\frac{(B-A)\times\hat u_B}{\hat u_A\times\hat u_B},
-\qquad \hat u=(\cos\theta,\ \sin\theta).
+P=A+t\,\hat u_A,\qquad t=\frac{(B-A)\times\hat u_B}{\hat u_A\times\hat u_B},\qquad
+\hat u=(\cos\theta,\ \sin\theta).
 \label{eq:triangula}
 \end{equation}
-Los cosenos y senos salen de un CORDIC en rotación y el cociente de un divisor con restauración
-(sección~\ref{sec:cordic}); no hay tablas de seno ni funciones de biblioteca. El módulo distingue
-tres casos en los que el cruce no sirve y lo indica: rumbos casi paralelos (menos de
-10\textdegree{} entre sí), rectas que se cruzan detrás de una mochila y cruce a más de 3~m. En
-esos casos, o si solo una mochila detecta, el receptor usa la aproximación de cada mochila por
-separado: su posición más la distancia que estima por el tamaño de la mancha.
+Una máquina de ocho estados pide el coseno y el seno de cada rumbo a un CORDIC, forma los productos cruzados,
+divide 44 entre 32 bits y suma. Marca error 1 si los rumbos son casi paralelos (el denominador es menor que
+$\sin10$\textdegree), 2 si las rectas se cruzan detrás de una mochila y 3 si el cruce queda a más de 3~m. También
+da la posición aproximada que ve cada mochila sola: su posición más el rango estimado en la dirección del rumbo
+(figura~\ref{fig:rtltri}).
 
-\textbf{El sensor simulado no altera el núcleo.} El módulo \sig{tri\_escena} conoce la posición
-de la persona; con la posición y el rumbo del insecto calcula, con un CORDIC en vectorización,
-en qué columna de la matriz caería la mancha, y entrega los 64 píxeles con la temperatura de
-los interruptores sobre un fondo de 22~\textdegree C. El núcleo recibe esos píxeles como los
-recibiría del sensor.
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{\textwidth}
+\includegraphics[width=\linewidth]{figs/rtl/rtl_tri_triangula.png}
+\caption{El módulo completo: CORDIC y divisor (cajas oscuras) y la máquina de estados (amarilla).}
+\end{subfigure}
 
-\subsubsection{Reparto entre la FPGA y la computadora}
+\medskip
+\begin{subfigure}{0.70\textwidth}
+\includegraphics[width=\linewidth]{figs/rtl/zoom_tri_triangula.png}
+\caption{Acercamiento a la máquina de estados, los productos cruzados y la prueba del denominador.}
+\end{subfigure}
+\caption{\sig{tri\_triangula} en el RTL Viewer.}
+\label{fig:rtltri}
+\end{figure}
 
-\begin{table}[H]
+\modulo{tri\_receptor}{hdl/tri\_red.v}{4\,506 EL, 2\,181 R}
+Guarda la última trama de cada mochila y cuatro temporizadores que dicen si llegó directa o por el puente en el
+último segundo. La función \sig{sigue} compara el número de secuencia: si salta, suma las que faltan; si se
+repite, la ignora; si retrocede, supone que la mochila se reinició. Cada 100~ms triangula y elige la estimación:
+el cruce si las dos detectan con rumbo válido y sin error, el promedio si hay error, la aproximación de una sola
+si solo una detecta, o la posición de la mochila si fue por el botón. Calcula tres distancias, escucha los tonos,
+cuenta las personas, arma el resumen para la computadora y maneja cuatro vistas en los displays (conteo, posición
+de la persona, distancia A--B y rumbos) con SW1--SW0 (figura~\ref{fig:dreceptor}).
+
+\begin{figure}[!htb]
+\centering
+\begin{tikzpicture}[every node/.style={font=\footnotesize}]
+\node[ext,minimum width=1.7cm] (rx) at (0,0) {RX1\\RX2};
+\node[blk,minimum width=2.4cm] (rn) at (3,0) {dos \sig{tri\_rx\_n}\\filtro de alcance};
+\node[blk,minimum width=2.4cm] (tb) at (6.6,0.9) {última trama\\de A y de B};
+\node[blk,minimum width=2.4cm] (sg) at (6.6,-0.9) {\sig{sigue}: perdidas\\y repetidas};
+\node[blk,minimum width=2.4cm] (tr) at (10.2,0.9) {\sig{tri\_triangula}};
+\node[blk,minimum width=2.4cm] (ds) at (10.2,-0.9) {tres \sig{tri\_distancia}\\\sig{tri\_tonos}};
+\node[blk,minimum width=2.4cm] (el) at (13.6,0.9) {elige la\\estimación};
+\node[blk,minimum width=2.4cm] (vs) at (13.6,-0.9) {cuatro vistas\\y LED};
+\node[ext,minimum width=2.4cm] (pc) at (13.6,-2.5) {HEX, LEDR, TX de\\resumen y sonda};
+\draw[arr] (rx) -- (rn);
+\draw[arr] (rn.east) -- ++(4mm,0) |- (tb.west);
+\draw[arr] (rn.east) -- ++(4mm,0) |- (sg.west);
+\draw[arr] (tb) -- node[lbl,above]{10 Hz} (tr);
+\draw[arr] (tb.south east) -- (ds.north west);
+\draw[arr] (tr) -- (el);
+\draw[arr] (ds) -- (vs);
+\draw[arr] (el) -- (vs);
+\draw[arr] (vs) -- (pc);
+\draw[arr] (sg.south) |- (pc.west);
+\end{tikzpicture}
+
+\vspace{3mm}
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[every node/.style={font=\scriptsize}]
+\foreach \i/\t in {0/{espera\\\sig{start}},1/{CORDIC\\$\cos,\sin\theta_A$},2/{CORDIC\\$\cos,\sin\theta_B$},3/{$B-A$ y\\$\hat u_A\times\hat u_B$},4/{$(B-A)\times\hat u_B$\\y rangos},5/{revisa\\errores 1 y 2},6/{división\\44/32},7/{$A+t\,\hat u_A$\\y error 3}}
+  {\node[est,minimum width=1.62cm] (s\i) at (2.25*\i,0) {\textbf{\i}\\\t};}
+\foreach \i in {0,...,6} {\draw[arr] (s\i) -- (s\the\numexpr\i+1\relax);}
+\draw[arr] (s7.south) -- ++(0,-3mm) -| (s0.south);
+\draw[arr,dashed] (s5.north) -- ++(0,3mm) -| node[lbl,pos=0.25,above]{error} (s0.north);
+\end{tikzpicture}}
+\caption{Arriba, interior de \sig{tri\_receptor}. Abajo, la máquina de ocho estados de \sig{tri\_triangula}.}
+\label{fig:dreceptor}
+\end{figure}
+
+\subsubsection{Módulos superiores y de prueba}
+
+\begin{table}[!htb]
 \centering\footnotesize
-\caption{Dónde corre cada función del sistema.}
-\label{tab:reparto}
+\caption{Módulos que conectan los bloques con la tarjeta o sirven para probarlos.}
+\label{tab:tops}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{0.9\textwidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{4.2cm}@{}}
+\begin{tabularx}{\textwidth}{@{}>{\ttfamily\raggedright\arraybackslash}p{4.1cm} >{\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{TableHead} \textbf{Función} & \textbf{Dónde corre} \\
+\rowcolor{TableHead} \normalfont\textbf{Módulo} & \textbf{Cómo funciona} \\
 \midrule
-Detección térmica, filtrado, decisión y estímulo & FPGA (mochila) \\
-Rumbo hacia el calor & FPGA (mochila) \\
-Tramas, CRC-16, número de secuencia, alcance y puente & FPGA (las tres) \\
-Generación y detección de tonos & FPGA (las tres) \\
-Distancias exactas entre nodos & FPGA (las tres) \\
-Conteo de personas y triangulación & FPGA (receptor) \\
-Displays y LED & FPGA (las tres) \\
-Mostrar los datos y mandar órdenes de prueba & Computadora \\
+top\_tri\_mochila, top\_tri\_receptor & Conectan la mochila (A o B, por parámetro) y el receptor con botones, interruptores, displays y JP1. Llevan una sonda de Quartus~\cite{intelissp}: 125 y 238 bits de lectura, 36 y 13 de escritura \\
+top\_tri\_rb & Receptor y mochila B en la misma FPGA, unidos por cables internos, para correr la red con dos tarjetas (7\,525 EL) \\
+top\_biobot\_de10lite & Une \sig{uart\_rx}, \sig{receptor\_trama}, el núcleo, \sig{emisor\_estado}, \sig{uart\_tx} y cuatro decodificadores \sig{hex7seg}. SW0 arranca la misión \\
+insecto\_sim & Insecto de prueba: lleva distancia, rumbo y si camina; obedece tres de cada cuatro estímulos, hace pausas de 20 a 33~s y calcula el píxel que se le pide. Cuatro escenarios: sin persona, persona, objeto caliente y no responde \\
+top\_demo\_de10lite & Núcleo e insecto de prueba en una sola tarjeta, con el lazo cerrado dentro del chip; SW9 lo acelera ocho veces (1\,015 EL) \\
+top\_insecto\_de10lite & La segunda tarjeta del caso 1: manda el cuadro por UART y mueve al insecto según la respuesta (799 EL) \\
+red\_rx\_trama, red\_nodo, top\_red\_de10lite & Primera versión de la red: trama de 6 bytes con suma XOR, alcance por interruptores y puente. Es la base de la actual \\
+top\_lab\_*, top\_lab\_red* & Envolturas que cuelgan una sonda JTAG sin cambiar el diseño, para probar las tarjetas desde la computadora \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-La computadora lee por el cable USB-Blaster los registros del receptor, con una sonda de
-Quartus (\emph{In-System Sources and Probes}~\cite{intelissp}), los convierte a metros y grados
-y los escribe en pantalla; no hace falta ningún adaptador serie. Por la misma sonda puede
-fijar la posición y la temperatura de cada mochila, que es como se prueban el alcance y el
-puente sin mover cables. Si la computadora se desconecta, las tres tarjetas siguen funcionando
-igual: los displays y los LED no dependen de ella.
+\textbf{Reparto.} La computadora lee por el USB-Blaster los registros del receptor, los convierte a metros y grados
+y los escribe en pantalla; por la misma sonda fija posiciones y temperaturas para las pruebas. Detección, decisión,
+rumbo, tramas, tonos, distancias, conteo y triangulación corren en las FPGA: si la computadora se desconecta, las
+tres tarjetas siguen igual.

@@ -27,7 +27,8 @@ Corrida final: 21-11-2026, LibreLane 3.0.17, biblioteca `sky130_fd_sc_hd`, reloj
 | Frecuencia máxima estimada, rápida (ff, −40 °C, 1.95 V) | ≈ 220 MHz |
 | Margen de setup a 50 MHz (peor esquina) | +4.94 ns (+6.07 ns entre registros) |
 | Margen de hold (peor esquina) | +0.11 ns |
-| Potencia a 50 MHz (tt, estimación sin vectores) | 2.47 mW (1.59 interna, 0.89 de conmutación, fuga ≈ 0) |
+| **Corriente a 1.8 V y 50 MHz** (tt, en espera, con actividad simulada) | **0.577 mA** (1.04 mW) |
+| Corriente a 1.8 V y 50 MHz (tt, actividad por omisión, cota alta) | 1.175 mA (2.12 mW) |
 | Cable ruteado | 37 178 µm |
 | Pines | 88 de señal + VPWR y VGND |
 
@@ -54,6 +55,27 @@ agregan para cumplir hold y slew, el árbol de reloj y las celdas de pozo; adem�
 (se pidió 40 % de ocupación y quedó en 54 %). Hay más registros que en Quartus porque en la tarjeta algunas salidas
 del núcleo no se usan (por ejemplo `n_est` y `fondo`) y Quartus quita sus registros. En el chip las 67 salidas son
 pines y no se elimina nada.
+
+## Área y consumo de corriente
+
+![Medidas del dado, reparto del área de celdas y corriente por esquina](resultados/layout_area_corriente.png)
+
+Corriente del núcleo con reloj de 50 MHz, `I = P / VDD`:
+
+| Condición | Lenta, 1.60 V, 100 °C | Típica, 1.80 V, 25 °C | Rápida, 1.95 V, −40 °C |
+|---|---|---|---|
+| En espera | 0.517 mA | **0.577 mA** | 0.619 mA |
+| Tren de estímulo | 0.524 mA | 0.584 mA | 0.627 mA |
+| Cuadros seguidos (un píxel por ciclo) | 0.557 mA | 0.621 mA | 0.666 mA |
+| Actividad por omisión (cota alta) | 1.054 mA | 1.175 mA | 1.257 mA |
+
+- Se mide con OpenSTA sobre el netlist final y los parásitos del ruteo. Las tres primeras filas usan la actividad de una
+  simulación del netlist de compuertas (VCD): `potencia/medir.sh`, en la máquina virtual.
+- `python layout/area_corriente.py` lee esos resultados, escribe `resultados/area_y_corriente.txt` y dibuja la figura.
+- `ver_layout.py` muestra el área y la corriente sobre el layout al abrirlo en KLayout.
+- En espera, la mitad de la corriente la gasta el árbol de reloj y la otra mitad los flip-flops que lo reciben. Con un
+  reloj de 1 MHz serían unos 12 µA.
+- El valor de 2.47 mW que aparece en `metrics.json` es de la esquina rápida (`max_ff`), no de la típica.
 
 ## Imágenes
 
@@ -162,12 +184,13 @@ Con Magic: `magic -T $(find ~/.ciel -name sky130A.tech | head -1)` y luego `gds 
 - **460 avisos de lint de Verilator, 0 errores:** 446 `TIMESCALEMOD` (unos módulos declaran `timescale` y otros no),
   11 `WIDTHEXPAND` y 3 `UNUSEDSIGNAL` (`ocupado` en `nucleo_biobot`, `suma[1:0]` en `media_movil4` y
   `azar[15:10]` en `fsm_politica`).
-- **La potencia es una estimación sin vectores.** Supone una actividad de conmutación por omisión. En la mochila la
-  lógica cambia una vez por cuadro (10 Hz), así que el consumo real es menor y lo domina el árbol de reloj.
+- **La potencia de `metrics.json` no usa vectores.** Supone una actividad de conmutación por omisión; la medida con la
+  actividad simulada está en «Área y consumo de corriente».
 
 ## Versiones
 
-- HDL: commit `6f2446b` de `main`; los cinco módulos son idénticos a los de ese commit.
+- HDL: commit `6f2446b` de `main`; los cinco módulos son idénticos a los de ese commit, salvo los
+  comentarios.
 - LibreLane 3.0.17, imagen `ghcr.io/librelane/librelane:3.0.17`
   (`sha256:24640bd645ae992fa22d4a3e18fde10d728763c78fb140184f9975aa6c7d3e5e`). Dentro: Yosys 0.62,
   OpenROAD `dcf36133`, Magic 8.3.623, Netgen 1.5.316 y KLayout 0.30.7.

@@ -14,7 +14,7 @@ if (-not $SoloPdf) {
 
 Push-Location (Join-Path $raiz 'latex')
 try {
-    foreach ($pasada in 1, 2) {
+    foreach ($pasada in 1, 2, 3) {
         & pdflatex -interaction=nonstopmode -halt-on-error main.tex | Out-Null
         if ($LASTEXITCODE -ne 0) {
             Get-Content main.log | Select-String -Pattern '^!' -Context 0, 4 | Out-String | Write-Host
@@ -27,5 +27,17 @@ try {
     if ($avisos.Count -gt 0) { Write-Warning 'Revisar en main.log:'; $avisos | ForEach-Object { Write-Host "  $($_.Line)" } }
     Copy-Item main.pdf $salida -Force
     Write-Host "PDF: $salida"
+}
+finally { Pop-Location }
+
+# articulo de congreso
+Push-Location (Join-Path $raiz 'latex\congreso')
+try {
+    foreach ($pasada in 1, 2, 3) {
+        & pdflatex -interaction=nonstopmode -halt-on-error articulo.tex | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "pdflatex falló en el artículo (ver latex\congreso\articulo.log)" }
+    }
+    Copy-Item articulo.pdf (Join-Path $raiz 'Articulo_Congreso_BioBot-Rescue.pdf') -Force
+    Write-Host 'PDF: Articulo_Congreso_BioBot-Rescue.pdf'
 }
 finally { Pop-Location }

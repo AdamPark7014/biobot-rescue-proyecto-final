@@ -1,44 +1,40 @@
 \section{Análisis comparativo}
 \label{sec:comparativo}
 
-\subsection{Comparación cualitativa con los trabajos relacionados}
+\subsection{Frente a los trabajos relacionados}
 
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\footnotesize
 \caption{Este trabajo frente a los sistemas publicados con \Gp.}
 \label{tab:cualitativa}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{3.5cm} >{\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{TableHead} Trabajo & Cómputo en la mochila & Quién decide & Detecta personas & Combina varias mochilas \\
+\rowcolor{TableHead} Trabajo & Cómputo a bordo & Quién decide & Detecta personas & Combina mochilas \\
 \midrule
-NC State, 2012~\cite{latif2012} & Microcontrolador con radio & Un operador, por control remoto & No & No \\
-NTU, 2023~\cite{tranngoc2023} & Microcontrolador Cortex-M4F y radio & La detección, a bordo; la navegación usa posición externa & Sí, matriz de $32\times32$ y clasificador & No \\
-NTU y Osaka, 2025~\cite{bai2025} & Módulo inalámbrico & Una computadora, con captura de movimiento & No & Sí, para navegar en enjambre \\
-Osaka, 2025~\cite{refat2025} & Casco con luz ultravioleta & Navegación autónoma, sin operador & No & No \\
-Este trabajo & FPGA; el núcleo cabe en 477 elementos lógicos o en 0.050~mm$^2$ de SKY130 & A bordo: máquina de estados con presupuesto de estímulos & Sí, por conteo de píxeles; con sensor simulado & Sí: dos mochilas y un receptor triangulan, y una retransmite a la otra \\
+NC State, 2012~\cite{latif2012} & Microcontrolador & Un operador & No & No \\
+NTU, 2023~\cite{tranngoc2023} & Cortex-M4F y radio & Detección a bordo; navegación con posición externa & Sí, $32\times32$ y clasificador & No \\
+NTU y Osaka, 2025~\cite{bai2025} & Módulo inalámbrico & Una computadora & No & Sí, para navegar \\
+Osaka, 2025~\cite{refat2025} & Casco con luz & Navegación autónoma & No & No \\
+Este trabajo & FPGA: 477 EL o 0.050~mm$^2$ de SKY130 & A bordo, con presupuesto de estímulos & Sí, por píxeles; sensor simulado & Sí: triangulan y una retransmite a la otra \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Lo que distingue a este trabajo es dónde se hace el cómputo y qué se hace con varias mochilas:
-la decisión de estimular, el enlace, el reconocimiento de vecinos y la posición de la persona
-se resuelven en hardware digital, sin procesador y sin computadora. Lo que le falta frente a
-los demás es lo más importante: ellos probaron con insectos y este trabajo no.
+Lo que distingue a este trabajo es dónde se hace el cómputo: la decisión, el enlace, el reconocimiento de vecinos y
+la posición de la persona se resuelven en hardware digital, sin procesador y sin computadora. Lo que le falta es lo
+más importante: los demás probaron con insectos y este trabajo no.
 
 \subsection{Comparación cuantitativa}
 \label{sec:cuantitativo}
 
-\textbf{Dos formas de calcular la distancia.} La primera versión de la red sacaba la distancia de
-la magnitud del CORDIC en vectorización, truncada a la cuenta. Su error es de menos de una
-cuenta, pero al truncar basta para cambiar la lectura (tabla~\ref{tab:distancias}): 31.00~m sobre
-el eje Y se leía 30.94~m, y los LED habrían marcado 30. La raíz cuadrada entera es exacta y además
-más chica.
+\textbf{Dos formas de calcular la distancia.} La primera versión la sacaba de la magnitud del CORDIC, truncada a la
+cuenta: 31.00~m sobre el eje Y se leía 30.94~m y los LED habrían marcado 30. La raíz entera es exacta y más chica
+(tabla~\ref{tab:distancias}); con el cambio la mochila bajó de 4\,812 a 3\,933~EL y el receptor de 6\,220 a 4\,929.
 
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\footnotesize
-\caption{Distancia por CORDIC truncado frente a la raíz cuadrada entera, en los 1\,048\,576 pares de
-diferencias del mapa (\sig{tb\_dist\_cordic} y \sig{tb\_distancia}).}
+\caption{Distancia por CORDIC truncado frente a la raíz entera, en los 1\,048\,576 pares de diferencias del mapa.}
 \label{tab:distancias}
 \rowcolors{2}{SoftGray}{white}
 \begin{tabularx}{0.92\textwidth}{@{}>{\raggedright\arraybackslash}X r r@{}}
@@ -46,45 +42,49 @@ diferencias del mapa (\sig{tb\_dist\_cordic} y \sig{tb\_distancia}).}
 \rowcolor{TableHead} \textbf{Medida} & \textbf{CORDIC truncado} & \textbf{Raíz entera} \\
 \midrule
 Lecturas distintas de la exacta & 17\,762 & 0 \\
-Distancias exactas (cuadrados perfectos) mal leídas, de 4\,179 & 2\,407 & 0 \\
-Puntos donde la lectura contradice la regla de los 32~m & 12 & 0 \\
-Elementos lógicos por distancia & unos 500 & 87 a 109 \\
-Latencia (ciclos) & 18 & 12 \\
+Distancias exactas mal leídas, de 4\,179 & 2\,407 & 0 \\
+Puntos que contradicen la regla de los 32~m & 12 & 0 \\
+Elementos lógicos; latencia (ciclos) & unos 500; 18 & 87 a 109; 12 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Con el cambio, la mochila bajó de 4\,812 a 3\,933 elementos lógicos y el receptor de 6\,220 a
-4\,929. El CORDIC quedó para lo que hace bien: los ángulos.
+\textbf{FPGA y silicio.} El núcleo ocupa 477~EL y 224 registros a 72.08~MHz en la MAX~10, y 0.023~mm$^2$ de celdas con
+253 flip-flops a 72~MHz (esquina lenta) en SKY130. La estimación por conteo de celdas, 0.014~mm$^2$, se quedó corta
+por los búferes de \emph{hold} y transiciones, el árbol de reloj y las celdas de pozo. Hay más registros que en la
+FPGA porque en la tarjeta Quartus elimina los de salidas que no se usan. En las dos tecnologías la frecuencia sobra:
+el núcleo procesa diez cuadros por segundo. La corriente baja de 63.5~mA en la FPGA a 0.58~mA en el chip
+(sección~\ref{sec:areacorriente}).
 
-\textbf{El mismo núcleo en FPGA y en silicio.}
+\subsection{Costo y practicidad}
 
-\begin{table}[H]
+Una mochila de prototipo con piezas de mostrador cuesta 1\,031~MXN con la matriz de $8\times8$ (599 de la matriz,
+248 del nRF52840, 87 de la IMU, 41 de la batería, 6 de los LED y 50 de tarjeta y adhesivo) y 1\,532 con la de
+$32\times24$~\cite{unit}: 55 y 81~USD. Con tarjetas de desarrollo no cumple la meta de masa; sirve para validar. Un
+enjambre de veinte cuesta entre 30 y 100 veces menos que un binomio canino o un robot de
+rescate~\cite{sdf,murphy2021}, pero no son equivalentes, el costo oculta la cría y los permisos, y la vida útil es
+corta: el dato honesto es el costo por hora de búsqueda, que solo se conocerá con pruebas.
+
+\begin{table}[!htb]
 \centering\footnotesize
-\caption{El núcleo de la mochila en tres formas.}
-\label{tab:fpgaasic}
+\caption{Requisitos del campo y respuesta del diseño.}
+\label{tab:practicidad}
 \rowcolors{2}{SoftGray}{white}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{5.0cm}@{}}
 \toprule
-\rowcolor{TableHead} & Estimación por conteo de celdas & FPGA MAX~10 (Quartus) & SKY130 (layout) \\
+\rowcolor{TableHead} Lo que exige el campo & Cómo responde el diseño & Lo que falta \\
 \midrule
-Tamaño & 0.014~mm$^2$ de celdas & 477 elementos lógicos & 0.023~mm$^2$ de celdas; 0.050~mm$^2$ de dado \\
-Registros & 224 & 224 & 253 flip-flops \\
-Frecuencia & --- & 72.08~MHz (modelo lento) & 72~MHz (esquina lenta), 143~MHz (típica) \\
+Arrancar en menos de 2~min~\cite{murphy2004} & No se configura: se enciende y se suelta & Medir el tiempo real \\
+No añadir operadores & Nadie pilotea; la estación recibe alertas & Probar con rescatistas \\
+Sesiones de 45~min~\cite{htx2025} & Autonomía estimada de 4~h & Medir el consumo \\
+Entrar en rendijas & Insecto de 1.3~cm; mochila de perfil bajo & La matriz mide 5~mm de alto \\
+Calor y frío & Solo entre 22 y 30~\textdegree C & Sensor de CO$_2$ \\
+Avisar a través del escombro & Menos de 1~GHz y relevo en el boquete & Medir el alcance \\
+Recuperar equipo e insectos & Mochilas numeradas, refugio y faro & \regTrampaDos{} a \regFaroDos~\% en simulación \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-La estimación por conteo, $(224\times20.0+450\times6)/0.5\approx14\,400~\mu$m$^2$, se quedó corta por
-tres cosas que solo aparecen al hacer el layout: los búferes que se agregan para cumplir
-\emph{hold} y transiciones, el árbol de reloj y las celdas de pozo. Hay más registros que en la
-FPGA porque en la tarjeta algunas salidas del núcleo no se usan y Quartus elimina sus registros;
-en el chip las 67 salidas son pines. La frecuencia coincide en las dos tecnologías, y en ambas
-sobra: el núcleo procesa diez cuadros por segundo.
-
-\textbf{La política frente a no estimular.} Con diez insectos, la detección en una hora sube de
-\pPasivaSesenta~\% a \pGuiadaSesenta~\%, con unos \estGuiada{} estímulos por insecto y por hora;
-diez insectos guiados rinden como entre veinte y cuarenta sin guiar
-(sección~\ref{sec:resultados}).
-
-\input{sections/05b_costos_practicidad}
+\textbf{Cómo se usaría.} El perro marca una zona; el rescatista coloca un relevo en el boquete, enciende de diez a
+veinte mochilas y suelta los insectos. Si una alerta, la estación muestra cuál fue, por dónde entró y cuánto caminó,
+y se confirma con cámara o perro antes de mover una losa. Una búsqueda sin alertas no da por vacía una zona.

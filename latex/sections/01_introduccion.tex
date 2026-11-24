@@ -1,119 +1,88 @@
 \section{Introducción}
 
-\subsection{Contexto}
+\subsection{Contexto y problema}
 
-En un colapso estructural, el tiempo decide. En Kobe (1995) salió con vida cerca del
-80~\% de las personas liberadas el primer día, cerca del 30~\% en los días 2 y 3, y casi
-nadie a partir del cuarto~\cite{kawata}. En Italia (1980), el 93~\% de los atrapados que
-sobrevivieron fue sacado en las primeras 24~horas~\cite{noji}. La regla de las «72 horas»
-resume ese decaimiento, aunque no existe un estudio que la derive y hay rescates
-documentados hasta 14 días después~\cite{macintyre}.
+En un colapso estructural, el tiempo decide. En Kobe (1995) salió con vida cerca del 80~\% de las
+personas liberadas el primer día, cerca del 30~\% en los días 2 y 3, y casi nadie a partir del
+cuarto~\cite{kawata}; en Italia (1980), el 93~\% de los atrapados que sobrevivieron fue sacado en
+las primeras 24~horas~\cite{noji}. La regla de las «72 horas» resume ese decaimiento, aunque hay
+rescates documentados hasta 14 días después~\cite{macintyre}. A la mayoría la sacan sus
+vecinos~\cite{japon2014}; los equipos de rescate trabajan sobre la fracción difícil, la de quienes
+quedaron en huecos profundos. El sismo del 19 de septiembre de 2017 (magnitud 7.1, entre Puebla y
+Morelos~\cite{ssn2017}) dejó 369 muertos, 45 de ellos en el estado de Puebla, y 44 edificios
+colapsados en la Ciudad de México~\cite{galvis2020}. Puebla volverá a necesitar esta capacidad.
 
-A la mayoría la sacan sus vecinos: en Kobe, cerca del 80~\% de los rescatados de edificios
-colapsados fue liberado por familiares y vecinos~\cite{japon2014}. Los equipos de rescate
-y su tecnología trabajan sobre la fracción difícil, la de quienes quedaron en huecos
-profundos a los que no se llega con las manos.
+Las herramientas actuales no entran donde está la víctima (tabla~\ref{tab:tecnologias}). El perro
+trabaja la superficie, la cámara en poste alcanza unos 5~m en línea casi recta y el robot más
+pequeño usado en campo necesita un hueco de $6\times17$~cm. En el World Trade Center los huecos
+explorados eran, por lo general, de menos de 1~m~\cite{murphy2004}; hasta 2021 ningún robot
+terrestre había encontrado a una persona viva en un desastre~\cite{murphy2021}, y el robot serpiente
+que Carnegie Mellon llevó a la Ciudad de México en 2017 tampoco~\cite{whitman2018}.
 
-El sismo del 19 de septiembre de 2017 (magnitud 7.1, epicentro en el límite entre Puebla
-y Morelos~\cite{ssn2017}) dejó 369 muertos, 45 de ellos en el estado de Puebla, y 44
-edificios colapsados en la Ciudad de México (otros conteos dan 38 o 46)~\cite{galvis2020}.
-El 91~\% de esos edificios era anterior a 1985. Puebla volverá a necesitar esta capacidad.
-
-\subsection{El problema}
-
-Las herramientas actuales no entran donde está la víctima (tabla~\ref{tab:tecnologias}).
-El perro trabaja la superficie; la cámara en poste alcanza unos 5~m en línea casi recta; el
-robot más pequeño usado en campo necesita un hueco de $6\times17$~cm. En el World Trade
-Center los huecos explorados eran, por lo general, de menos de 1~m~\cite{murphy2004}, y
-hasta 2021 ningún robot terrestre había encontrado a una persona viva en un
-desastre~\cite{murphy2021}. El robot serpiente que Carnegie Mellon llevó a la Ciudad de
-México en 2017 (5~cm de diámetro) entró a un edificio, hizo dos pasadas y no encontró a
-nadie~\cite{whitman2018}.
-
-Una cucaracha de Madagascar mide 6~cm de largo y 1.3~cm de alto, trepa obstáculos de su
-propia altura y sigue paredes sin que nadie se lo pida. Varios grupos la han convertido
-en plataforma de sensores, y en 2025 diez de ellas se usaron por primera vez en un
-desastre real, en Myanmar, sin hallar sobrevivientes y con fallas técnicas
-reconocidas~\cite{htx2025}. Lo que falta no es la idea, sino un sistema barato, sin cirugía,
-que no requiera pilotear a cada insecto, cuyo circuito quepa en lo que el animal puede cargar
-y que le diga al rescatista dónde está la persona aunque el insecto que la encontró haya
-quedado fuera del alcance de la radio.
+Una cucaracha de Madagascar mide 6~cm de largo y 1.3~cm de alto, trepa obstáculos de su altura y
+sigue paredes sin que nadie se lo pida. Varios grupos la han convertido en plataforma de sensores, y
+en 2025 diez de ellas se usaron por primera vez en un desastre real, en Myanmar, sin hallar
+sobrevivientes y con fallas técnicas reconocidas~\cite{htx2025}. Lo que falta no es la idea, sino un
+sistema barato, sin cirugía, que no requiera pilotear a cada insecto, cuyo circuito quepa en lo que
+el animal puede cargar y que le diga al rescatista dónde está la persona aunque el insecto que la
+encontró haya quedado fuera del alcance de la radio.
 
 \subsection{Pregunta, hipótesis y objetivos}
 
 \begin{infobox}
-\textbf{Pregunta de investigación.} ¿Cuánto mejora la búsqueda de una persona atrapada si
-la mochila, además de detectar, guía al insecto con estímulos mínimos; qué circuito digital
-cabe en la carga que el insecto soporta, y cómo se coordinan varias mochilas para ubicar a
-la persona sin que una computadora haga las cuentas?
+\textbf{Pregunta de investigación.} ¿Cuánto mejora la búsqueda de una persona atrapada si la mochila,
+además de detectar, guía al insecto con estímulos mínimos; qué circuito digital cabe en la carga que
+el insecto soporta, y cómo se coordinan varias mochilas para ubicar a la persona sin que una
+computadora haga las cuentas?
 \end{infobox}
 
-\textbf{Hipótesis.} Una política que corre a bordo y estimula poco (solo cuando el insecto
-se detiene, de vez en cuando para despegarlo de las paredes y para acercarlo a una mancha
-de calor), con un presupuesto que limita los estímulos por hora, aumenta la probabilidad de
-detección en una sesión de 45 a 60~minutos respecto a la exploración pasiva, sin provocar
-habituación, y cabe en una FPGA de miligramos. Dos mochilas que detectan a la misma persona
-bastan para que un receptor, también en FPGA, estime su posición cruzando los dos rumbos.
+\textbf{Hipótesis.} Una política que corre a bordo y estimula poco (solo cuando el insecto se detiene,
+de vez en cuando para despegarlo de las paredes y para acercarlo a una mancha de calor), con un
+presupuesto que limita los estímulos por hora, aumenta la probabilidad de detección en una sesión de
+45 a 60~minutos respecto a la exploración pasiva, sin provocar habituación, y cabe en una FPGA de
+miligramos. Dos mochilas que detectan a la misma persona bastan para que un receptor, también en
+FPGA, estime su posición cruzando los dos rumbos.
 
-\textbf{Objetivo general.} Diseñar, describir en Verilog, verificar y probar en la DE10-Lite
-el sistema digital de una mochila de búsqueda para \Gp{} y la red con la que varias mochilas
-localizan a una persona y avisan a un operador; evaluar por simulación cuánto aporta, y
-llevar el núcleo a un layout en un proceso abierto.
+\textbf{Objetivo general.} Diseñar, describir en Verilog, verificar y probar en la DE10-Lite el sistema
+digital de una mochila de búsqueda para \Gp{} y la red con la que varias mochilas localizan a una
+persona y avisan a un operador; evaluar por simulación cuánto aporta, y llevar el núcleo a un layout
+en un proceso abierto.
 
+\needspace{4\baselineskip}
 \textbf{Objetivos específicos.}
 \begin{enumerate}
-  \item Establecer, con datos publicados, qué carga, velocidad y terreno soporta el insecto.
-  \item Comparar los tipos de estímulo y modelar la respuesta y la habituación.
-  \item Dimensionar la mochila: masa, energía, costo y capacidad de cómputo.
-  \item Definir un método de detección y de localización que funcione a distancia.
-  \item Diseñar la política de estímulos, describirla en Verilog, verificarla contra un modelo
-        de referencia y sintetizarla.
-  \item Diseñar una red de tres nodos en FPGA: un protocolo de enlace con detección de errores y
-        retransmisión, el reconocimiento de vecinos por tonos y el cálculo de distancias y de la
-        posición de la persona en punto fijo, de modo que la computadora solo muestre resultados.
-  \item Verificar la red con bancos de prueba autoverificables, incluidos los casos límite y de
-        error, y medir recursos, frecuencia y latencia.
-  \item Simular la misión completa y medir tiempo a la detección, cobertura y estímulos aplicados.
-  \item Llevar el núcleo a un layout en SKY130 con un flujo abierto y compararlo con la FPGA.
-  \item Analizar la practicidad, el costo y las implicaciones éticas y legales.
+  \item Fijar, con datos publicados, la carga, la marcha y el estímulo que soporta el insecto, y dimensionar
+        la masa, la energía y el costo de la mochila.
+  \item Diseñar la detección y la política de estímulos, describirlas en Verilog, verificarlas contra un
+        modelo de referencia y sintetizarlas.
+  \item Diseñar una red de tres nodos en FPGA con detección de errores, retransmisión, reconocimiento de
+        vecinos por tonos y triangulación en punto fijo, de modo que la computadora solo muestre resultados.
+  \item Implementar los bloques numéricos de la práctica~5 (CORDIC, filtros FIR e IIR y controlador PID) y
+        medir su error contra el valor exacto.
+  \item Verificar todo con bancos autoverificables, casos límite y de error incluidos, y medir recursos,
+        frecuencia y latencia.
+  \item Simular la misión completa, llevar el núcleo a un layout en SKY130 y analizar costo, practicidad,
+        ética y marco legal.
 \end{enumerate}
 
-\subsection{Contribuciones}
+\subsection{Contribuciones y alcance}
 
 \begin{itemize}
-  \item \textbf{Un núcleo que cierra el lazo a bordo.} Detección, decisión y estímulo en 477 elementos
-        lógicos, idéntico a su modelo de referencia en 11\,424 cuadros y probado en dos tarjetas reales.
-  \item \textbf{Una red de tres FPGA en la que la computadora no calcula nada.} Tramas con CRC-16 y
-        número de secuencia, retransmisión por una mochila puente, reconocimiento de vecinos con
-        filtros de Goertzel, distancias exactas y triangulación con CORDIC. Nueve escenarios de
-        prueba, con ruido en la línea y con el corte del alcance.
-  \item \textbf{Aritmética en punto fijo con el error medido.} El error del CORDIC según el número de
-        iteraciones y la comparación que llevó a calcular las distancias con una raíz cuadrada
-        entera en lugar del CORDIC.
-  \item \textbf{El núcleo como circuito integrado.} Un layout en SKY130 de 0.050~mm$^2$, limpio en DRC
-        y LVS, que sustituye a la estimación por conteo de celdas.
-  \item \textbf{Una evaluación de la misión con sus límites.} \numMisiones{} misiones simuladas por caso,
-        análisis de sensibilidad y el caso en que guiar empeora el resultado.
-  \item \textbf{Un repositorio que reproduce cada resultado:} código, bancos de prueba, proyectos,
-        layout y los programas de las figuras (apéndice~\ref{sec:repositorio}).
+  \item \textbf{Un núcleo que cierra el lazo a bordo.} Detección, decisión y estímulo en 477 elementos lógicos,
+        idéntico a su modelo de referencia en 11\,424 cuadros y probado en dos tarjetas reales.
+  \item \textbf{Una red de tres FPGA en la que la computadora no calcula nada.} CRC-16, número de secuencia,
+        retransmisión por una mochila puente, filtros de Goertzel, distancias exactas y triangulación con
+        CORDIC, en nueve escenarios de prueba.
+  \item \textbf{Aritmética en punto fijo con el error medido,} y la comparación que llevó a calcular las
+        distancias con una raíz cuadrada entera en lugar del CORDIC.
+  \item \textbf{El núcleo como circuito integrado.} Un layout en SKY130 de 0.050~mm$^2$, limpio en DRC y LVS, con 0.58~mA
+        de consumo a 1.8~V.
+  \item \textbf{Una evaluación de la misión con sus límites:} \numMisiones{} misiones simuladas por caso,
+        sensibilidad y el caso en que guiar empeora el resultado.
 \end{itemize}
 
-\subsection{Alcance}
-
-\begin{itemize}
-  \item \textbf{Sí incluye:} el modelo completo, la simulación de misión, el núcleo y la red
-        verificados y sintetizados, las pruebas en una, dos y tres DE10-Lite, y el layout del núcleo.
-  \item \textbf{Simulado dentro de la FPGA:} la matriz térmica (los interruptores fijan la temperatura
-        que lee), el canal acústico de los tonos y el radio, que en la demostración es un cable. La
-        posición de cada mochila se da por conocida.
-  \item \textbf{No incluye:} cirugía ni electrodos implantados, pruebas con insectos, pruebas en
-        escombro real ni la fabricación del chip.
-  \item \textbf{Evidencia:} todo número proviene de una fuente citada, de la síntesis en Quartus,
-        de la simulación en Icarus Verilog, del flujo de layout o de la simulación de misión; los
-        supuestos se marcan como tales.
-\end{itemize}
-
-El documento sigue este orden: estado del arte (sección~\ref{sec:arte}), metodología
-(sección~\ref{sec:metodologia}), cuatro casos de estudio (sección~\ref{sec:casos}), análisis
-comparativo (sección~\ref{sec:comparativo}), ética e impacto (sección~\ref{sec:etica}) y
-conclusiones con trabajo futuro (sección~\ref{sec:conclusiones}).
+\textbf{Simulado dentro de la FPGA:} la matriz térmica (los interruptores fijan la temperatura que lee), el
+canal acústico de los tonos y el radio, que en la demostración es un cable. La posición de cada mochila se
+da por conocida. \textbf{No incluye:} cirugía, pruebas con insectos, escombro real ni la fabricación del
+chip. Todo número proviene de una fuente citada, de la síntesis en Quartus, de la simulación en Icarus
+Verilog, del flujo de layout o de la simulación de misión; los supuestos se marcan como tales.
