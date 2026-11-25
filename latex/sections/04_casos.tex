@@ -1,16 +1,16 @@
 \section{Casos de estudio}
 \label{sec:casos}
 
-Cuatro casos, de menor a mayor alcance: el núcleo solo, la red de tres FPGA, la misión completa en simulación y el
-núcleo como circuito integrado.
+Probamos el trabajo en cuatro casos, del más sencillo al más completo. Empezamos con el núcleo solo, seguimos con la red de
+tres FPGA, después con la misión completa en simulación y terminamos con el núcleo como circuito integrado.
 
 \subsection{Caso 1: el núcleo en una y en dos tarjetas}
 
-Para cerrar el lazo sin sensor ni insecto, una segunda DE10-Lite hace de insecto y de matriz térmica: calcula los
-64 píxeles según la distancia y el rumbo, los manda por UART y mueve a un insecto de prueba según los estímulos que
-recibe. El 11 de noviembre de 2026 se corrieron los cuatro escenarios en las tarjetas, en tiempo real, y los LED y
-displays se leyeron por la sonda de JTAG (tabla~\ref{tab:tarjetas}). La figura~\ref{fig:sistema} muestra el sistema
-al que apunta el prototipo.
+Como no teníamos el sensor ni un insecto con quien cerrar el lazo, usamos una segunda DE10-Lite que hace las dos cosas.
+Calcula los 64 píxeles según la distancia y el rumbo, los manda por UART y mueve a un insecto de prueba según los estímulos
+que recibe. El 11 de noviembre de 2026 corrimos los cuatro escenarios en las tarjetas, en tiempo real, y leímos los LED y
+displays por la sonda de JTAG (tabla~\ref{tab:tarjetas}). En la figura~\ref{fig:sistema} está el sistema completo al que
+queremos llegar.
 
 \begin{table}[!htb]
 \centering\footnotesize
@@ -39,8 +39,8 @@ No responde & Reactivar a los 16 y a los 49~s; sin alerta en 75~s & A los 16 y a
 \subsection{Caso 2: la red de tres FPGA}
 \label{sec:casored}
 
-El banco \sig{tb\_tri} recorre nueve escenarios (tabla~\ref{tab:escenarios}); en siete lee además los seis displays
-de cada tarjeta.
+El banco \sig{tb\_tri} recorre nueve escenarios (tabla~\ref{tab:escenarios}). En siete de ellos también lee los seis
+displays de cada tarjeta, para revisar lo mismo que vería una persona.
 
 \begin{table}[!htb]
 \centering\footnotesize
@@ -80,8 +80,8 @@ después, cuando caduca la última trama.}
 \label{fig:umbral}
 \end{figure}
 
-\textbf{La terminal del operador} se probó contra las tres tarjetas simuladas: 71 de 71 comprobaciones. Esto es parte
-de lo que ve el operador con las dos detecciones:
+\textbf{La terminal del operador} la probamos contra las tres tarjetas simuladas y pasó 71 de 71 comprobaciones. Con las dos
+detecciones activas, el operador ve algo como esto:
 
 \noindent\begin{minipage}{\textwidth}\scriptsize
 \begin{verbatim}
@@ -115,19 +115,22 @@ Receptor con la mochila B & 7\,525 (15~\%) & 4\,060 & 107 & 59.42 & 3.17 \\
 \end{tabularx}
 \end{table}
 
-\textbf{En las tarjetas.} El 18 de noviembre de 2026 las tres DE10-Lite corrieron seis escenarios correctos con la
-versión anterior del enlace (mapa de 20~m, suma de verificación y sin tonos), con 2.8~cm de error y el aviso de A
-por el puente; el sensor simulado detectó con 35, 36 y 38~\textdegree C y no con 34, 39, 47 ni 22~\textdegree C. La
-versión que aquí se describe está verificada por simulación y síntesis.
+\textbf{En las tarjetas.} El 18 de noviembre de 2026 corrimos seis escenarios correctos en las tres DE10-Lite con la versión
+anterior del enlace (mapa de 20~m, suma de verificación y sin tonos). Obtuvimos 2.8~cm de error y el aviso de A llegó por el
+puente; el sensor simulado detectó con 35, 36 y 38~\textdegree C y no con 34, 39, 47 ni 22~\textdegree C. El 23 de noviembre
+cargamos la versión que aquí se describe y repetimos en las tarjetas los escenarios 1 a 7 y el 9, con entradas fijadas por
+JTAG. Todas las comprobaciones salieron como en la simulación, y la triangulación dio 6.3~cm de error. No fue en una sola
+corrida: a media prueba se perdió la conexión USB del receptor, y tuvimos que recargarlo y seguir desde el escenario 4. El
+escenario 8, el del ruido, solo está verificado en simulación.
 
 \input{sections/04c_mision}
 
 \subsection{Caso 4: el núcleo como circuito integrado}
 \label{sec:layout}
 
-El núcleo produjo un GDS sin errores (figura~\ref{fig:layout} y tabla~\ref{tab:layout}). Mide
-$217.7\times228.4~\mu$m, \textbf{0.050~mm$^2$}, y consume \textbf{0.58~mA} a 1.8~V en espera. La frecuencia máxima
-se estima con el margen medido, $f\approx1/(20~\text{ns}-\text{margen})$.
+Al final obtuvimos un GDS sin errores (figura~\ref{fig:layout} y tabla~\ref{tab:layout}). El chip mide $217.7\times228.4~\mu$m, es
+decir \textbf{0.050~mm$^2$}, y consume \textbf{0.58~mA} a 1.8~V en espera. La frecuencia máxima la estimamos con el margen medido,
+$f\approx1/(20~\text{ns}-\text{margen})$.
 
 \begin{figure}[!htb]
 \centering
@@ -184,12 +187,12 @@ DRC (Magic y KLayout), LVS (Netgen) y antenas & 0 errores; los circuitos coincid
 \label{fig:areacorriente}
 \end{figure}
 
-El área sale del layout terminado. Del dado, el núcleo interior ocupa 0.042~mm$^2$ y las celdas 0.0226~mm$^2$: el
-46~\% son compuertas, el 29~\% flip-flops, el 17~\% búferes de tiempo, el 4~\% árbol de reloj y el 3~\% celdas de pozo
-(figura~\ref{fig:areacorriente}). La corriente se calculó con OpenSTA sobre el netlist final, con los parásitos del
-ruteo, en dos formas: con la actividad de conmutación por omisión, que es la cota alta, y con la actividad real de una
-simulación del netlist de compuertas, guardada en un VCD. Se midieron tres condiciones: en espera, con un tren de
-estímulo en curso y con cuadros seguidos, un píxel por ciclo, que es el peor caso (tabla~\ref{tab:corriente}).
+El área la tomamos del layout terminado. Del dado, el núcleo interior ocupa 0.042~mm$^2$ y las celdas 0.0226~mm$^2$. De esas celdas,
+el 46~\% son compuertas, el 29~\% flip-flops, el 17~\% búferes de tiempo, el 4~\% árbol de reloj y el 3~\% celdas de pozo
+(figura~\ref{fig:areacorriente}). Para la corriente usamos OpenSTA sobre el netlist final, con los parásitos del ruteo, y la calculamos
+de dos formas. Una usa la actividad de conmutación por omisión, que es la cota alta; la otra, la actividad real de una simulación del
+netlist de compuertas, guardada en un VCD. Revisamos tres condiciones: en espera, con un tren de estímulo en curso y con cuadros
+seguidos, un píxel por ciclo, que es el peor caso (tabla~\ref{tab:corriente}).
 
 \begin{table}[!htb]
 \centering\footnotesize
@@ -210,14 +213,15 @@ Fuga & 0.0143 & 0.0090 & 0.00003 & 0.00001 & 0.00004 & 0.00002 \\
 \end{tabularx}
 \end{table}
 
-Casi toda la corriente es del reloj: en espera, la mitad la gasta su árbol y la otra mitad los flip-flops que lo
-reciben, y la lógica no llega a un microamperio. Como la potencia dinámica es proporcional a la frecuencia y el núcleo
-procesa diez cuadros por segundo, con un reloj de 1~MHz serían unos 12~$\mu$A; el módulo ya recibe la frecuencia como
-parámetro (\sig{CLK\_FREQ}). La caída en la red de alimentación es de 0.42~mV en el peor punto, el 0.02~\% de 1.8~V.
+Casi toda la corriente se va en el reloj. En espera, la mitad la gasta su árbol y la otra mitad los flip-flops que lo
+reciben, mientras que la lógica no llega a un microamperio. La potencia dinámica es proporcional a la frecuencia y el núcleo
+solo procesa diez cuadros por segundo, así que con un reloj de 1~MHz gastaría unos 12~$\mu$A; el módulo ya recibe la
+frecuencia como parámetro (\sig{CLK\_FREQ}). La caída en la red de alimentación es de 0.42~mV en el peor punto, el 0.02~\%
+de 1.8~V.
 
 \textbf{Frente a la FPGA y a la mochila.} El analizador de Quartus estima, sumando todas las alimentaciones de la
 MAX~10, 63.5~mA para el prototipo del núcleo, 83.8~mA para la mochila de la red y 87.2~mA para el receptor, de los que
 solo 4.4, 24.0 y 27.0~mA son dinámicos del núcleo lógico; la herramienta marca la confianza como baja por no tener
-actividad medida. El chip baja esa cuenta unas cien veces. En la mochila completa, que gasta unos 30~mW (8.1~mA de una
-batería de 3.7~V), el núcleo es cerca del 3~\% de la potencia: mandan el sensor y la radio.
+actividad medida. Con el chip, ese consumo baja unas cien veces. Aun así, en la mochila completa, que gasta unos 30~mW (8.1~mA de una batería
+de 3.7~V), el núcleo es apenas cerca del 3~\% de la potencia y lo demás se va sobre todo en el sensor y la radio.
 

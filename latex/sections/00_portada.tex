@@ -58,26 +58,22 @@ generan cada figura de este documento.
   width=\textwidth,title=\textbf{Resumen},colbacktitle=Primary,coltitle=white,
   left=2mm,right=2mm,top=1mm,bottom=1mm]
 \footnotesize\justifying
-Tras un sismo, las personas atrapadas quedan en huecos de centímetros donde no entran
-perros, cámaras ni robots. Este trabajo diseña, verifica y prototipa en FPGA el sistema
-digital de una mochila que convierte a la cucaracha silbadora de Madagascar (\especie) en un
-buscador de personas, y la red con la que varias mochilas avisan a un operador. Con datos
-publicados se fija una carga útil de 2 a 3~g y un estímulo sin cirugía, dosificado por un
-presupuesto que evita la habituación. El núcleo de la mochila cuenta los píxeles calientes de
-una matriz térmica y decide con una máquina de ocho estados: ocupa 477 elementos lógicos en
-la MAX~10 de la DE10-Lite y coincide con su modelo de referencia en los 11\,424 cuadros de
-prueba. Sobre ese núcleo se construyó una red de tres tarjetas, dos mochilas y un receptor,
-unidas por UART con tramas de 16 bytes, CRC-16, número de secuencia y retransmisión. Cada
-nodo emite un tono y reconoce a sus vecinos con filtros de Goertzel, calcula distancias
-exactas con una raíz cuadrada entera, y el receptor triangula a la persona con un CORDIC de
-16 iteraciones: 6.2~cm de error a 31.95~m. La red pasa nueve escenarios de prueba, incluidos
-el ruido en la línea y el corte del alcance en 32~m, y ocupa 3\,933 elementos lógicos por
-mochila a 55~MHz. El núcleo se llevó además a un layout en SKY130 con el flujo abierto
-LibreLane: 0.050~mm$^2$, sin errores de DRC ni de LVS, unos 72~MHz en la esquina lenta y 0.58~mA a 1.8~V. En
-una simulación de \numMisiones{} misiones, diez insectos guiados encuentran a la persona en
-\pGuiadaSesenta~\% de las misiones de una hora, frente a \pPasivaSesenta~\% sin estímulos.
-Se documentan los límites: el sensor y el canal acústico están simulados dentro de la FPGA,
-no hubo pruebas con insectos y la ley mexicana exige mantener a esta especie en confinamiento.
+Después de un sismo hay personas que quedan en huecos de unos centímetros, a los que no llega un perro, una cámara ni un
+robot. En este proyecto diseñamos, verificamos y prototipamos en FPGA el sistema digital de una mochila para que la
+cucaracha silbadora de Madagascar (\especie) ayude a buscarlas, junto con la red con la que varias mochilas le avisan a un
+operador. A partir de datos publicados fijamos una carga útil de 2 a 3~g y un estímulo que no requiere cirugía y que
+limitamos con un presupuesto para no habituar al insecto. El núcleo de la mochila cuenta los píxeles calientes de una
+matriz térmica y decide con una máquina de ocho estados. Ocupa 477 elementos lógicos en la MAX~10 de la DE10-Lite y dio lo
+mismo que su modelo de referencia en los 11\,424 cuadros que probamos. Con él armamos una red de tres tarjetas, dos
+mochilas y un receptor, unidas por UART con tramas de 16 bytes, CRC-16, número de secuencia y retransmisión. Cada nodo
+emite un tono, reconoce a sus vecinos con filtros de Goertzel y calcula distancias exactas con una raíz cuadrada entera; el
+receptor triangula a la persona con un CORDIC de 16 iteraciones y se equivoca 6.2~cm a 31.95~m. La red pasó los nueve
+escenarios de prueba, entre ellos el ruido en la línea y el corte del alcance en 32~m, y ocupa 3\,933 elementos lógicos por
+mochila a 55~MHz. También llevamos el núcleo a un layout en SKY130 con el flujo abierto LibreLane: mide 0.050~mm$^2$, no
+tiene errores de DRC ni de LVS, alcanza unos 72~MHz en la esquina lenta y gasta 0.58~mA a 1.8~V. En una simulación de
+\numMisiones{} misiones, diez insectos guiados encontraron a la persona en \pGuiadaSesenta~\% de las misiones de una hora,
+contra \pPasivaSesenta~\% sin estímulos. El sensor y el canal acústico están simulados dentro de la FPGA, no hicimos pruebas
+con insectos y la ley mexicana pide mantener a esta especie en confinamiento.
 
 \vspace{2pt}
 \textbf{Palabras clave:} FPGA, insecto cíborg, búsqueda y rescate, CORDIC, filtro de Goertzel,

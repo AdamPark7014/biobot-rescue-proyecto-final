@@ -37,24 +37,25 @@ tri\_receptor & RX1, RX2 y vista & Posición, conteo, displays, resumen & 100~ms
 \end{tabularx}
 \end{table}
 
-De ahí sale por qué la red responde en 1.10~s: no manda el cálculo, que toma microsegundos, sino lo que se espera a
-propósito. La media móvil necesita varios cuadros para pasar de 8 píxeles, la confirmación exige cuatro más, y el
+Con esta tabla se entiende por qué la red tarda 1.10~s en responder. El cálculo toma microsegundos; lo que tarda es lo que
+decidimos esperar. La media móvil necesita varios cuadros para pasar de 8 píxeles, la confirmación pide cuatro más, y el
 aviso viaja en la trama de los siguientes 100~ms, o dos tramas después si pasa por el puente.
 
 \subsection{Herramientas, verificación y layout}
 \label{sec:herramientas}
 
-Se usaron Python 3.12 (modelo de referencia, simulación de misión y figuras), Icarus Verilog 12~\cite{icarus} y
-Active-HDL (simulación), Quartus Prime Lite 24.1 (síntesis para la MAX~10 \sig{10M50DAF484C7G}), tres
-DE10-Lite~\cite{terasic} y LibreLane 3.0.17 con la PDK \sig{sky130A}~\cite{librelane,skywater}. Cada bloque se
-verificó solo antes de conectarlo:
+Usamos Python 3.12 (modelo de referencia, simulación de misión y figuras), Icarus Verilog 12~\cite{icarus} y Active-HDL
+(simulación), Quartus Prime Lite 24.1 (síntesis para la MAX~10 \sig{10M50DAF484C7G}), tres DE10-Lite~\cite{terasic} y
+LibreLane 3.0.17 con la PDK \sig{sky130A}~\cite{librelane,skywater}. Verificamos cada bloque por separado antes de
+conectarlo con los demás:
 \begin{enumerate}
   \item \textbf{Bancos autoverificables.} Comparan contra un valor esperado y terminan con una línea de resultado.
         Los bloques numéricos se comparan con aritmética real, y la distancia, con todos los puntos del mapa.
   \item \textbf{Integración.} \sig{tb\_tri} cablea las tres FPGA como en el laboratorio, recorre nueve escenarios y lee
         displays y LED como los vería una persona.
   \item \textbf{Síntesis.} Las cuatro variantes se compilan a 50~MHz con holgura positiva y cero advertencias
-        críticas. Tras cada cambio se comparan los recursos: una diferencia inesperada delata lógica eliminada.
+        críticas. Después de cada cambio comparamos los recursos con la compilación anterior. Así apareció, por ejemplo, un comentario a media línea que
+había dejado sin arranque al divisor: el receptor salió de la síntesis con 288 registros menos.
   \item \textbf{Tarjetas.} Los escenarios se repiten en las DE10-Lite fijando entradas y leyendo registros por JTAG.
   \item \textbf{Terminal sin tarjetas.} Sus funciones de JTAG se sustituyen por archivos y del otro lado se simulan las
         tres FPGA: se comprueba desde la orden del operador hasta lo que se muestra.
@@ -63,6 +64,5 @@ verificó solo antes de conectarlo:
 \textbf{Flujo del layout.}\phantomsection\label{sec:flujo-layout} Los cinco archivos del núcleo, sin modificar,
 pasaron por LibreLane, sucesor de OpenLane~\cite{shalan2020}: Yosys (síntesis), OpenROAD (plano, colocación, árbol
 de reloj y ruteo) y Magic, Netgen y KLayout (verificación), con la biblioteca \sig{sky130\_fd\_sc\_hd}. El reloj es
-de 20~ns, la ocupación del núcleo del 40~\% y la densidad de colocación del 55~\%. Se activó la reparación de
-transiciones lentas después del ruteo global, con márgenes de 50~\%: con los valores por omisión pasaba DRC y LVS
-pero dejaba 140 transiciones de más de 0.75~ns en la esquina lenta; con ese ajuste quedaron en cero.
+de 20~ns, la ocupación del núcleo del 40~\% y la densidad de colocación del 55~\%. Con los valores por omisión el diseño pasaba DRC y LVS, pero dejaba 140 transiciones de más de 0.75~ns en la esquina lenta.
+Activamos la reparación de transiciones lentas después del ruteo global, con márgenes de 50~\%, y quedaron en cero.

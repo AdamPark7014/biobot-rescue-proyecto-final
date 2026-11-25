@@ -1,3 +1,4 @@
+\needspace{9\baselineskip}
 \section{Conclusiones y trabajo futuro}
 \label{sec:conclusiones}
 
@@ -15,7 +16,7 @@ No hubo pruebas con insectos & La respuesta al estímulo y la marcha vienen de l
 El radio es un cable & El alcance de 32~m es un parámetro; la atenuación está calculada, no medida \\
 Posición conocida de cada mochila & En el sistema real saldría de la navegación inercial y de los tonos \\
 El receptor solo escucha & Si A y B quedan a 32~m o más entre sí, solo el receptor muestra el total \\
-Versión final de la red sin repetir en tarjetas & Verificada por simulación y síntesis; en hardware se probó la versión anterior \\
+Versión final de la red en tarjetas, en varias corridas & Escenarios 1 a 7 y 9 correctos por JTAG; el 8 (ruido) solo en simulación \\
 Colapsos sintéticos y en dos dimensiones & Sirven para comparar políticas, no para predecir tiempos de rescate \\
 Ambiente caliente y confinamiento legal & Límites del animal y de la ley: definen dónde no debe usarse \\
 \bottomrule
@@ -23,32 +24,32 @@ Ambiente caliente y confinamiento legal & Límites del animal y de la ley: defin
 \end{table}
 
 \begin{enumerate}
-  \item \textbf{El insecto carga menos de lo que se cita.} La meta defendible es una mochila de 2 a 3~g y de perfil
-        bajo; la masa del cómputo es despreciable y mandan la batería y el sensor.
-  \item \textbf{El núcleo existe, está verificado y cabe en un chip.} 477 elementos lógicos, idéntico a su modelo de
-        referencia en 11\,424 cuadros y probado en dos tarjetas. En SKY130 ocupa 0.050~mm$^2$, pasa DRC y LVS y
-        alcanza la misma frecuencia que en la FPGA, con 0.58~mA a 1.8~V en espera.
-  \item \textbf{Tres FPGA bastan para detectar, avisar y ubicar sin computadora.} La red retransmite el aviso de la
-        mochila fuera de alcance y triangula con 6.2~cm de error a 31.95~m, en 1.10~s. Pasa los nueve escenarios,
-        incluidos el ruido y el corte exacto en 32~m.
-  \item \textbf{En punto fijo, el error se mide, no se supone.} Dieciséis iteraciones del CORDIC dan 0.017\textdegree{} y
-        más no mejoran; la distancia por CORDIC truncado fallaba en más de la mitad de las distancias exactas y una
-        raíz entera la dejó sin error con la quinta parte de la lógica; el PID difiere del de aritmética real en menos
-        de una cuenta.
-  \item \textbf{Guiar ayuda, sin milagros.} La detección en una hora sube de \pPasivaSesenta~\% a \pGuiadaSesenta~\%
-        con diez insectos, pero pesan más el número de insectos y la forma del colapso, y en uno de los ocho guiar
-        empeora el resultado.
-  \item \textbf{Para que vuelvan hace falta una señal en la entrada.} El refugio recupera \regTrampaDos~\% en dos horas
-        y un faro, \regFaroDos~\%; ningún método los recupera a todos.
+    \item \textbf{El insecto carga menos de lo que se suele citar.} Después de revisar la literatura, la meta que podemos
+        defender es una mochila de 2 a 3~g y de perfil bajo. El cómputo casi no pesa; lo que manda es la batería y el sensor.
+  \item \textbf{El núcleo funciona y cabe en un chip.} Ocupa 477 elementos lógicos, dio lo mismo que su modelo de referencia
+        en 11\,424 cuadros y lo probamos en dos tarjetas. En SKY130 mide 0.050~mm$^2$, pasa DRC y LVS y alcanza la misma
+        frecuencia que en la FPGA, con 0.58~mA a 1.8~V en espera.
+  \item \textbf{Con tres FPGA se puede detectar, avisar y ubicar sin computadora.} La red retransmite el aviso de la mochila
+        que queda fuera de alcance y triangula con 6.2~cm de error a 31.95~m, en 1.10~s. Pasó los nueve escenarios en
+        simulación, con el ruido y el corte exacto en 32~m incluidos.
+  \item \textbf{Aprendimos a no confiar en el punto fijo sin medirlo.} Con dieciséis iteraciones el CORDIC da
+        0.017\textdegree{} y más iteraciones no lo mejoran. La distancia por CORDIC truncado fallaba en más de la mitad de las
+        distancias exactas, y con una raíz entera quedó sin error y con la quinta parte de la lógica. El PID difiere del de
+        aritmética real en menos de una cuenta.
+  \item \textbf{Guiar al insecto ayuda, pero no siempre.} La detección en una hora sube de \pPasivaSesenta~\% a
+        \pGuiadaSesenta~\% con diez insectos. Sin embargo, pesan más el número de insectos y la forma del colapso, y en uno de
+        los ocho colapsos guiar empeoró el resultado.
+  \item \textbf{Para que regresen hace falta una señal en la entrada.} Con el refugio se recupera \regTrampaDos~\% en dos
+        horas y con un faro, \regFaroDos~\%. Ningún método los recuperó a todos.
 \end{enumerate}
 
-\textbf{Sobre la hipótesis.} Se sostiene en parte: la política aumenta la detección sin habituación y cabe en
-miligramos de silicio, pero la mejora depende del colapso. Que dos mochilas bastan para ubicar a la persona se
-cumplió en simulación y síntesis con el sensor simulado; falta repetirlo con sensores reales.
+\textbf{Sobre la hipótesis.} Se cumplió en parte. La política aumenta la detección sin habituación y cabe en miligramos de
+silicio, pero la mejora depende del colapso. Que dos mochilas bastan para ubicar a la persona se cumplió en simulación y en
+las tarjetas, siempre con el sensor simulado, y falta repetirlo con sensores reales.
 
-\textbf{Trabajo futuro.} (1) Enviar el GDS a una corrida compartida como Tiny Tapeout~\cite{tinytapeout}, medirlo en
-silicio y llevar al mismo flujo el detector de tonos. (2) Conectar una matriz AMG8833 o MLX90640, un micrófono MEMS y
-un sensor de CO$_2$. (3) Estimar la distancia por tonos, para que la posición deje de darse por conocida. (4) Más
-nodos y un receptor que retransmita. (5) El regreso con faro y dos fotodiodos, cerrando el lazo con el PID ya
-verificado. (6) Pruebas en recinto cerrado con la colonia de la universidad y el protocolo de la
-sección~\ref{sec:etica}.
+\textbf{Trabajo futuro.} Lo siguiente sería (1) mandar el GDS a una corrida compartida como Tiny Tapeout~\cite{tinytapeout}
+para medirlo en silicio, y llevar al mismo flujo el detector de tonos; (2) conectar una matriz AMG8833 o MLX90640, un
+micrófono MEMS y un sensor de CO$_2$; (3) estimar la distancia por tonos, para ya no dar la posición por conocida; (4) agregar
+más nodos y un receptor que retransmita, y (5) hacer el regreso con faro y dos fotodiodos, cerrando el lazo con el PID que ya
+verificamos. Por último, (6) habría que hacer pruebas en un recinto cerrado con la colonia de la universidad y el protocolo
+de la sección~\ref{sec:etica}.

@@ -1,15 +1,15 @@
 \subsection{Caso 3: la misión simulada}
 \label{sec:resultados}
 
-Cada misión libera a los insectos por un boquete de un colapso sintético con unos \areaLibre~m$^2$ de huecos; la
-persona está inmóvil, a un recorrido medio de \distVictima~m. Cada configuración se corrió \numCorridas{} veces en
-\numMapas{} colapsos: \numMisiones{} misiones de una hora, con un margen de unos $\pm5$ puntos (95~\%).
+En cada misión soltamos a los insectos por un boquete de un colapso sintético con unos \areaLibre~m$^2$ de huecos. La
+persona está inmóvil, a un recorrido medio de \distVictima~m. Corrimos cada configuración \numCorridas{} veces en
+\numMapas{} colapsos, es decir, \numMisiones{} misiones de una hora, con un margen de unos $\pm5$ puntos (95~\%).
 
 \textbf{Validación.} En una arena de $1\times1$~m el insecto simulado camina \valAndaNat{} del tiempo sin estímulos
 (publicado: $0.37\pm0.20$), hace pausas de \valPausaNat~s ($36.8\pm24.1$) y suelta la pared con probabilidad
 \valSalidaNat{} (0.005); con comandos, \valAndaCom{} (0.643) y \valSalidaCom{}
-(0.052)~\cite{dirafzoon2017,tranngoc2024}. Solo difiere la pausa con comandos: \valPausaCom~s frente a 5.6~s, de modo
-que el modelo es conservador (tabla~\ref{tab:validacion}).
+(0.052)~\cite{dirafzoon2017,tranngoc2024}. Lo único que no coincide es la pausa con comandos, que en nuestro modelo es de \valPausaCom~s y en lo publicado de 5.6~s. Eso vuelve
+conservador al modelo (tabla~\ref{tab:validacion}).
 
 \begin{table}[!htb]
 \centering\footnotesize
@@ -30,9 +30,9 @@ Pausa media, con comandos (s) & 5.55 & \valPausaCom \\
 \end{tabularx}
 \end{table}
 
-\textbf{Cuatro políticas.} La \textbf{pasiva} solo detecta; la \textbf{antipausa} da un pulso de avance cuando el
-insecto lleva 15~s quieto; la \textbf{estocástica} añade giros al azar, y la \textbf{guiada}, la del núcleo, gira
-además hacia el calor (figura~\ref{fig:politicas} y tabla~\ref{tab:politicas}); la figura~\ref{fig:mapa} muestra una
+\textbf{Cuatro políticas.} Comparamos cuatro formas de usar la mochila. La \textbf{pasiva} solo detecta. La \textbf{antipausa} da un
+pulso de avance cuando el insecto lleva 15~s quieto. La \textbf{estocástica} le añade giros al azar, y la \textbf{guiada}, que es la
+del núcleo, además gira hacia el calor (figura~\ref{fig:politicas} y tabla~\ref{tab:politicas}). En la figura~\ref{fig:mapa} se ve una
 misión.
 
 \begin{figure}[!htb]
@@ -58,9 +58,9 @@ persona. Derecha: fracción de los huecos por los que pasó al menos un insecto.
 \end{tabularx}
 \end{table}
 
-La ganancia viene de mantener al insecto en movimiento y despegarlo de las paredes; girar hacia el calor casi no
-añade, porque solo actúa dentro del alcance de la matriz. En el primer cuarto de hora las políticas no se
-distinguen, y el costo es bajo: unos \estGuiada{} estímulos por insecto y por hora.
+La ganancia viene sobre todo de mantener al insecto en movimiento y de despegarlo de las paredes. Girar hacia el calor casi no
+ayuda, porque solo funciona dentro del alcance de la matriz. En el primer cuarto de
+hora las políticas no se distinguen, y el costo es bajo, de unos \estGuiada{} estímulos por insecto y por hora.
 
 \begin{figure}[!htb]
 \centering
@@ -70,18 +70,16 @@ persona; zona sombreada: desde donde la matriz confirma.}
 \label{fig:mapa}
 \end{figure}
 
-\textbf{El colapso pesa más que la política} (figura~\ref{fig:mapaenjambre}a). Según el colapso, la detección en una
-hora va de \mapaMinPasiva{} a \mapaMaxPasiva~\% sin estímulos y de \mapaMinGuiada{} a \mapaMaxGuiada~\% con la
-guiada, que gana en \mapasGanaGuiada{} de los \numMapas{}, empata en \mapasEmpate{} y pierde en
-\mapasPierdeGuiada. En el mejor caso pasa de \mapaMejorPasiva{} a \mapaMejorGuiada~\%; en el peor, de
-\mapaPeorPasiva{} a \mapaPeorGuiada~\%, porque ahí seguir la pared lleva directo a la persona. Un enjambre mixto, con
-cinco de cada uno, conserva el promedio (\mixtoSesenta~\%) y quita el caso malo (\mixtoPeor~\% en lugar de
-\mapaPeorGuiada~\%): es la configuración que se recomienda.
+\textbf{El colapso pesa más que la política} (figura~\ref{fig:mapaenjambre}a). Dependiendo del colapso, la detección en una hora va de
+\mapaMinPasiva{} a \mapaMaxPasiva~\% sin estímulos y de \mapaMinGuiada{} a \mapaMaxGuiada~\% con la guiada. La guiada gana en
+\mapasGanaGuiada{} de los \numMapas{}, empata en \mapasEmpate{} y pierde en \mapasPierdeGuiada. En el mejor caso pasa de \mapaMejorPasiva{} a \mapaMejorGuiada~\%; en el peor, de
+\mapaPeorPasiva{} a \mapaPeorGuiada~\%, porque en ese colapso basta con seguir la pared para llegar a la persona. Un enjambre mixto, con cinco de cada uno, conserva
+el promedio (\mixtoSesenta~\%) y quita el caso malo (\mixtoPeor~\% en lugar de \mapaPeorGuiada~\%), así que es la
+configuración que recomendamos.
 
-\textbf{Tamaño del enjambre} (figura~\ref{fig:mapaenjambre}b). Uno solo encuentra a la persona en una de cada cuatro
-misiones (\enjHoraPasivaUno{} y \enjHoraGuiadaUno~\%). Con veinte, la guía sube la detección de
-\enjHoraPasivaVeinte{} a \enjHoraGuiadaVeinte~\%. Diez guiados (\enjHoraGuiadaDiez~\%) rinden como entre veinte y
-cuarenta sin guiar: la política equivale a duplicar o triplicar el enjambre.
+\textbf{Tamaño del enjambre} (figura~\ref{fig:mapaenjambre}b). Un solo insecto encuentra a la persona en una de cada cuatro misiones (\enjHoraPasivaUno{} y \enjHoraGuiadaUno~\%). Con veinte, la
+guía sube la detección de \enjHoraPasivaVeinte{} a \enjHoraGuiadaVeinte~\%. Diez guiados (\enjHoraGuiadaDiez~\%) rinden como entre
+veinte y cuarenta sin guiar, así que usar la política equivale más o menos a duplicar o triplicar el enjambre.
 
 \begin{figure}[!htb]
 \centering
@@ -101,8 +99,7 @@ cuarenta sin guiar: la política equivale a duplicar o triplicar el enjambre.
 misiones y la de $32\times32$ en \senTreintaDosSesenta~\%: la que se consigue en México pierde pocos puntos. En
 misiones de dos horas con pulsos unipolares, estimular sin límite aplica \habEstSinLimite{} estímulos por insecto y
 por hora y deja la respuesta en \habRespSinLimite~\%; con el presupuesto son \habEstDosificado{} y
-\habRespDosificado~\%, con una detección prácticamente igual (\habDetSinLimite{} y \habDetDosificado~\%). El
-argumento para dosificar es el animal, no el rendimiento (figura~\ref{fig:sensorhab}).
+\habRespDosificado~\%, con una detección prácticamente igual (\habDetSinLimite{} y \habDetDosificado~\%). Dosificar, entonces, no mejora la búsqueda; lo hacemos por cuidar al animal (figura~\ref{fig:sensorhab}).
 
 \begin{figure}[!htb]
 \centering
@@ -112,12 +109,12 @@ sin dosificación, frente a un estímulo que no habitúa.}
 \label{fig:sensorhab}
 \end{figure}
 
-\textbf{Sensibilidad} (figura~\ref{fig:sensibilidad}). Doce supuestos se movieron uno a la vez en cuatro colapsos.
+\textbf{Sensibilidad} (figura~\ref{fig:sensibilidad}). Movimos doce supuestos, uno a la vez, en cuatro colapsos.
 Cuatro cambian el resultado más que el margen de muestreo: el largo del tramo recto (de \sensTramoBajoGuiada{} a
 \sensTramoAltoGuiada~\%), la velocidad que quita la carga (de \sensCargaBajoGuiada{} a \sensCargaAltoGuiada~\% si
 resta 30~\%), la duración de las pausas (de \sensPausaBajoGuiada{} a \sensPausaAltoGuiada~\%) y la velocidad de
-marcha (de \sensVelocidadBajoGuiada{} a \sensVelocidadAltoGuiada~\%). La política tolera la incertidumbre sobre el
-estímulo, que es lo peor conocido; lo que más importa es cuánto y qué tan rápido camina el insecto.
+marcha (de \sensVelocidadBajoGuiada{} a \sensVelocidadAltoGuiada~\%). La política aguanta bien que no conozcamos con precisión el estímulo, que es lo que menos se sabe. Lo que de verdad importa es cuánto y
+qué tan rápido camina el insecto.
 
 \begin{figure}[!htb]
 \centering
@@ -129,11 +126,11 @@ estímulo, que es lo peor conocido; lo que más importa es cuánto y qué tan r�
 \textbf{Recuperar a los insectos.}\phantomsection\label{sec:regreso} Tras 45~min de búsqueda se da la orden de
 regreso; en el boquete hay un refugio oscuro que retiene a los que pasan a 30~cm (figura~\ref{fig:regreso}
 y tabla~\ref{tab:regreso}, \regInsectos{} insectos por caso). Con solo el refugio vuelve \regTrampaSesenta~\% en una hora y \regTrampaDos~\% en
-dos. Guiarlo a ciegas es peor: el rumbo recto o desandar la ruta recuperan \regRumboDos{} y \regRutaDos~\%, porque la
-cuenta de pasos y giros se desvía con cada metro. Lo que cambia el resultado es una señal en la entrada: con un faro
-infrarrojo que se percibe hasta 6~m y dos fotodiodos vuelve \regFaroSesenta~\% en una hora y \regFaroDos~\% en dos,
-con \regEstFaro{} estímulos. Ningún método los recupera a todos. El faro es un supuesto: existen sus dos piezas por
-separado, una cerca invisible~\cite{latif2014} y la localización de sonido desde la mochila~\cite{latif2016}.
+dos. Guiarlo a ciegas resultó peor. Con el rumbo recto o desandando la ruta se recupera \regRumboDos{} y \regRutaDos~\%, porque
+la cuenta de pasos y giros se desvía con cada metro. Lo que sí cambió el resultado fue poner una señal en la entrada: con un
+faro infrarrojo que se percibe hasta 6~m y dos fotodiodos vuelve \regFaroSesenta~\% en una hora y \regFaroDos~\% en dos, con
+\regEstFaro{} estímulos. Ningún método los recuperó a todos. El faro es un supuesto nuestro, aunque sus dos piezas existen
+por separado: una cerca invisible~\cite{latif2014} y la localización de sonido desde la mochila~\cite{latif2016}.
 
 \begin{table}[!htb]
 \centering\footnotesize
@@ -156,7 +153,8 @@ separado, una cerca invisible~\cite{latif2014} y la localización de sonido desd
 \label{fig:regreso}
 \end{figure}
 
-\textbf{Qué dice y qué no dice.} La guiada aumenta la detección en 45 a 60~min (de \pPasivaCuarentaCinco{} a
-\pGuiadaCuarentaCinco~\% y de \pPasivaSesenta{} a \pGuiadaSesenta~\%) y lo hace con pocos estímulos, pero la mejora
-depende del colapso. No dice cuánto tardaría un rescate real, porque los colapsos son planos y la marcha se midió en
-arenas iluminadas, ni dice nada sobre falsas alarmas: en la simulación la persona es la única fuente de calor.
+\textbf{Hasta dónde llega esta simulación.} La política guiada aumenta la detección en 45 a 60~min (de
+\pPasivaCuarentaCinco{} a \pGuiadaCuarentaCinco~\% y de \pPasivaSesenta{} a \pGuiadaSesenta~\%) y lo hace con pocos
+estímulos, pero la mejora depende del colapso. Con estos resultados no podemos decir cuánto tardaría un rescate real, porque
+los colapsos son planos y la marcha se midió en arenas iluminadas. Tampoco podemos decir nada sobre falsas alarmas, ya que en
+la simulación la persona es la única fuente de calor.

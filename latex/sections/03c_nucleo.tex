@@ -1,11 +1,11 @@
 \subsection{El núcleo de la mochila, módulo por módulo}
 \label{sec:nucleo}
 
-La mochila deja que el insecto explore solo y estimula lo mínimo. La política es una máquina de ocho estados que
-avanza una vez por cuadro térmico, diez veces por segundo (figura~\ref{fig:fsm}), y tres reglas la distinguen de
-un control remoto: la espera que se duplica si el insecto no responde, los giros al azar que lo despegan de las
-paredes~\cite{dirafzoon2017} y un presupuesto que limita los estímulos. La figura~\ref{fig:nucleo} muestra los
-módulos; el recuadro punteado es lo que iría en el chip. En cada encabezado van el archivo y los elementos
+La idea de la mochila es dejar que el insecto explore solo y estimularlo lo menos posible. La política es una máquina de
+ocho estados que avanza una vez por cuadro térmico, diez veces por segundo (figura~\ref{fig:fsm}). A diferencia de un
+control remoto, usa tres reglas: duplica la espera si el insecto no responde, manda giros al azar para despegarlo de las
+paredes~\cite{dirafzoon2017} y lleva un presupuesto que limita los estímulos. En la figura~\ref{fig:nucleo} se ven los
+módulos, y el recuadro punteado marca lo que iría en el chip. En cada encabezado anotamos el archivo y los elementos
 lógicos (EL) y registros (R) que reporta Quartus.
 
 \begin{figure}[!htb]
@@ -23,15 +23,15 @@ lógicos (EL) y registros (R) que reporta Quartus.
 \end{figure}
 
 \modulo{ventana\_termica}{hdl/ventana\_termica.v}{160 EL, 61 R}
-Recibe la matriz píxel por píxel, un byte de 0.25~\textdegree C por cuenta con un pulso \sig{px\_valido}. Dos
-comparadores revisan la ventana de piel ($T_{\min}\le T\le T_{\max}$, por omisión 112 y 152 cuentas, o sea 28 y
-38~\textdegree C) y un tercero exige superar el fondo en 8 cuentas (2~\textdegree C); si los tres se cumplen, el
-píxel es caliente. Tres contadores llevan el total, los de las columnas 0 a 2 y los de las columnas 5 a 7, y un
-acumulador de 14 bits suma las temperaturas. Con \sig{px\_ultimo} cierra el cuadro: publica el conteo, el lado
-que domina (01 izquierda, 10 derecha, 00 centro) y la media, que se obtiene con un corrimiento de 6 bits y sirve
-de fondo para el cuadro siguiente. Los valores se calculan con el píxel actual ya sumado, así que todo cierra en
-el mismo ciclo. El fondo arranca en 255: en el primer cuadro nada puede ser caliente. El pulso \sig{cuadro} es el
-\sig{tick} con el que avanzan los demás módulos (figura~\ref{fig:dventana}).
+Aquí empieza todo. Este módulo recibe la matriz píxel por píxel, un byte de 0.25~\textdegree C por cuenta con un pulso
+\sig{px\_valido}, y decide cuáles están calientes. Dos comparadores revisan la ventana de piel ($T_{\min}\le T\le T_{\max}$,
+por omisión 112 y 152 cuentas, o sea 28 y 38~\textdegree C) y un tercero pide que el píxel supere al fondo en 8 cuentas
+(2~\textdegree C). Tiene que cumplir los tres. Mientras llegan los píxeles, tres contadores llevan el total, los de las
+columnas 0 a 2 y los de las columnas 5 a 7, y un acumulador de 14 bits suma las temperaturas. Cuando llega \sig{px\_ultimo} se
+cierra el cuadro y salen el conteo, el lado que domina (01 izquierda, 10 derecha, 00 centro) y la media, que sacamos con un
+corrimiento de 6 bits y que sirve de fondo para el cuadro siguiente. Los valores ya incluyen el píxel actual, por eso todo
+cierra en el mismo ciclo. El fondo lo arrancamos en 255 para que en el primer cuadro nada pueda salir caliente. El pulso
+\sig{cuadro} es el \sig{tick} con el que avanzan los demás módulos (figura~\ref{fig:dventana}).
 
 \begin{figure}[!htb]
 \centering
@@ -50,28 +50,28 @@ el mismo ciclo. El fondo arranca en 255: en el primer cuadro nada puede ser cali
 \end{figure}
 
 \modulo{media\_movil4}{hdl/detectores.v}{40 EL, 28 R}
-Filtro FIR de cuatro coeficientes iguales (sección~\ref{sec:fir}). Guarda los últimos cuatro conteos en un
-registro de corrimiento, los suma con dos bits extra para no desbordar y divide entre cuatro quitando los dos
-bits bajos. Quita el vaivén que mete el insecto al caminar.
+Es un filtro FIR de cuatro coeficientes iguales (sección~\ref{sec:fir}). El insecto se balancea al caminar y eso hace que el
+conteo suba y baje, así que guardamos los últimos cuatro en un registro de corrimiento, los sumamos con dos bits extra para no
+desbordar y dividimos entre cuatro quitando los dos bits bajos.
 
 \modulo{detector\_presencia}{hdl/detectores.v}{9 EL, 4 R}
-Compara el conteo filtrado con dos umbrales: \sig{pre} vale 1 con 2 píxeles o más (conviene acercarse) y
-\sig{sobre}, con 8 o más. Un contador de 4 bits, que se satura en 15, cuenta los cuadros seguidos con
-\sig{sobre} y vuelve a cero en cuanto falta uno; al llegar a cuatro levanta \sig{confirmado}. Así un reflejo de un
-solo cuadro no dispara la alerta.
+Compara el conteo filtrado con dos umbrales. Con 2 píxeles o más, \sig{pre} vale 1 y conviene acercarse; con 8 o más se
+enciende \sig{sobre}. No quisimos que un reflejo de un solo cuadro disparara la alerta, por lo que un contador de 4 bits, que
+se satura en 15, cuenta los cuadros seguidos con \sig{sobre} y vuelve a cero en cuanto falta uno. Cuando llega a cuatro levanta
+\sig{confirmado}.
 
 \modulo{detector\_quietud}{hdl/detectores.v}{10 EL, 4 R}
-Recibe la «actividad» de la IMU (0 a 255). Si se queda por debajo de 8 durante diez cuadros seguidos, un segundo,
-declara quieto al insecto; una sola lectura por arriba baja la salida de inmediato.
+Sirve para saber si el insecto se quedó parado. Recibe la «actividad» de la IMU (0 a 255) y, si se queda por debajo de 8
+durante diez cuadros seguidos, que es un segundo, lo declara quieto. Basta una lectura por arriba para que la salida baje.
 
 \modulo{lfsr16}{hdl/detectores.v}{16 EL, 16 R}
-Registro de corrimiento con realimentación, $x^{16}+x^{14}+x^{13}+x^{11}+1$, de periodo 65\,535 y semilla
-\sig{0xACE1}. Avanza un paso por cuadro. La política gira al azar cuando sus nueve bits bajos son cero, es decir
-una vez cada 512 cuadros (51.2~s) en promedio, y el bit 9 decide el lado.
+De aquí sale el azar de los giros. Es un registro de corrimiento con realimentación, $x^{16}+x^{14}+x^{13}+x^{11}+1$, de
+periodo 65\,535 y semilla \sig{0xACE1}, que avanza un paso por cuadro. La política gira al azar cuando los nueve bits bajos son
+cero, o sea una vez cada 512 cuadros (51.2~s) en promedio, y con el bit 9 escoge el lado.
 
 \modulo{fsm\_politica}{hdl/fsm\_politica.v}{181 EL, 64 R}
-Es el control. Un bloque combinacional calcula el estado siguiente y si este cuadro sale un estímulo; un bloque
-secuencial lo registra y actualiza los temporizadores, todos en décimas de segundo:
+Es la parte que toma las decisiones y la que más trabajo tiene. Un bloque combinacional calcula el estado siguiente y si en
+este cuadro sale un estímulo; otro, secuencial, lo registra y actualiza los temporizadores, todos en décimas de segundo:
 \begin{itemize}
   \item \textbf{REPOSO} espera la orden de arranque. \textbf{EXPLORAR} deja caminar y vigila, en este orden, la
         mancha de calor, el presupuesto, la quietud y el azar.
@@ -81,23 +81,23 @@ secuencial lo registra y actualiza los temporizadores, todos en décimas de segu
         vuelve a explorar. \textbf{CONFIRMAR} deja de estimular y espera \sig{confirmado}. \textbf{ALERTAR} es final y
         emite una baliza cada 5~s. \textbf{DESCANSO} espera a que baje el presupuesto.
 \end{itemize}
-Entre estímulos pasan al menos 10~s. El presupuesto es una cuenta Q8.8: cada estímulo suma 256 (1.0) y cada 23
-cuadros pierde $1/256$ de su valor, al menos una cuenta, lo que da una constante de unos 590~s, cercana a la
-recuperación del insecto. Con 12.0 acumulados se deja de estimular. Así se acota la habituación y la carga sobre
-el animal sin medir su respuesta.
+Entre un estímulo y otro dejamos pasar al menos 10~s. El presupuesto es una cuenta Q8.8 a la que cada estímulo le suma 256
+(1.0) y que cada 23 cuadros pierde $1/256$ de su valor, al menos una cuenta. Eso da una constante de unos 590~s, parecida a lo
+que tarda en recuperarse el insecto. Cuando se juntan 12.0 se deja de estimular, y así acotamos la habituación y la carga sobre
+el animal sin tener que medir su respuesta.
 
 \modulo{gen\_estimulo}{hdl/gen\_estimulo.v}{64 EL, 47 R}
-Con cada \sig{disparo} saca 25 periodos de una onda cuadrada de 50~Hz (0.5~s) por el canal pedido: avance,
-izquierda o derecha. Un contador mide el medio periodo (500\,000 ciclos a 50~MHz) y un bit alterna las mitades.
-Cada canal tiene dos salidas en contrafase, \sig{fase\_a} y \sig{fase\_b}, que en un par de electrodos dan una
-onda bifásica sin componente continua; para la luz ultravioleta basta \sig{led\_on}. Mientras hay un tren en
-curso ignora otros disparos, y todas las salidas son registros para no tener transitorios.
+Cada vez que llega un \sig{disparo}, saca 25 periodos de una onda cuadrada de 50~Hz (0.5~s) por el canal que se le pide, ya sea
+avance, izquierda o derecha. Un contador mide el medio periodo (500\,000 ciclos a 50~MHz) y un bit va alternando las mitades.
+Cada canal tiene dos salidas en contrafase, \sig{fase\_a} y \sig{fase\_b}. En un par de electrodos eso da una onda bifásica sin
+componente continua, y para la luz ultravioleta basta con \sig{led\_on}. Si ya hay un tren en curso ignora los demás disparos, y
+registramos todas las salidas para no tener transitorios.
 
 \modulo{nucleo\_biobot}{hdl/nucleo\_biobot.v}{477 EL, 224 R}
-Conecta los siete módulos. No depende de la tarjeta: recibe píxeles ya separados y la actividad, y entrega las
-fases, el estado, la alerta, la baliza y la telemetría. Es el mismo archivo en la demostración, en la red de tres
-tarjetas (donde la ventana se ajusta a 35--38~\textdegree C por parámetros) y en el layout. La
-figura~\ref{fig:rtlnucleo} es lo que Quartus entiende de él.
+Conecta los siete módulos y no depende de la tarjeta: recibe los píxeles ya separados y la actividad, y entrega las fases,
+el estado, la alerta, la baliza y la telemetría. Usamos el mismo archivo en la demostración, en la red de tres tarjetas
+(ahí ajustamos la ventana a 35--38~\textdegree C por parámetros) y en el layout. En la figura~\ref{fig:rtlnucleo} se ve
+cómo lo interpreta Quartus.
 
 \begin{figure}[!htb]
 \centering
@@ -109,11 +109,10 @@ figura~\ref{fig:rtlnucleo} es lo que Quartus entiende de él.
 \subsubsection{Enlace serie del prototipo}
 
 \modulo{uart\_rx}{hdl/uart\_rx.v}{63 EL, 40 R}
-Receptor 8N1 de la práctica~4. Dos flip-flops sincronizan la línea; al ver el flanco de bajada espera medio bit y
-confirma que el bit de inicio sigue en 0 (si no, fue ruido y lo descarta). Desde ahí cuenta bits completos
-(5\,208 ciclos a 9\,600 baudios o 434 a 115\,200) y muestrea cada dato en su centro, empezando por el menos
-significativo. En el centro del bit de paro entrega el byte con un pulso \sig{data\_valid}
-(figura~\ref{fig:duart}).
+Es el receptor 8N1 que hicimos en la práctica~4. Dos flip-flops sincronizan la línea. Cuando ve el flanco de bajada espera
+medio bit y revisa que el bit de inicio siga en 0; si ya no está, era ruido y lo descarta. A partir de ahí cuenta bits completos
+(5\,208 ciclos a 9\,600 baudios o 434 a 115\,200) y lee cada dato en su centro, empezando por el menos significativo. En el
+centro del bit de paro entrega el byte con un pulso \sig{data\_valid} (figura~\ref{fig:duart}).
 
 \begin{figure}[!htb]
 \centering
@@ -132,23 +131,22 @@ significativo. En el centro del bit de paro entrega el byte con un pulso \sig{da
 \end{figure}
 
 \modulo{uart\_tx}{hdl/uart\_tx.v}{43 EL, 31 R}
-Con \sig{tx\_start} carga un registro de diez bits, \sig{\{1, dato, 0\}}, y lo recorre a la derecha un bit por
-periodo. Mientras transmite, \sig{busy} vale 1 y no acepta otra petición.
+Hace el camino contrario. Con \sig{tx\_start} carga un registro de diez bits, \sig{\{1, dato, 0\}}, y lo recorre a la derecha un
+bit por periodo. Mientras está transmitiendo, \sig{busy} vale 1 y no acepta otra petición.
 
 \modulo{receptor\_trama}{hdl/enlace\_serie.v}{86 EL, 58 R}
-Arma un cuadro con los bytes que llegan: \sig{0xA5}, actividad y 64 píxeles. La actividad va primero para que esté
-estable cuando el último píxel cierra el cuadro. Si pasan 5~ms sin bytes, abandona la trama y vuelve a buscar la
-cabecera.
+Con los bytes que van llegando arma un cuadro: \sig{0xA5}, actividad y 64 píxeles. Mandamos primero la actividad para que ya
+esté estable cuando el último píxel cierre el cuadro. Si pasan 5~ms sin bytes, abandona la trama y vuelve a buscar la cabecera.
 
 \modulo{emisor\_estado}{hdl/enlace\_serie.v}{31 EL, 16 R}
-Después de cada cuadro contesta cuatro bytes: \sig{0x5A}; alerta, estado, si hubo estímulo, canal y quietud;
-\sig{pre} y conteo filtrado; y la parte entera del presupuesto. Espera tres ciclos tras el \sig{tick} para leer el
-estado ya actualizado y guarda el disparo en un bit para no perderlo entre reportes.
+Después de cada cuadro contesta cuatro bytes. El primero es \sig{0x5A}; el segundo lleva alerta, estado, si hubo estímulo, canal
+y quietud; el tercero, \sig{pre} y el conteo filtrado, y el último, la parte entera del presupuesto. Espera tres ciclos tras el
+\sig{tick} para leer el estado ya actualizado, y guarda el disparo en un bit para que no se pierda entre un reporte y otro.
 
 \subsubsection{Verificación contra un modelo de referencia}
 
-Antes de escribir el Verilog se programó en Python un modelo que hace las mismas cuentas con enteros, registro por
-registro. Genera los cuadros de prueba y la respuesta esperada, y los bancos comparan cuadro por cuadro
+Antes de escribir el Verilog programamos en Python un modelo que hace las mismas cuentas con enteros, registro por
+registro. Ese modelo genera los cuadros de prueba y la respuesta que esperamos, y los bancos comparan cuadro por cuadro
 (tabla~\ref{tab:bancos}). El prototipo completo ocupa 722~EL y 372~R, con $f_{\max}=72.08$~MHz.
 
 \begin{table}[!htb]

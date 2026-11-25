@@ -1,10 +1,11 @@
+\needspace{9\baselineskip}
 \section{Metodología}
 \label{sec:metodologia}
 
-El trabajo avanzó de los datos al circuito, y cada paso entrega al siguiente un número con el que se puede
-diseñar. Con lo publicado se fijó qué puede cargar y hacer el insecto; con eso se armó un modelo de la misión
-que compara políticas de estímulo por simulación. La política elegida se describió en Verilog como el núcleo
-de la mochila, sobre el núcleo se construyó la red de tres FPGA, y al final el núcleo se llevó a un layout.
+Empezamos por los datos y fuimos avanzando hacia el circuito. Primero buscamos en la literatura qué puede cargar y hacer el
+insecto, y con eso armamos un modelo de la misión para comparar políticas de estímulo por simulación. La política que
+elegimos la describimos en Verilog como el núcleo de la mochila. Después construimos la red de tres FPGA alrededor de ese
+núcleo y, al final, lo llevamos a un layout.
 
 \subsection{El portador y la mochila}
 \label{sec:portador}
@@ -38,16 +39,17 @@ Energía & 5~mW en reposo, 17 a 31~mW caminando (calculado de~\cite{herreid1981}
 \end{tabularx}
 \end{table}
 
-La revisión obligó a corregir cuatro cifras de la propuesta inicial: la carga útil (de 15~g a 2--3~g), la
-velocidad (de 0.3~m/s a 1.9--5~cm/s), el umbral térmico fijo de 35.5--38.5~\textdegree C, que es temperatura
-central y no de piel, y el tamaño del circuito, que no son 60 celdas sino 477 elementos lógicos.
+Esta revisión nos obligó a corregir cuatro cifras de nuestra propuesta inicial. La carga útil bajó de 15~g a 2--3~g y la
+velocidad, de 0.3~m/s a 1.9--5~cm/s. El umbral térmico fijo de 35.5--38.5~\textdegree C tampoco servía, porque corresponde
+a la temperatura central del cuerpo y no a la de la piel. Y el circuito, que habíamos estimado en 60 celdas, resultó de 477
+elementos lógicos.
 
-\textbf{Masa y energía.} Se adopta una matriz térmica, radio de baja potencia, IMU y una batería de 40~mAh, unos
-2.9~g en total (figura~\ref{fig:presupuestos}). Con el sensor encendido consume cerca de 30~mW, de modo que la
-autonomía estimada es $t=0.85\times40~\text{mAh}\times3.7~\text{V}/30~\text{mW}\approx4$~h; como referencia
-medida, la mochila de NTU gasta 205.5~mW y dura 2.2~h con 120~mAh~\cite{tranngoc2023}. El cómputo casi no pesa:
-una iCE40 UltraLite de 1\,248 LUT mide $1.4\times1.4$~mm y pesa unos 2~mg~\cite{lattice}, y el nRF52840, unos
-15~mg~\cite{nordic}. Por eso conviene gastar lógica, que es gratis en masa, para ahorrar energía y estímulos.
+\textbf{Masa y energía.} Elegimos una matriz térmica, un radio de baja potencia, una IMU y una batería de 40~mAh, que
+juntos pesan unos 2.9~g (figura~\ref{fig:presupuestos}). Con el sensor encendido el consumo es de cerca de 30~mW, y de ahí
+estimamos una autonomía de $t=0.85\times40~\text{mAh}\times3.7~\text{V}/30~\text{mW}\approx4$~h. Como referencia medida, la
+mochila de NTU gasta 205.5~mW y dura 2.2~h con 120~mAh~\cite{tranngoc2023}. El cómputo casi no pesa: una iCE40 UltraLite de
+1\,248 LUT mide $1.4\times1.4$~mm y pesa unos 2~mg~\cite{lattice}, y el nRF52840 anda por los 15~mg~\cite{nordic}. Por eso
+preferimos gastar lógica, que no agrega masa, con tal de ahorrar energía y estímulos.
 
 \begin{figure}[!htb]
 \centering
@@ -67,28 +69,27 @@ son estimadas.}
 \subsection{El modelo de la misión}
 \label{sec:modelo}
 
-\textbf{Marcha.} Sin estímulo se usa el modelo de Dirafzoon et al.~\cite{dirafzoon2017} con los valores de
-Tran-Ngoc et al.~\cite{tranngoc2024}: tramos rectos exponenciales de media $l^*=17.6$~cm a $v=1.94$~cm/s; al
-terminar cada uno se detiene con probabilidad $P_s=0.211$ un tiempo medio $T_s=36.8$~s, y la pared que sigue
-solo la suelta con probabilidad $p_e=0.005$. De ahí sale la fracción del tiempo que camina,
+\textbf{Marcha.} Para el insecto sin estímulo usamos el modelo de Dirafzoon et al.~\cite{dirafzoon2017} con los valores de
+Tran-Ngoc et al.~\cite{tranngoc2024}. Camina en tramos rectos exponenciales de media $l^*=17.6$~cm a $v=1.94$~cm/s. Al
+terminar cada tramo puede detenerse, con probabilidad $P_s=0.211$, un tiempo medio $T_s=36.8$~s, y si va siguiendo una pared
+solo la suelta con probabilidad $p_e=0.005$. Con eso se obtiene la fracción del tiempo que camina,
 \begin{equation}
 F_m=\frac{l^*/v}{l^*/v+P_s\,T_s}=\frac{9.1}{9.1+7.8}=0.54 ,
 \end{equation}
 dentro del intervalo medido de $0.37\pm0.20$.
 
-\textbf{Estímulo.} Se adopta la luz ultravioleta: no requiere cirugía, no se ha observado habituación en 150
-ensayos~\cite{refat2025} y la colonia de la universidad responde a ella~\cite{gracidas2026}. Los electrodos de
-superficie~\cite{lin2023,tranngoc2025} (81~\% y 74~\% de éxito) quedan como alternativa y el generador de
-pulsos sirve para los dos. La tabla~\ref{tab:estimulos} compara las
-opciones. El insecto obedece con probabilidad $p\,(1-H)$, con $p=0.78$~\cite{lin2023}; la
-habituación $H$ sube con cada estímulo y baja con el descanso:
+\textbf{Estímulo.} Nos quedamos con la luz ultravioleta. No requiere cirugía, no se ha observado habituación en 150
+ensayos~\cite{refat2025} y la colonia de la universidad responde a ella~\cite{gracidas2026}. Como alternativa dejamos los
+electrodos de superficie~\cite{lin2023,tranngoc2025} (81~\% y 74~\% de éxito), ya que el generador de pulsos sirve para los
+dos. En la tabla~\ref{tab:estimulos} comparamos las opciones. En el modelo, el insecto obedece con probabilidad $p\,(1-H)$,
+con $p=0.78$~\cite{lin2023}; la habituación $H$ sube con cada estímulo y baja con el descanso:
 \begin{equation}
 H\leftarrow H+\alpha\,(1-H) \quad\text{por estímulo},\qquad H(t+\Delta t)=H(t)\,e^{-\Delta t/\tau}.
 \end{equation}
-Con $\tau=600$~s~\cite{sanchez2015} y $\alpha=0.09$ el modelo reproduce los datos de pulsos unipolares: queda
-el 46~\% de la respuesta tras diez estímulos cada 15~s (medido: 43~\%~\cite{ma2023}) y el 22~\% tras cuarenta
-(medido: 20~\%~\cite{erickson2015}). Con onda bifásica o con luz, $\alpha$ es al menos cuarenta veces menor
-(figura~\ref{fig:habituacion}); la simulación usa $\alpha=0.01$, un valor conservador.
+Con $\tau=600$~s~\cite{sanchez2015} y $\alpha=0.09$ el modelo reproduce bien los datos de pulsos unipolares. Tras diez estímulos, uno cada 15~s, queda el 46~\% de la respuesta (medido:
+43~\%~\cite{ma2023}), y tras cuarenta, el 22~\% (medido: 20~\%~\cite{erickson2015}). Con onda bifásica o con luz, $\alpha$
+es al menos cuarenta veces menor (figura~\ref{fig:habituacion}). En la simulación usamos $\alpha=0.01$, que es un valor
+conservador.
 
 \begin{figure}[!htb]
 \centering
@@ -122,12 +123,12 @@ $\varphi$; un blanco de área $A$ a distancia $d$ llena la fracción $f$ y la le
 T_{\text{leída}}=T_f+f\,(T_p-T_f),\qquad f=\min\!\left(1,\ \frac{A}{\pi\,d^2\tan^2(\varphi/2)}\right).
 \end{equation}
 Con una cara ($0.03$~m$^2$) a 33~\textdegree C sobre un fondo de 22~\textdegree C y $\varphi=90$\textdegree, a
-medio metro se leen 22.4~\textdegree C. Una matriz lo resuelve porque cada píxel ve un ángulo $\theta$ y el
-blanco ocupa $n=A/(d\tan\theta)^2$ píxeles. El núcleo cuenta como caliente el píxel que está entre 28 y
-38~\textdegree C, el criterio de NTU~\cite{tranngoc2023}, \emph{y además} 2~\textdegree C por encima de la media
-del cuadro anterior. Con 2 píxeles empieza a acercarse y con 8 durante cuatro cuadros seguidos declara la
-detección (figura~\ref{fig:deteccion}). La matriz de $8\times8$ (AMG8833~\cite{panasonic}, 599~MXN~\cite{unit})
-confirma a 0.9~m y la de $32\times24$ (MLX90640~\cite{melexis}, 1\,100~MXN), a 2.0~m.
+medio metro se leen 22.4~\textdegree C. Es decir, con un solo píxel prácticamente no se nota que hay una persona. Con una matriz sí, porque cada píxel ve un ángulo
+$\theta$ y el blanco ocupa $n=A/(d\tan\theta)^2$ píxeles. El núcleo cuenta como caliente el píxel que está entre 28 y
+38~\textdegree C, que es el criterio de NTU~\cite{tranngoc2023}, y le agregamos que además esté 2~\textdegree C por encima de
+la media del cuadro anterior. Con 2 píxeles empieza a acercarse y con 8 durante cuatro cuadros seguidos declara la detección
+(figura~\ref{fig:deteccion}). La matriz de $8\times8$ (AMG8833~\cite{panasonic}, 599~MXN~\cite{unit}) confirma a 0.9~m y la de
+$32\times24$ (MLX90640~\cite{melexis}, 1\,100~MXN), a 2.0~m.
 
 \begin{figure}[!htb]
 \centering
@@ -137,10 +138,10 @@ dos matrices; el círculo marca el acercamiento y el cuadro, la confirmación.}
 \label{fig:deteccion}
 \end{figure}
 
-\textbf{Límites físicos.} Por encima de unos 30~\textdegree C se pierde el contraste con la piel y el insecto
-deja de moverse (figura~\ref{fig:limites}); el CO$_2$ exhalado~\cite{huo2011} y el sonido son las señales
-complementarias. El concreto atenúa unos 22~dB por metro a 915~MHz y 47~dB a
-2.4~GHz~\cite{itu2040,stone1997}, así que la radio debe ser de menos de 1~GHz y con relevo en el boquete.
+\textbf{Límites físicos.} Arriba de unos 30~\textdegree C se pierde el contraste con la piel y además el insecto deja de
+moverse (figura~\ref{fig:limites}). Para esos casos harían falta otras señales, como el CO$_2$ que exhala la
+persona~\cite{huo2011} o el sonido. El concreto atenúa unos 22~dB por metro a 915~MHz y 47~dB a
+2.4~GHz~\cite{itu2040,stone1997}, así que la radio tiene que ser de menos de 1~GHz y con un relevo en el boquete.
 
 \begin{figure}[!htb]
 \centering
@@ -157,10 +158,10 @@ modelo de la UIT~\cite{itu2040}.}
 \label{fig:limites}
 \end{figure}
 
-\textbf{Localización y misión.} La alerta dice por qué boquete entró el insecto; la IMU estima cuánto caminó, con
-un error de 5 a 10~\% de la distancia~\cite{tranngoc2024}, y el último medio metro lo da una baliza. La misión
-se simula con agentes en colapsos sintéticos de $8\times6$~m; como referencia analítica, la teoría de búsqueda
-da $P_d=1-e^{-C}$ con $C=W v t N/A_h$~\cite{frost2001}. Los parámetros están en la tabla~\ref{tab:parametros}.
+\textbf{Localización y misión.} La alerta indica por qué boquete entró el insecto. La IMU estima cuánto caminó, con un
+error de 5 a 10~\% de la distancia~\cite{tranngoc2024}, y para el último medio metro se usa una baliza. Simulamos la misión
+con agentes en colapsos sintéticos de $8\times6$~m y tomamos como referencia analítica la teoría de búsqueda, que da
+$P_d=1-e^{-C}$ con $C=W v t N/A_h$~\cite{frost2001}. Los parámetros que usamos están en la tabla~\ref{tab:parametros}.
 
 \begin{table}[!htb]
 \centering\footnotesize

@@ -1,8 +1,9 @@
 \subsection{Módulos numéricos en punto fijo (práctica 5)}
 \label{sec:numerico}
 
-La red necesita ángulos, cosenos, potencias de un tono y distancias, y en la FPGA no hay punto flotante. La
-tabla~\ref{tab:formatos} resume los formatos; cada bloque se comparó contra el valor exacto.
+La red necesita ángulos, cosenos, la potencia de un tono y distancias, y todo eso lo tuvimos que hacer sin punto flotante.
+En la tabla~\ref{tab:formatos} están los formatos que elegimos. Cada bloque lo comparamos contra el valor exacto para saber
+cuánto se equivoca.
 
 \begin{table}[!htb]
 \centering\footnotesize
@@ -31,11 +32,11 @@ corrimientos~\cite{volder1959,andraka1998}:
 \begin{equation}
 x_{i+1}=x_i-d_i\,y_i\,2^{-i},\qquad y_{i+1}=y_i+d_i\,x_i\,2^{-i},\qquad z_{i+1}=z_i-d_i\arctan 2^{-i},
 \end{equation}
-con $d_i=\pm1$. Es secuencial, una iteración por ciclo, con una tabla de arcotangentes y sin multiplicadores. En
-\textbf{rotación} lleva $z$ a cero: con $(1/K,0)$ entrega $(\cos z_0,\sin z_0)$, que usa la triangulación. En
-\textbf{vectorización} lleva $y$ a cero: entrega $\operatorname{atan2}(y_0,x_0)$ y la magnitud por
-$K=1.646760$; lo usa el sensor simulado. Antes de iterar lleva el problema al semiplano derecho con un giro de
-180\textdegree, porque solo converge para $\pm99.9$\textdegree. Latencia: $N+2$ ciclos (figura~\ref{fig:rtlcordic}).
+con $d_i=\pm1$. Lo hicimos secuencial, con una iteración por ciclo, una tabla de arcotangentes y ningún multiplicador. Trabaja en dos modos. En
+\textbf{rotación} lleva $z$ a cero, y si se le da $(1/K,0)$ entrega $(\cos z_0,\sin z_0)$, que es lo que usa la triangulación. En
+\textbf{vectorización} lleva $y$ a cero y entrega $\operatorname{atan2}(y_0,x_0)$ y la magnitud por $K=1.646760$; así lo usa el
+sensor simulado. Como solo converge para $\pm99.9$\textdegree, antes de iterar llevamos el problema al semiplano derecho con un giro
+de 180\textdegree. Tarda $N+2$ ciclos (figura~\ref{fig:rtlcordic}).
 
 \begin{figure}[!htb]
 \centering
@@ -53,11 +54,11 @@ $K=1.646760$; lo usa el sensor simulado. Antes de iterar lleva el problema al se
 \label{fig:rtlcordic}
 \end{figure}
 
-Nueve circuitos iguales, con $N$ de 4 a 20, recibieron los mismos 360 vectores y 360 ángulos
-(figura~\ref{fig:cordiciter} y tabla~\ref{tab:cordiciter}). El error se divide entre cuatro cada dos iteraciones
-hasta $N=14$ y ahí se estanca, porque la tabla de 16 bits se agota. Con $N=16$ el error máximo es de
-0.017\textdegree, veinte veces menos que el paso de 0.35\textdegree{} con que el rumbo viaja por la red.
-\sig{tb\_cordic} prueba además los cuatro cuadrantes y 200 divisiones: 248 de 248.
+Para decidir cuántas iteraciones usar, probamos nueve circuitos iguales, con $N$ de 4 a 20, y les dimos los mismos 360
+vectores y 360 ángulos (figura~\ref{fig:cordiciter} y tabla~\ref{tab:cordiciter}). El error se divide entre cuatro cada dos
+iteraciones hasta $N=14$. De ahí en adelante ya no mejora, porque la tabla de 16 bits no da para más. Con $N=16$ el error
+máximo es de 0.017\textdegree, veinte veces menos que el paso de 0.35\textdegree{} con el que el rumbo viaja por la red.
+Con \sig{tb\_cordic} probamos también los cuatro cuadrantes y 200 divisiones, y salieron bien 248 de 248.
 
 \begin{figure}[!htb]
 \centering
@@ -85,16 +86,16 @@ hasta $N=14$ y ahí se estanca, porque la tabla de 16 bits se agota. Con $N=16$ 
 \end{table}
 
 \modulo{divisor\_u}{hdl/cordic.v}{84 a 195 EL}
-Divisor con restauración: por ciclo baja un bit del dividendo al resto, prueba si cabe el divisor y, si cabe, lo
-resta y pone un 1 en el cociente. Tarda un ciclo por bit más uno. La triangulación usa uno de 44 entre 32 bits y
-el rumbo, uno de 20 entre 7.
+Funciona como la división a mano. En cada ciclo baja un bit del dividendo al resto y prueba si cabe el divisor; si cabe, lo resta y
+pone un 1 en el cociente (es un divisor con restauración). Tarda un ciclo por bit más uno. Para la triangulación usamos uno de 44
+entre 32 bits y para el rumbo, uno de 20 entre 7.
 
 \modulo{tri\_distancia}{hdl/tri\_red.v}{87 a 109 EL, 60 R}
 \label{sec:raiz}%
-Calcula $d=\lfloor\sqrt{\Delta x^2+\Delta y^2}\rfloor$ con la raíz dígito por dígito: baja dos bits del radicando
-de 22 por ciclo, prueba si cabe $4q+1$ en el resto y, si cabe, lo resta y agrega un 1 a la raíz. En 12 ciclos da la
-parte entera exacta. La regla del alcance usa la misma suma de cuadrados, $\Delta x^2+\Delta y^2<(16\times32)^2$,
-así que la distancia que se muestra y el corte de los 32~m no pueden contradecirse (figura~\ref{fig:rtldist}).
+Calcula $d=\lfloor\sqrt{\Delta x^2+\Delta y^2}\rfloor$ con la raíz dígito por dígito. En cada ciclo baja dos bits del radicando de 22 y prueba si cabe $4q+1$ en el resto; si cabe, lo resta
+y agrega un 1 a la raíz. En 12 ciclos da la parte entera exacta. Para la regla del alcance usamos la misma suma de cuadrados,
+$\Delta x^2+\Delta y^2<(16\times32)^2$, y con eso la distancia que se muestra y el corte de los 32~m nunca se contradicen
+(figura~\ref{fig:rtldist}).
 
 \begin{figure}[!htb]
 \centering
@@ -113,24 +114,23 @@ así que la distancia que se muestra y el corte de los 32~m no pueden contradeci
 \end{figure}
 
 \textbf{FIR: media móvil.}\phantomsection\label{sec:fir} El filtro del núcleo es
-$y[n]=\tfrac14(x[n]+x[n-1]+x[n-2]+x[n-3])$. No tiene realimentación, así que es estable, y su fase es lineal:
-retrasa la señal un cuadro y medio sin deformarla. Con diez cuadros por segundo tiene nulos en 2.5 y 5~Hz
-(figura~\ref{fig:filtros}, izquierda).
+$y[n]=\tfrac14(x[n]+x[n-1]+x[n-2]+x[n-3])$. Como no tiene realimentación es estable, y su fase es lineal, de modo que retrasa la señal un cuadro y medio pero no la deforma. Con
+diez cuadros por segundo tiene nulos en 2.5 y 5~Hz (figura~\ref{fig:filtros}, izquierda).
 
 \modulo{tri\_tonos}{hdl/tonos.v}{355 EL, 225 R}
 \label{sec:goertzel}%
-Cada nodo emite un tono propio y escucha los otros dos: con saber a quién oye, sabe quién está a su alcance. El
-micrófono, simulado como la suma de las ondas cuadradas que llegan más ruido, se muestrea a 16~kHz y cada 64
-muestras (4~ms) tres filtros de Goertzel~\cite{goertzel1958} miden la potencia:
+Cada nodo emite un tono propio y escucha los otros dos, y según a quién oye sabe quién está a su alcance. El micrófono lo
+simulamos como la suma de las ondas cuadradas que llegan más ruido. Se muestrea a 16~kHz y, cada 64 muestras (4~ms), tres
+filtros de Goertzel~\cite{goertzel1958} miden la potencia:
 \begin{equation}
 s[n]=x[n]+c\,s[n-1]-s[n-2],\qquad P=s[N_b-1]^2+s[N_b-2]^2-c\,s[N_b-1]\,s[N_b-2],
 \end{equation}
-con $c=2\cos(2\pi k/N_b)$. Los tonos de 1, 2 y 4~kHz caen en las líneas $k=4$, 8 y 16, de modo que uno no se cuela
-en el filtro de otro; los coeficientes son 30\,274, 23\,170 y 0 en Q2.14. Un IIR con polos sobre el círculo
-unitario podría acumular error, pero este corre 64 muestras y borra su estado. Un tono se da por oído si su
-potencia pasa de 4\,000 en dos bloques seguidos y por perdido si queda debajo en dos: con el tono presente mide de
-27\,000 a 33\,000 y sin él no pasa de 104 (figura~\ref{fig:filtros}, derecha). El tono propio sale por el pin~1 de
-JP1, listo para un zumbador; con un micrófono real solo se sustituye la suma simulada.
+con $c=2\cos(2\pi k/N_b)$. Escogimos 1, 2 y 4~kHz porque caen en las líneas $k=4$, 8 y 16, y así un tono no se cuela en el filtro de otro; los coeficientes
+quedan en 30\,274, 23\,170 y 0 en Q2.14. Un IIR con polos sobre el círculo unitario podría ir acumulando error, pero este corre 64
+muestras y borra su estado. Damos un tono por oído si su potencia pasa de 4\,000 en dos bloques seguidos, y por perdido si queda debajo
+en dos. El umbral tiene bastante margen: con el tono presente mide de 27\,000 a 33\,000 y sin él no pasa de 104
+(figura~\ref{fig:filtros}, derecha). El tono propio sale por el pin~1 de JP1, listo para un zumbador. Para usar un micrófono real
+solo habría que cambiar la suma simulada.
 
 \begin{figure}[!htb]
 \centering
@@ -142,17 +142,17 @@ Goertzel de la mochila A en la simulación del circuito (\sig{tb\_tonos}).}
 
 \modulo{pid\_q}{hdl/pid\_q.v}{213 EL, 66 R, 79.96 MHz}
 \label{sec:pid}%
-PID en forma posicional, una muestra por pulso:
+Es un PID en forma posicional que procesa una muestra por pulso:
 \begin{equation}
 e[n]=r[n]-y[n],\qquad u[n]=K_p\,e[n]+K_i\sum_{k\le n}e[k]+K_d\,\bigl(e[n]-e[n-1]\bigr).
 \end{equation}
-El integral es un acumulador de 32 bits que guarda $K_i\sum e$ con sus ocho bits de fracción. La salida se satura
-en $\pm U_{\max}$ y la saturación se decide con la suma completa de 40 bits. Si el actuador está en el tope y el
-error empuja hacia el mismo lado, el acumulador se congela (integración condicional); un parámetro quita la
-protección para compararla (figura~\ref{fig:rtlpid}). \sig{tb\_pid} cierra el lazo sobre $y[n+1]=y[n]+(4u[n]-y[n])/20$ junto a un PID en
-aritmética real (figura~\ref{fig:pid}): la salida difiere en menos de una cuenta. El escalón de 200 tiene 9.3~\% de
-sobrepaso y entra al 2~\% en 49 muestras; el de 1\,000, con el actuador saturado, 0.2~\% y 66 muestras, mientras
-que sin protección la salida sigue en el tope 400 muestras después.
+El integral es un acumulador de 32 bits que guarda $K_i\sum e$ con sus ocho bits de fracción. La salida se satura en $\pm U_{\max}$ y
+esa decisión la tomamos con la suma completa de 40 bits, porque con el valor ya truncado la salida se separaba más del modelo. Cuando
+el actuador está en el tope y el error sigue empujando hacia el mismo lado, el acumulador se congela (integración condicional).
+Dejamos un parámetro para quitar esa protección y poder compararla (figura~\ref{fig:rtlpid}). \sig{tb\_pid} cierra el lazo sobre
+$y[n+1]=y[n]+(4u[n]-y[n])/20$ junto a un PID en aritmética real (figura~\ref{fig:pid}), y las dos salidas difieren en menos de una
+cuenta. El escalón de 200 tiene 9.3~\% de sobrepaso y entra al 2~\% en 49 muestras. El de 1\,000, con el actuador saturado, tiene
+0.2~\% y tarda 66 muestras; sin la protección, la salida sigue en el tope 400 muestras después.
 
 \begin{figure}[!htb]
 \centering
@@ -169,7 +169,7 @@ saturación de la salida.}
 \label{fig:pid}
 \end{figure}
 
-La búsqueda no usa un PID, porque su actuador es un pulso que el insecto obedece o no. Corresponde al modo de
-regreso (sección~\ref{sec:regreso}): llevar a cero la diferencia entre dos fotodiodos que miran al faro, con la
-tasa de estímulos como actuador. Ese modo no está en la demostración; aquí queda verificado con una planta de
-prueba.
+Durante la búsqueda no usamos el PID, porque el actuador es un pulso que el insecto obedece o no. Donde sí tiene sentido es
+en el modo de regreso (sección~\ref{sec:regreso}), para llevar a cero la diferencia entre dos fotodiodos que miran al faro,
+con la tasa de estímulos como actuador. Ese modo no lo incluimos en la demostración, así que por ahora el PID está
+verificado con una planta de prueba.

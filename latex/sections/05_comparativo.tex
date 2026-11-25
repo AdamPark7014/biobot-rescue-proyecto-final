@@ -21,16 +21,17 @@ Este trabajo & FPGA: 477 EL o 0.050~mm$^2$ de SKY130 & A bordo, con presupuesto 
 \end{tabularx}
 \end{table}
 
-Lo que distingue a este trabajo es dónde se hace el cómputo: la decisión, el enlace, el reconocimiento de vecinos y
-la posición de la persona se resuelven en hardware digital, sin procesador y sin computadora. Lo que le falta es lo
-más importante: los demás probaron con insectos y este trabajo no.
+La diferencia principal con los demás está en dónde se hace el cómputo. En nuestro caso la decisión, el enlace, el
+reconocimiento de vecinos y la posición de la persona se resuelven en hardware digital, sin procesador y sin computadora.
+También hay que decir lo que nos falta, que es importante: ellos probaron con insectos y nosotros no.
 
 \subsection{Comparación cuantitativa}
 \label{sec:cuantitativo}
 
-\textbf{Dos formas de calcular la distancia.} La primera versión la sacaba de la magnitud del CORDIC, truncada a la
-cuenta: 31.00~m sobre el eje Y se leía 30.94~m y los LED habrían marcado 30. La raíz entera es exacta y más chica
-(tabla~\ref{tab:distancias}); con el cambio la mochila bajó de 4\,812 a 3\,933~EL y el receptor de 6\,220 a 4\,929.
+\textbf{Dos formas de calcular la distancia.} En la primera versión sacábamos la distancia de la magnitud del CORDIC, truncada a la cuenta. Al compararla con el valor
+exacto vimos que 31.00~m sobre el eje Y se leía como 30.94~m, y entonces los LED habrían marcado 30. La raíz entera es exacta
+y además ocupa menos (tabla~\ref{tab:distancias}). Con el cambio, la mochila bajó de 4\,812 a 3\,933~EL y el receptor, de
+6\,220 a 4\,929.
 
 \begin{table}[!htb]
 \centering\footnotesize
@@ -50,20 +51,20 @@ Elementos lógicos; latencia (ciclos) & unos 500; 18 & 87 a 109; 12 \\
 \end{table}
 
 \textbf{FPGA y silicio.} El núcleo ocupa 477~EL y 224 registros a 72.08~MHz en la MAX~10, y 0.023~mm$^2$ de celdas con
-253 flip-flops a 72~MHz (esquina lenta) en SKY130. La estimación por conteo de celdas, 0.014~mm$^2$, se quedó corta
-por los búferes de \emph{hold} y transiciones, el árbol de reloj y las celdas de pozo. Hay más registros que en la
-FPGA porque en la tarjeta Quartus elimina los de salidas que no se usan. En las dos tecnologías la frecuencia sobra:
-el núcleo procesa diez cuadros por segundo. La corriente baja de 63.5~mA en la FPGA a 0.58~mA en el chip
+253 flip-flops a 72~MHz (esquina lenta) en SKY130. Antes de correr el flujo habíamos estimado 0.014~mm$^2$ por conteo de celdas y nos quedamos cortos, porque no contamos los
+búferes de \emph{hold} y transiciones, el árbol de reloj ni las celdas de pozo. El chip tiene más registros que la FPGA
+porque en la tarjeta Quartus elimina los de salidas que no se usan. En las dos tecnologías sobra frecuencia, ya que el núcleo
+procesa diez cuadros por segundo. La corriente baja de 63.5~mA en la FPGA a 0.58~mA en el chip
 (sección~\ref{sec:areacorriente}).
 
 \subsection{Costo y practicidad}
 
 Una mochila de prototipo con piezas de mostrador cuesta 1\,031~MXN con la matriz de $8\times8$ (599 de la matriz,
 248 del nRF52840, 87 de la IMU, 41 de la batería, 6 de los LED y 50 de tarjeta y adhesivo) y 1\,532 con la de
-$32\times24$~\cite{unit}: 55 y 81~USD. Con tarjetas de desarrollo no cumple la meta de masa; sirve para validar. Un
-enjambre de veinte cuesta entre 30 y 100 veces menos que un binomio canino o un robot de
-rescate~\cite{sdf,murphy2021}, pero no son equivalentes, el costo oculta la cría y los permisos, y la vida útil es
-corta: el dato honesto es el costo por hora de búsqueda, que solo se conocerá con pruebas.
+$32\times24$~\cite{unit}: 55 y 81~USD. Armada con tarjetas de desarrollo no cumple la meta de masa, pero sirve para validar. Un enjambre de veinte cuesta entre 30 y
+100 veces menos que un binomio canino o un robot de rescate~\cite{sdf,murphy2021}. La comparación no es del todo justa: no
+hacen lo mismo, ese costo no incluye la cría ni los permisos, y la vida útil es corta. Lo correcto sería comparar el costo
+por hora de búsqueda, y ese solo se puede conocer con pruebas.
 
 \begin{table}[!htb]
 \centering\footnotesize
@@ -85,6 +86,6 @@ Recuperar equipo e insectos & Mochilas numeradas, refugio y faro & \regTrampaDos
 \end{tabularx}
 \end{table}
 
-\textbf{Cómo se usaría.} El perro marca una zona; el rescatista coloca un relevo en el boquete, enciende de diez a
-veinte mochilas y suelta los insectos. Si una alerta, la estación muestra cuál fue, por dónde entró y cuánto caminó,
-y se confirma con cámara o perro antes de mover una losa. Una búsqueda sin alertas no da por vacía una zona.
+\textbf{Cómo se usaría.} Primero el perro marca una zona. El rescatista coloca un relevo en el boquete, enciende de diez a
+veinte mochilas y suelta los insectos. Si alguna alerta, la estación muestra cuál fue, por dónde entró y cuánto caminó, y se
+confirma con cámara o con perro antes de mover una losa. Que no haya alertas no significa que la zona esté vacía.

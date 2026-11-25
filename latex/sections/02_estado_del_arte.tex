@@ -1,10 +1,10 @@
 \section{Estado del arte}
 \label{sec:arte}
 
-Las guías de INSARAG dividen la búsqueda en cinco niveles; el biobot corresponde al nivel~4, la búsqueda
-secundaria en todos los huecos donde alguien podría seguir vivo, después de que el perro marca una zona y
-antes de mover losas~\cite{insarag}. La tabla~\ref{tab:tecnologias} compara las herramientas disponibles y
-la tabla~\ref{tab:grupos}, los trabajos con insectos cíborg.
+Las guías de INSARAG dividen la búsqueda en cinco niveles. Un biobot entraría en el nivel~4, que es la búsqueda secundaria
+en todos los huecos donde alguien podría seguir vivo, después de que el perro marcó una zona y antes de empezar a mover
+losas~\cite{insarag}. En la tabla~\ref{tab:tecnologias} comparamos las herramientas disponibles y en la
+tabla~\ref{tab:grupos}, los trabajos con insectos cíborg que revisamos.
 
 \begin{table}[!htb]
 \centering\footnotesize
@@ -49,11 +49,11 @@ UDLAP, 2026~\cite{gracidas2026} & Temperatura y luz & Actividad máxima cerca de
 \end{tabularx}
 \end{table}
 
-\textbf{Lo que nadie ha resuelto.} La revisión deja cinco vacíos que orientan el proyecto: (1) nadie cierra el
-lazo solo con lo que va en la mochila, porque la navegación publicada depende de cámaras externas o de una
-computadora~\cite{tranngoc2023,bai2025}; (2) cada mochila avisa por separado, y no encontramos un trabajo que
-combine las detecciones de dos para ubicar a la persona ni que use a una como relevo de otra; (3) no hay
-probabilidad de detección ni tiempo a la detección medidos para biobots; (4) la habituación se maneja caso por
-caso, sin una regla que una mochila pueda aplicar, y (5) soltar un enjambre que reporta a un solo operador se
-consideró «físicamente impráctico»~\cite{murphy2004}. La respuesta que se propone es que nadie pilotee: cada
-mochila decide sola y solo habla cuando encuentra algo.
+Al revisar estos trabajos encontramos cinco huecos que terminaron orientando el proyecto. El primero es que (1) ninguno
+cierra el lazo solo con lo que va en la mochila, porque la navegación publicada depende de cámaras externas o de una
+computadora~\cite{tranngoc2023,bai2025}. Además, (2) cada mochila avisa por separado: no encontramos un trabajo que combine
+las detecciones de dos para ubicar a la persona, ni uno que use a una como relevo de otra. Tampoco (3) hay probabilidad de
+detección ni tiempo a la detección medidos para biobots, y (4) la habituación se maneja caso por caso, sin una regla que
+una mochila pueda aplicar. Por último, (5) soltar un enjambre que le reporta a un solo operador se llegó a considerar
+«físicamente impráctico»~\cite{murphy2004}. Por eso decidimos que nadie pilotee a los insectos. Cada mochila toma sus
+decisiones y se comunica solo cuando encuentra algo.
