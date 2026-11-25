@@ -32,10 +32,9 @@ Ambiente caliente y confinamiento legal & Son límites del animal y de la ley, y
   \item \textbf{Con tres FPGA se puede detectar, avisar y ubicar sin computadora.} La red retransmite el aviso de la mochila
         que queda fuera de alcance y triangula con 6.2~cm de error a 31.95~m, en 1.10~s. Pasó los nueve escenarios en
         simulación, con el ruido y el corte exacto en 32~m incluidos.
-  \item \textbf{Aprendimos a no confiar en el punto fijo sin medirlo.} Con dieciséis iteraciones el CORDIC da
-        0.017\textdegree{} y más iteraciones no lo mejoran. La distancia por CORDIC truncado fallaba en más de la mitad de las
-        distancias exactas, y con una raíz entera quedó sin error y con la quinta parte de la lógica. El PID difiere del de
-        aritmética real en menos de una cuenta.
+  \item \textbf{En punto fijo hay que medir el error, no suponerlo.} Con dieciséis iteraciones el CORDIC da 0.017\textdegree{} y con más ya no
+        mejora. En cambio, la distancia por CORDIC truncado, que parecía correcta, fallaba en más de la mitad de las distancias exactas. La
+        raíz entera la dejó sin error y con la quinta parte de la lógica. El PID difiere del de aritmética real en menos de una cuenta.
   \item \textbf{Guiar al insecto ayuda, pero no siempre.} La detección en una hora sube de \pPasivaSesenta~\% a
         \pGuiadaSesenta~\% con diez insectos. Sin embargo, pesan más el número de insectos y la forma del colapso, y en uno de
         los ocho colapsos guiar empeoró el resultado.

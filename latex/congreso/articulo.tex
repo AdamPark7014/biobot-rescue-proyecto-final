@@ -85,17 +85,16 @@ San Andrés Cholula, Puebla, México}}
 \pagestyle{plain}
 
 \begin{abstract}
-Tras un sismo, las personas atrapadas quedan en huecos a los que no entran perros, cámaras ni robots. Este trabajo
-presenta el sistema digital de una mochila que convierte a la cucaracha silbadora de Madagascar en un buscador de
-personas, y la red con la que varias mochilas avisan a un operador. El núcleo cuenta los píxeles calientes de una
-matriz térmica y decide con una máquina de ocho estados y un presupuesto de estímulos; ocupa 477 elementos lógicos y
-coincide con su modelo de referencia en 11\,424 cuadros. Sobre él se construyó una red de tres FPGA unidas por UART
-con CRC-16, número de secuencia y retransmisión. Cada nodo reconoce a sus vecinos con filtros de Goertzel, calcula
-distancias exactas con una raíz entera y el receptor triangula a la persona con un CORDIC: 6.2~cm de error a 31.95~m,
-en 1.10~s y sin que la computadora haga cuentas. La red pasa nueve escenarios autoverificables. El núcleo se llevó a un
-layout en SKY130 de 0.050~mm$^2$, sin errores de DRC ni de LVS, que consume 0.58~mA a 1.8~V y 50~MHz. En 320 misiones
-simuladas por caso, guiar a diez insectos sube la detección en una hora de 58 a 73~\%. Se documentan los límites: el
-sensor y los tonos están simulados dentro de la FPGA y no hubo pruebas con insectos.
+Después de un sismo hay personas que quedan en huecos a los que no llega un perro, una cámara ni un robot. En este trabajo
+presentamos el sistema digital de una mochila para que la cucaracha silbadora de Madagascar ayude a buscarlas, y la red con la
+que varias mochilas le avisan a un operador. El núcleo cuenta los píxeles calientes de una matriz térmica y decide con una
+máquina de ocho estados y un presupuesto de estímulos. Ocupa 477 elementos lógicos y dio lo mismo que su modelo de referencia en
+11\,424 cuadros. Con él armamos una red de tres FPGA unidas por UART con CRC-16, número de secuencia y retransmisión. Cada nodo
+reconoce a sus vecinos con filtros de Goertzel y calcula distancias exactas con una raíz entera, y el receptor triangula a la
+persona con un CORDIC: se equivoca 6.2~cm a 31.95~m, en 1.10~s, y la computadora no hace ninguna cuenta. La red pasó nueve
+escenarios de prueba. También llevamos el núcleo a un layout en SKY130 de 0.050~mm$^2$, sin errores de DRC ni de LVS, que consume
+0.58~mA a 1.8~V y 50~MHz. En 320 misiones simuladas por caso, guiar a diez insectos sube la detección en una hora de 58 a 73~\%.
+El sensor y los tonos están simulados dentro de la FPGA y no hicimos pruebas con insectos.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -105,37 +104,36 @@ FPGA, insecto cíborg, búsqueda y rescate, CORDIC, filtro de Goertzel, CRC-16, 
 \begin{otherlanguage}{english}
 \renewcommand{\abstractname}{Abstract}
 \begin{abstract}
-After an earthquake, survivors are trapped in voids that dogs, cameras and robots cannot enter. We present the digital
-system of a backpack that turns the Madagascar hissing cockroach into a person finder, and the network that lets several
-backpacks report to one operator. The core counts hot pixels of a thermal array and decides with an eight-state machine
-and a stimulus budget; it uses 477 logic elements and matches its reference model in 11,424 frames. Three FPGAs linked by
-UART add CRC-16, sequence numbers and relaying; nodes detect their neighbors with Goertzel filters, compute exact
-distances with an integer square root, and the receiver triangulates the person with a CORDIC: 6.2~cm of error at
-31.95~m in 1.10~s, with no computation on the host. The core was taken to a 0.050~mm$^2$ SKY130 layout, DRC and LVS
-clean, drawing 0.58~mA at 1.8~V and 50~MHz. In 320 simulated missions per case, guiding ten insects raises one-hour
-detection from 58 to 73\%. The sensor and the tones are simulated inside the FPGA, and no insects were tested.
+After an earthquake, people get trapped in voids that dogs, cameras and robots cannot reach. We present the digital system of a
+backpack that lets the Madagascar hissing cockroach help find them, and the network that several backpacks use to report to one
+operator. The core counts the hot pixels of a thermal array and decides with an eight-state machine and a stimulus budget; it uses
+477 logic elements and gave the same result as its reference model in 11,424 frames. Around it we built a network of three FPGAs
+linked by UART, with CRC-16, sequence numbers and relaying. Each node detects its neighbors with Goertzel filters and computes exact
+distances with an integer square root, and the receiver locates the person with a CORDIC: the error is 6.2~cm at 31.95~m in 1.10~s,
+and the host computes nothing. We also took the core to a 0.050~mm$^2$ SKY130 layout, DRC and LVS clean, that draws 0.58~mA at 1.8~V
+and 50~MHz. In 320 simulated missions per case, guiding ten insects raises one-hour detection from 58 to 73\%. The sensor and the
+tones are simulated inside the FPGA, and we did not test with insects.
 \end{abstract}
 \end{otherlanguage}
 
 \section{Introducción}
 
-En un colapso estructural, el tiempo decide. En Kobe (1995) salió con vida cerca del 80~\% de las personas liberadas el
-primer día y casi nadie a partir del cuarto~\cite{kawata}; en Italia (1980), el 93~\% de los atrapados que sobrevivieron
-fue sacado en las primeras 24~h~\cite{noji}. El sismo del 19 de septiembre de 2017, entre Puebla y Morelos, dejó 369
-muertos y 44 edificios colapsados en la Ciudad de México~\cite{galvis2020}. Los huecos explorados en el World Trade
-Center eran, por lo general, de menos de 1~m~\cite{murphy2004}, y hasta 2021 ningún robot terrestre había encontrado a
-una persona viva en un desastre~\cite{murphy2021}.
+Cuando se cae un edificio, las primeras horas son las que más cuentan. En Kobe (1995) salió con vida cerca del 80~\% de las personas
+que se liberaron el primer día y casi nadie a partir del cuarto~\cite{kawata}. En Italia (1980), el 93~\% de los atrapados que
+sobrevivieron fue sacado en las primeras 24~h~\cite{noji}. El tema nos queda cerca, porque el sismo del 19 de septiembre de 2017,
+entre Puebla y Morelos, dejó 369 muertos y 44 edificios colapsados en la Ciudad de México~\cite{galvis2020}. Los huecos que se
+exploraron en el World Trade Center eran, por lo general, de menos de 1~m~\cite{murphy2004}, y hasta 2021 ningún robot terrestre
+había encontrado a una persona viva en un desastre~\cite{murphy2021}.
 
-La cucaracha silbadora de Madagascar (\textit{Gromphadorhina portentosa}) mide 6~cm de largo y 1.3~cm de alto, trepa
-obstáculos de su altura y sigue paredes por sí sola. Varios grupos la han convertido en plataforma de
-sensores~\cite{tranngoc2023,lin2025,refat2025} y en 2025 se usó por primera vez en un desastre, en Myanmar, sin hallar
-sobrevivientes~\cite{htx2025}. Lo que falta no es la idea, sino un sistema sin cirugía, que no requiera pilotear a cada
-insecto, cuyo circuito quepa en los 2 a 3~g que el animal puede cargar y que diga \emph{dónde} está la persona aunque
-el insecto que la encontró haya quedado fuera del alcance de la radio.
+La cucaracha silbadora de Madagascar (\textit{Gromphadorhina portentosa}) mide 6~cm de largo y 1.3~cm de alto, trepa obstáculos de
+su altura y tiende a seguir las paredes. Varios grupos ya la usan como plataforma de sensores~\cite{tranngoc2023,lin2025,refat2025},
+y en 2025 se llevó por primera vez a un desastre, en Myanmar, donde no halló sobrevivientes~\cite{htx2025}. La idea, entonces, no es
+nueva. Lo que no encontramos fue un sistema sin cirugía en el que nadie pilotee a cada insecto, con un circuito que quepa en los 2 a
+3~g que el animal puede cargar y que diga \emph{dónde} está la persona aunque el insecto que la encontró ya no alcance a comunicarse
+por radio.
 
-La figura~\ref{fig:sistema} muestra el sistema al que apunta el trabajo: el insecto explora con su propia conducta, la
-mochila lo estimula lo mínimo y solo transmite cuando detecta, un relevo en la entrada acorta el enlace y la estación
-dice dónde cavar.
+En la figura~\ref{fig:sistema} está el sistema al que queremos llegar. El insecto explora como lo haría normalmente, la mochila lo
+estimula lo menos posible y solo transmite cuando detecta, un relevo en la entrada acorta el enlace y la estación dice dónde cavar.
 
 \begin{figure}[!tb]
 \centering
@@ -144,15 +142,15 @@ dice dónde cavar.
 \label{fig:sistema}
 \end{figure}
 
-Este artículo aporta:
+Lo que presentamos es:
 \begin{itemize}
-\item un núcleo digital que cierra el lazo a bordo (detección, decisión y estímulo) en 477 elementos lógicos,
-      verificado cuadro por cuadro y probado en dos tarjetas;
+\item un núcleo digital que cierra el lazo a bordo (detección, decisión y estímulo) en 477 elementos lógicos, que comparamos cuadro
+      por cuadro con un modelo y probamos en dos tarjetas;
 \item una red de tres FPGA que detecta, retransmite y triangula sin que la computadora calcule nada;
-\item la medida del error de cada bloque en punto fijo, y la comparación que llevó a sustituir el CORDIC por una raíz
-      entera para las distancias;
-\item un layout del núcleo en SKY130 con su área y su consumo de corriente medidos por esquina;
-\item una evaluación de la misión con sus límites, incluido el caso en que guiar empeora el resultado.
+\item cuánto se equivoca cada bloque en punto fijo, y la comparación que nos hizo cambiar el CORDIC por una raíz entera para las
+      distancias;
+\item un layout del núcleo en SKY130 con su área y su consumo de corriente por esquina;
+\item una evaluación de la misión, en la que incluimos el caso en que guiar empeora el resultado.
 \end{itemize}
 
 \section{Trabajos relacionados}
@@ -162,14 +160,13 @@ Latif y Bozkurt~\cite{latif2012} dirigieron a \Gp{} por control remoto con elect
 \textit{et al.}~\cite{sanchez2015} midieron recuperación con 10~min de descanso, y Ma \textit{et al.}~\cite{ma2023}, una
 caída del 57~\% tras diez estímulos. El grupo de NTU logró 94~\% de éxito entre muros y detección de personas con una
 matriz de $32\times32$~\cite{tranngoc2023}, electrodos sin cirugía~\cite{lin2023} y ensamble
-robotizado~\cite{lin2025}; con Osaka, un enjambre de veinte insectos coordinado por una computadora~\cite{bai2025}. Refat
-\textit{et al.}~\cite{refat2025} guían con luz ultravioleta sin habituación en 150 ensayos, y en la UDLAP se midió que la
-actividad es máxima cerca de 30~\textdegree C y que esa luz aumenta la locomoción~\cite{gracidas2026}.
+robotizado~\cite{lin2025}; con Osaka, un enjambre de veinte insectos coordinado por una computadora~\cite{bai2025}. Refat \textit{et al.}~\cite{refat2025} guían con luz ultravioleta y no vieron habituación en 150 ensayos. En nuestra universidad ya se
+midió que la actividad es máxima cerca de 30~\textdegree C y que esa luz aumenta la locomoción~\cite{gracidas2026}.
 
-La tabla~\ref{tab:cmp} resume las diferencias. La navegación publicada depende de cámaras externas o de una computadora,
-y no encontramos un trabajo que combine las detecciones de dos mochilas para ubicar a la persona ni que use a una como
-relevo de otra. Soltar un enjambre que reporta a un solo operador se consideró «físicamente
-impráctico»~\cite{murphy2004}; aquí nadie pilotea: cada mochila decide sola y solo habla cuando encuentra algo.
+En la tabla~\ref{tab:cmp} resumimos las diferencias. La navegación publicada depende de cámaras externas o de una computadora, y no
+encontramos un trabajo que junte las detecciones de dos mochilas para ubicar a la persona, ni uno que use a una como relevo de otra.
+Además, soltar un enjambre que le reporta a un solo operador se llegó a considerar «físicamente impráctico»~\cite{murphy2004}. Por eso
+decidimos que nadie pilotee: cada mochila toma sus decisiones y se comunica solo cuando encuentra algo.
 
 \begin{table}[!tb]
 \centering\tabfont
@@ -192,10 +189,10 @@ Trabajo & Cómputo & Quién decide & Det. & Varias \\
 
 \subsection{Restricciones del portador}
 
-Con 15~g el insecto se detiene~\cite{montagut2024} y con 4~g ya empeora su control~\cite{latif2012}, así que la mochila se
-limita a 2--3~g. Camina a 1.9~cm/s, pasa quieto cerca del 60~\% del tiempo~\cite{dirafzoon2017} y tras un estímulo avanza a
-unos 5~cm/s~\cite{tranngoc2024}. Se adopta la luz ultravioleta como estímulo porque no requiere cirugía ni habitúa; la
-respuesta se modela con probabilidad $p(1-H)$, $p=0.78$~\cite{lin2023}, y
+Lo primero fue saber cuánto se le puede cargar. Con 15~g el insecto se detiene~\cite{montagut2024} y con 4~g ya se controla
+peor~\cite{latif2012}, así que limitamos la mochila a 2--3~g. Camina a 1.9~cm/s, pasa quieto cerca del 60~\% del
+tiempo~\cite{dirafzoon2017} y tras un estímulo avanza a unos 5~cm/s~\cite{tranngoc2024}. Como estímulo elegimos la luz ultravioleta,
+que no requiere cirugía ni habitúa. Modelamos la respuesta con probabilidad $p(1-H)$, $p=0.78$~\cite{lin2023}, y
 \begin{equation}
 H\leftarrow H+\alpha(1-H),\qquad H(t+\Delta t)=H(t)\,e^{-\Delta t/\tau},
 \end{equation}
@@ -203,14 +200,14 @@ con $\tau=600$~s~\cite{sanchez2015}.
 
 \subsection{Detección}
 
-Un píxel térmico de campo amplio promedia su escena: a medio metro de una cara, con fondo de 22~\textdegree C, lee
-22.4~\textdegree C. Una matriz lo evita, porque un blanco de área $A$ a distancia $d$ ocupa $n=A/(d\tan\theta)^2$
-píxeles. El módulo \sig{ventana\_termica} recibe los 64 píxeles de 8~bits (0.25~\textdegree C por cuenta) y cuenta como
-caliente el que está entre 28 y 38~\textdegree C~\cite{tranngoc2023} \emph{y} supera en 2~\textdegree C la media del
-cuadro anterior; además dice de qué lado domina la mancha. Una media móvil de cuatro cuadros quita el vaivén de la
-marcha, y \sig{detector\_presencia} pide 2 píxeles para acercarse y 8 durante cuatro cuadros para confirmar. La
-figura~\ref{fig:rtlven} es el circuito que resulta del criterio doble. Con la matriz de $8\times8$ (60\textdegree) la
-detección se confirma a 0.9~m y con la de $32\times32$ (90\textdegree), a 1.25~m.
+Con un solo píxel de campo amplio casi no se nota que hay una persona. A medio metro de una cara, con fondo de 22~\textdegree C, lee
+22.4~\textdegree C, porque promedia toda la escena. Con una matriz ya no pasa, ya que un blanco de área $A$ a distancia $d$ ocupa
+$n=A/(d\tan\theta)^2$ píxeles. El módulo \sig{ventana\_termica} recibe los 64 píxeles de 8~bits (0.25~\textdegree C por cuenta) y
+cuenta como caliente el que está entre 28 y 38~\textdegree C~\cite{tranngoc2023} y además supera en 2~\textdegree C la media del
+cuadro anterior; también dice de qué lado domina la mancha. Como el insecto se balancea al caminar, una media móvil de cuatro cuadros
+quita ese vaivén. Luego \sig{detector\_presencia} pide 2 píxeles para acercarse y 8 durante cuatro cuadros para confirmar. En la
+figura~\ref{fig:rtlven} se ve el circuito que resulta. Con la matriz de $8\times8$ (60\textdegree) la detección se confirma a 0.9~m y
+con la de $32\times32$ (90\textdegree), a 1.25~m.
 
 \begin{figure}[!tb]
 \centering
@@ -231,13 +228,12 @@ presencia y de quietud, generador seudoaleatorio, máquina de estados y generado
 \subsection{Política de estímulo}
 
 La máquina \sig{fsm\_politica} (fig.~\ref{fig:rtl}) avanza una vez por cuadro, diez veces por segundo, por ocho estados:
-reposo, explorar, reactivar, reorientar, acercar, confirmar, alertar y descanso. Tres reglas la distinguen de un control
-remoto. \emph{Espera que se duplica}: tras 15~s quieto da un pulso de avance; si en 3~s no arranca, espera 30, 60 y
-120~s. \emph{Giros al azar}: un LFSR de 16~bits dispara un giro cada 51~s en promedio, que despega al insecto de las
-paredes~\cite{dirafzoon2017}. \emph{Presupuesto}: cada estímulo suma 1 a una cuenta Q8.8 que pierde $1/256$ cada 2.3~s
-($\tau\approx590$~s, cercana a la recuperación del insecto); con 12 acumulados deja de estimular. Así se acota la
-habituación sin medir la respuesta. El módulo \sig{gen\_estimulo} produce trenes bifásicos de 50~Hz y 0.5~s. La
-figura~\ref{fig:fsm} muestra los estados.
+reposo, explorar, reactivar, reorientar, acercar, confirmar, alertar y descanso. A diferencia de un control remoto, sigue tres reglas. La primera es una espera que se duplica: tras 15~s quieto da un pulso de avance
+y, si en 3~s no arranca, espera 30, 60 y 120~s. La segunda son giros al azar, que un LFSR de 16~bits dispara cada 51~s en promedio para
+despegar al insecto de las paredes~\cite{dirafzoon2017}. La tercera es un presupuesto. Cada estímulo suma 1 a una cuenta Q8.8 que pierde
+$1/256$ cada 2.3~s ($\tau\approx590$~s, cercana a la recuperación del insecto), y con 12 acumulados deja de estimular. Así acotamos la
+habituación sin tener que medir la respuesta. El módulo \sig{gen\_estimulo} produce trenes bifásicos de 50~Hz y 0.5~s. Los estados están
+en la figura~\ref{fig:fsm}.
 
 \begin{figure}[!tb]
 \centering
@@ -284,11 +280,11 @@ Módulo & Función & EL & Reg. & Latencia \\
 
 \subsection{Organización}
 
-Dos mochilas, A y B, y un receptor se implementaron en tres DE10-Lite (fig.~\ref{fig:red}). La matriz térmica se simula
-dentro de la FPGA: los interruptores fijan la temperatura y un CORDIC calcula en qué columna caería la mancha según la
-posición del insecto, de modo que el núcleo recibe los píxeles como los recibiría del sensor. Para la demostración la
-ventana de detección es de 35 a 38~\textdegree C, con un botón de ayuda como segunda vía. Las posiciones van en 10~bits
-sobre 64~m (6.25~cm por cuenta).
+Usamos tres DE10-Lite, dos como mochilas (A y B) y una como receptor (fig.~\ref{fig:red}). Como no tenemos la matriz térmica, la
+simulamos dentro de la FPGA. Con los interruptores fijamos la temperatura, y un CORDIC calcula en qué columna caería la mancha según la
+posición del insecto, de modo que al núcleo le llegan los píxeles igual que si vinieran del sensor. Para la demostración la ventana de
+detección es de 35 a 38~\textdegree C, con un botón de ayuda como segunda vía. Las posiciones van en 10~bits sobre 64~m (6.25~cm por
+cuenta).
 
 \begin{figure}[!tb]
 \centering
@@ -301,10 +297,9 @@ sobre 64~m (6.25~cm por cuenta).
 
 Cada mochila transmite cada 100~ms una trama de 16~bytes por UART a 115\,200~baudios (fig.~\ref{fig:trama}): ruta
 (origen, emisor y saltos), estado, posición, rumbo, distancia estimada, número de secuencia y CRC-16 (polinomio
-\sig{0x1021}), que detecta toda ráfaga de 16~bits o menos~\cite{peterson1961}. El receptor descarta tramas corruptas o
-cortadas más de 2~ms; acepta solo emisores a menos de 32~m, con lo que se simula el radio; cuenta las perdidas y
-reconoce las repetidas por el número de secuencia, y da por perdida a una mochila tras 1~s. Una mochila reenvía las
-tramas de la otra con un salto más: si A quedó fuera de alcance, B hace de puente.
+\sig{0x1021}), que detecta toda ráfaga de 16~bits o menos~\cite{peterson1961}. El receptor descarta las tramas corruptas o cortadas más de 2~ms y solo acepta emisores a menos de 32~m, que es como simulamos el radio.
+Con el número de secuencia cuenta las perdidas y reconoce las repetidas, y si pasa 1~s sin oír a una mochila la da por perdida. Una
+mochila reenvía las tramas de la otra con un salto más, así que si A quedó fuera de alcance, B hace de puente.
 
 \subsection{Vecinos por tonos}
 
@@ -314,9 +309,9 @@ muestras pasa por tres filtros de Goertzel~\cite{goertzel1958}:
 s[n]&=x[n]+c\,s[n-1]-s[n-2],\quad c=2\cos(2\pi k/N_b),\\
 P&=s[N_b{-}1]^2+s[N_b{-}2]^2-c\,s[N_b{-}1]\,s[N_b{-}2].
 \end{align}
-Los tonos caen en las líneas $k=4$, 8 y 16, así que uno no se cuela en el filtro de otro. El estado se borra en cada
-bloque, de modo que los polos sobre el círculo unitario no acumulan error. Con el tono presente la potencia va de 27\,000
-a 33\,000 y sin él no pasa de 104; el umbral es 4\,000.
+Escogimos esos tonos porque caen en las líneas $k=4$, 8 y 16, y así uno no se cuela en el filtro de otro. Borramos el estado en cada
+bloque para que los polos sobre el círculo unitario no acumulen error. Con el tono presente la potencia va de 27\,000 a 33\,000 y sin él
+no pasa de 104; pusimos el umbral en 4\,000.
 
 \subsection{Distancia y alcance}
 
@@ -324,8 +319,8 @@ El módulo \sig{tri\_distancia} calcula
 \begin{equation}
 d=\left\lfloor\sqrt{\Delta x^2+\Delta y^2}\right\rfloor
 \end{equation}
-con una raíz dígito por dígito en 12 ciclos, y la regla del alcance compara la misma suma con $(16\cdot32)^2$. La
-distancia que se muestra y el corte de 32~m no pueden contradecirse.
+con una raíz dígito por dígito en 12 ciclos. Para la regla del alcance comparamos la misma suma con $(16\cdot32)^2$, y con eso la
+distancia que se muestra y el corte de 32~m nunca se contradicen.
 
 \subsection{Rumbo y triangulación}
 
@@ -335,9 +330,9 @@ dos rectas (fig.~\ref{fig:mapa}):
 P=A+t\,\hat u_A,\qquad t=\frac{(B-A)\times\hat u_B}{\hat u_A\times\hat u_B}.
 \end{equation}
 Una máquina de ocho estados pide $\cos\theta$ y $\sin\theta$ a un CORDIC, forma los productos cruzados y divide 44 entre
-32~bits, en unos 90 ciclos. Marca error si los rumbos difieren menos de 10\textdegree, si las rectas se cruzan detrás de
-una mochila o si el cruce queda a más de 3~m; entonces usa la aproximación de cada mochila por separado. La
-figura~\ref{fig:rtltri} muestra el circuito y la tabla~\ref{tab:mod}, los módulos del sistema.
+32~bits, en unos 90 ciclos. No siempre hay un cruce útil. Si los rumbos difieren menos de 10\textdegree, si las rectas se cruzan detrás de una mochila o si el cruce
+queda a más de 3~m, marca error y usa la aproximación de cada mochila por separado. En la figura~\ref{fig:rtltri} está el circuito y en
+la tabla~\ref{tab:mod}, los módulos del sistema.
 
 \begin{figure}[!tb]
 \centering
@@ -358,9 +353,9 @@ de estados (amarilla). Abajo, acercamiento a los productos cruzados y a la prueb
 \end{figure*}
 
 El CORDIC~\cite{volder1959,andraka1998} es secuencial, de 24~bits con 4 de guarda y ángulos de 16~bits; en rotación da
-seno y coseno y en vectorización, ángulo y magnitud. Se midió su error con nueve circuitos de $N=4$ a 20 iteraciones
-(fig.~\ref{fig:cordic}): baja cuatro veces cada dos iteraciones hasta $N=14$, donde se agota la tabla de arcotangentes.
-Con $N=16$ el error máximo es de 0.017\textdegree{} en el ángulo y 0.026~\% en seno y coseno.
+seno y coseno y en vectorización, ángulo y magnitud. No sabíamos cuántas iteraciones convenían, así que lo medimos con nueve circuitos de $N=4$ a 20 (fig.~\ref{fig:cordic}). El error baja
+cuatro veces cada dos iteraciones hasta $N=14$, donde la tabla de arcotangentes ya no da para más. Con $N=16$ el error máximo es de
+0.017\textdegree{} en el ángulo y 0.026~\% en seno y coseno.
 
 \begin{figure}[!tb]
 \centering
@@ -370,9 +365,9 @@ Con $N=16$ el error máximo es de 0.017\textdegree{} en el ángulo y 0.026~\% en
 \label{fig:cordic}
 \end{figure}
 
-La primera versión obtenía la distancia de la magnitud del CORDIC truncada. La tabla~\ref{tab:dist} muestra por qué se
-abandonó: 31.00~m sobre el eje~$Y$ se leía 30.94~m. La raíz entera es exacta en los 1\,048\,576 pares de diferencias del
-mapa y ocupa la quinta parte; la mochila bajó de 4\,812 a 3\,933 elementos lógicos. 
+En la primera versión sacábamos la distancia de la magnitud del CORDIC truncada. La tabla~\ref{tab:dist} muestra por qué la cambiamos:
+31.00~m sobre el eje~$Y$ se leía como 30.94~m. La raíz entera es exacta en los 1\,048\,576 pares de diferencias del mapa y ocupa la
+quinta parte. Con ella la mochila bajó de 4\,812 a 3\,933 elementos lógicos. 
 
 \textit{Filtros.} La media móvil es un FIR de fase lineal que no usa multiplicadores: tres sumas y un corrimiento, con
 nulos en 2.5 y 5~Hz a diez cuadros por segundo (fig.~\ref{fig:filtros}, izquierda). Los de Goertzel son IIR de segundo
@@ -391,10 +386,10 @@ los tonos que llegan.}
 \begin{equation}
 u[n]=K_p e[n]+K_i\textstyle\sum_{k\le n}e[k]+K_d(e[n]-e[n-1]),
 \end{equation}
-con ganancias Q8.8 e integrador de 32~bits, congela el acumulador si la salida está saturada y el error empuja hacia el
-mismo lado. Contra un PID en aritmética real difiere en menos de una cuenta; ante un escalón que satura el actuador, el
-sobrepaso es de 0.2~\%, mientras que sin esa protección la salida sigue en el tope 400 muestras después
-(fig.~\ref{fig:pid}). Su lugar es el modo de regreso, que queda como trabajo futuro.
+con ganancias Q8.8 e integrador de 32~bits. Si la salida está saturada y el error empuja hacia el mismo lado, congela el acumulador.
+Contra un PID en aritmética real difiere en menos de una cuenta. Ante un escalón que satura el actuador, el sobrepaso es de 0.2~\%,
+mientras que sin esa protección la salida sigue en el tope 400 muestras después (fig.~\ref{fig:pid}). Lo pensamos para el modo de
+regreso, que dejamos como trabajo futuro.
 
 \begin{figure}[!tb]
 \centering
@@ -429,10 +424,10 @@ Latencia (ciclos) & 18 & 12 \\
 \label{fig:layout}
 \end{figure*}
 
-Cada bloque se verificó solo antes de conectarlo, con bancos que terminan en una línea de resultado
-(tabla~\ref{tab:bancos}). El núcleo se comparó con un modelo de referencia en Python que hace las mismas cuentas enteras;
-los bloques numéricos, con aritmética real, y la red, con un banco que cablea las tres FPGA como en el laboratorio y lee
-displays y LED. La terminal del operador se probó contra las tarjetas simuladas con sus módulos superiores.
+Verificamos cada bloque por separado antes de conectarlo, con bancos que al final imprimen una línea de resultado
+(tabla~\ref{tab:bancos}). El núcleo lo comparamos con un modelo en Python que hace las mismas cuentas enteras, y los bloques numéricos,
+con aritmética real. Para la red usamos un banco que conecta las tres FPGA como en el laboratorio y lee displays y LED. La terminal del
+operador la probamos contra las tarjetas simuladas con sus módulos superiores.
 
 \begin{table}[!tb]
 \centering\tabfont
@@ -459,11 +454,11 @@ Terminal del operador & 71/71 \\
 
 \subsection{Red de tres FPGA}
 
-La tabla~\ref{tab:esc} resume los nueve escenarios. Con A a 32.00~m (fuera) y B a 31.56~m, el aviso de A llega por B y la persona se ubica a 6.2~cm de su
-posición real, 1.10~s después del encendido. Con 3~s de pulsos en la línea se descartaron 16 tramas por CRC y se contaron
-18 perdidas, sin ningún dato equivocado. El corte es exacto: a 31.00~m se oye por ambos ejes y a 32.00~m no; en diagonal,
-a 31.96~m sí y a 32.0005~m no (fig.~\ref{fig:umbral}). Al
-salir de la ventana el conteo baja y al volver sube (fig.~\ref{fig:seg}).
+Los nueve escenarios están en la tabla~\ref{tab:esc}. Con A a 32.00~m (fuera) y B a 31.56~m, el aviso de A llega por B y la persona se
+ubica a 6.2~cm de su posición real, 1.10~s después del encendido. También metimos 3~s de pulsos en la línea: se descartaron 16 tramas por
+CRC y se contaron 18 perdidas, sin ningún dato equivocado. El corte es exacto. A 31.00~m se oye por ambos ejes y a 32.00~m no; en
+diagonal, a 31.96~m sí y a 32.0005~m no (fig.~\ref{fig:umbral}). Al salir de la ventana el conteo baja y al volver sube
+(fig.~\ref{fig:seg}).
 
 \begin{table}[!tb]
 \centering\tabfont
@@ -502,10 +497,10 @@ la última trama.}
 \label{fig:umbral}
 \end{figure}
 
-La tabla~\ref{tab:sint} da la síntesis. En dos tarjetas reales, el núcleo levantó la alerta a los 55.1~s con una persona
-simulada a 1.65~m (55.6~s en simulación), y no alertó con un objeto a 47.5~\textdegree C, sin persona ni con un insecto
-que no responde. Las tres tarjetas corrieron seis escenarios con la versión anterior del enlace, con 2.8~cm de error en un
-mapa de 20~m; la versión descrita corrió en las tres los escenarios 1 a 7 y el 9, en varias corridas.
+La síntesis está en la tabla~\ref{tab:sint}. En dos tarjetas reales, el núcleo levantó la alerta a los 55.1~s con una persona simulada a
+1.65~m (55.6~s en simulación), y no alertó con un objeto a 47.5~\textdegree C, sin persona ni con un insecto que no responde. Con la
+versión anterior del enlace corrimos seis escenarios en las tres tarjetas, con 2.8~cm de error en un mapa de 20~m. Después cargamos la
+versión que describimos aquí y corrimos los escenarios 1 a 7 y el 9, en varias corridas.
 
 \begin{table}[!tb]
 \centering\tabfont
@@ -540,18 +535,17 @@ en cada colapso. Derecha: detección a 45~min según el número de insectos.}
 \end{figure*}
 
 
-El núcleo, sin modificar, pasó por LibreLane~\cite{librelane}, sucesor de OpenLane~\cite{shalan2020}, con la PDK
-\sig{sky130A}~\cite{skywater} y reloj de 20~ns. El GDS pasa DRC (Magic y KLayout), LVS (Netgen) y antenas sin errores, y
-cumple tiempos en las nueve esquinas, con +4.94~ns de \textit{setup} y +0.11~ns de \textit{hold} en la peor; la frecuencia
-estimada es de 72~MHz en la lenta y 143~MHz en la típica. Mide $217.7\times228.4~\mu$m: \textbf{0.050~mm$^2$}, con
-0.0226~mm$^2$ de celdas (ocupación de 53.7~\%), de las que 46~\% son compuertas, 29~\% flip-flops y 17~\% búferes de tiempo
-(fig.~\ref{fig:layout}).
+Pasamos el núcleo, sin modificarlo, por LibreLane~\cite{librelane}, sucesor de OpenLane~\cite{shalan2020}, con la PDK
+\sig{sky130A}~\cite{skywater} y reloj de 20~ns. El GDS no tiene errores de DRC (Magic y KLayout), LVS (Netgen) ni antenas, y cumple
+tiempos en las nueve esquinas, con +4.94~ns de \textit{setup} y +0.11~ns de \textit{hold} en la peor. Estimamos una frecuencia de 72~MHz
+en la lenta y 143~MHz en la típica. Mide $217.7\times228.4~\mu$m, es decir \textbf{0.050~mm$^2$}, con 0.0226~mm$^2$ de celdas (ocupación
+de 53.7~\%), de las que 46~\% son compuertas, 29~\% flip-flops y 17~\% búferes de tiempo (fig.~\ref{fig:layout}).
 
-La corriente se obtuvo con OpenSTA sobre el netlist final y los parásitos del ruteo, con la actividad de una simulación de
-compuertas (VCD) y, como cota alta, con la actividad por omisión (tabla~\ref{tab:corr}). En espera, la mitad la gasta el
-árbol de reloj y la otra mitad los flip-flops que lo reciben. Como el núcleo procesa diez cuadros por segundo, con un reloj
-de 1~MHz serían unos 12~$\mu$A. La FPGA consume 63.5~mA estimados para el mismo prototipo: el chip baja la cuenta unas cien
-veces. En una mochila de 30~mW (8.1~mA a 3.7~V), el núcleo es cerca del 3~\%; mandan el sensor y la radio.
+La corriente la calculamos con OpenSTA sobre el netlist final y los parásitos del ruteo, con la actividad de una simulación de compuertas
+(VCD) y, como cota alta, con la actividad por omisión (tabla~\ref{tab:corr}). Casi toda se va en el reloj. En espera, la mitad la gasta su
+árbol y la otra mitad los flip-flops que lo reciben. Como el núcleo procesa diez cuadros por segundo, con un reloj de 1~MHz serían unos
+12~$\mu$A. Para el mismo prototipo, la FPGA consume 63.5~mA estimados, unas cien veces más que el chip. Aun así, en una mochila de 30~mW
+(8.1~mA a 3.7~V) el núcleo es apenas cerca del 3~\%, y lo demás se va sobre todo en el sensor y la radio.
 
 \begin{table}[!tb]
 \centering\tabfont
@@ -573,67 +567,66 @@ Potencia en espera (mW) & 0.828 & 1.038 & 1.207 \\
 
 \subsection{Misión simulada}
 
-Se simularon misiones con agentes en ocho colapsos sintéticos de $8\times6$~m, 320 por caso ($\pm5$ puntos al 95~\%). La
-marcha se validó contra la publicada~\cite{dirafzoon2017,tranngoc2024}: cinco de seis medidas coinciden o caen en su
-dispersión. Con diez insectos, la detección en una hora es de 58~\% sin estímulos, 64~\% reactivando al que se detiene,
-72~\% con giros al azar y 73~\% guiando hacia el calor (fig.~\ref{fig:pol}), con unos 61 estímulos por insecto y por hora.
-Diez guiados rinden como entre veinte y cuarenta sin guiar (68 y 77~\%): la política equivale a duplicar o triplicar el
-enjambre (fig.~\ref{fig:pol}, derecha). Al mover doce supuestos uno a la vez, cuatro cambian el resultado más que el margen: el
-largo del tramo recto (67 a 86~\%), la velocidad que quita la carga (80 a 62~\% si resta 30~\%), la duración de las pausas
-(86 a 73~\%) y la velocidad de marcha (71 a 81~\%).
+Simulamos misiones con agentes en ocho colapsos sintéticos de $8\times6$~m, 320 por caso ($\pm5$ puntos al 95~\%). Antes de creerle al
+modelo comparamos la marcha con la publicada~\cite{dirafzoon2017,tranngoc2024}, y cinco de seis medidas coinciden o caen en su dispersión.
+Con diez insectos, la detección en una hora es de 58~\% sin estímulos, 64~\% reactivando al que se detiene, 72~\% con giros al azar y
+73~\% guiando hacia el calor (fig.~\ref{fig:pol}), con unos 61 estímulos por insecto y por hora. Diez guiados rinden como entre veinte y
+cuarenta sin guiar (68 y 77~\%), o sea que usar la política equivale más o menos a duplicar o triplicar el enjambre (fig.~\ref{fig:pol},
+derecha). También movimos doce supuestos, uno a la vez, y solo cuatro cambian el resultado más que el margen: el largo del tramo recto (67
+a 86~\%), la velocidad que quita la carga (80 a 62~\% si resta 30~\%), la duración de las pausas (86 a 73~\%) y la velocidad de marcha (71
+a 81~\%).
 
-El colapso pesa más que la política: la guiada gana en tres de los ocho, empata en cuatro y pierde en uno, donde baja de 98
-a 52~\% porque ahí seguir la pared lleva directo a la persona. Un enjambre mixto, cinco y cinco, conserva el promedio
-(72~\%) y sube ese caso a 92~\%. Con pulsos que habitúan, el presupuesto da la misma detección con la tercera parte de los
-estímulos (42 frente a 121 por hora): dosificar protege al animal sin costar rendimiento. Para recuperarlos, un refugio en la
-entrada devuelve 76~\% en dos horas, y un faro que la mochila siga, 91~\%; guiarlos a ciegas es peor (66~\%).
+El colapso pesa más que la política. La guiada gana en tres de los ocho, empata en cuatro y pierde en uno, donde baja de 98 a 52~\% porque
+ahí basta con seguir la pared para llegar a la persona. Un enjambre mixto, cinco y cinco, conserva el promedio (72~\%) y sube ese caso a
+92~\%. Con pulsos que habitúan, el presupuesto da la misma detección con la tercera parte de los estímulos (42 frente a 121 por hora), así
+que dosificar cuida al animal sin perder rendimiento. También hay que recoger a los insectos. Un refugio en la entrada recupera 76~\% en
+dos horas, y un faro que la mochila siga, 91~\%; guiarlos a ciegas resultó peor (66~\%).
 
 \section{Discusión}
 
 \subsection{Qué decide el desempeño}
 
-La latencia de 1.10~s no la da el cálculo, que toma microsegundos, sino lo que se espera a propósito: la media móvil, los
-cuatro cuadros de confirmación y las tramas de 100~ms. Medir contra el valor exacto fue decisivo: una prueba con tolerancia
-de $\pm7$~cm aceptaba el CORDIC truncado que fallaba en más de la mitad de las distancias exactas. La política tolera la
-incertidumbre del estímulo, que es lo peor conocido; lo que más mueve el resultado es cuánto y qué tan rápido camina el
-insecto, y eso respalda la mochila ligera.
+La red no tarda 1.10~s por el cálculo, que toma microsegundos, sino por lo que decidimos esperar: la media móvil, los cuatro cuadros de
+confirmación y las tramas de 100~ms. Algo que nos dejó este trabajo es que conviene medir contra el valor exacto. Una prueba con tolerancia
+de $\pm7$~cm daba por bueno el CORDIC truncado, que fallaba en más de la mitad de las distancias exactas. La política aguanta bien que no
+conozcamos con precisión el estímulo, que es lo que menos se sabe. Lo que más mueve el resultado es cuánto y qué tan rápido camina el
+insecto, y por eso insistimos en una mochila ligera.
 
 \subsection{De la FPGA al chip}
 
-La estimación previa por conteo de celdas, 0.014~mm$^2$, se quedó corta frente a los 0.023~mm$^2$ colocados: los búferes
-que cumplen \textit{hold} y transiciones, el árbol de reloj y las celdas de pozo solo aparecen al hacer el layout. Hay 253
-flip-flops en el chip y 224 registros en la FPGA porque en la tarjeta algunas salidas no se usan y Quartus elimina sus
-registros. Con los valores por omisión el flujo pasaba DRC y LVS, pero dejaba 140 transiciones lentas en la esquina lenta;
-reparar transiciones después del ruteo global, con márgenes de 50~\%, las llevó a cero. La caída en la red de alimentación es
-de 0.42~mV, el 0.02~\% de 1.8~V. En las dos tecnologías la frecuencia sobra, así que la mejora pendiente es de corriente: bajar
-el reloj o detenerlo entre cuadros.
+Antes de correr el flujo habíamos estimado 0.014~mm$^2$ por conteo de celdas y nos quedamos cortos, pues se colocaron 0.023~mm$^2$. Los
+búferes que cumplen \textit{hold} y transiciones, el árbol de reloj y las celdas de pozo solo aparecen al hacer el layout. El chip tiene 253
+flip-flops y la FPGA 224 registros, porque en la tarjeta algunas salidas no se usan y Quartus elimina sus registros. Con los valores por
+omisión el flujo pasaba DRC y LVS, pero dejaba 140 transiciones lentas en la esquina lenta; al reparar transiciones después del ruteo
+global, con márgenes de 50~\%, quedaron en cero. La caída en la red de alimentación es de 0.42~mV, el 0.02~\% de 1.8~V. En las dos
+tecnologías sobra frecuencia, así que lo que sigue es bajar la corriente, con un reloj más lento o deteniéndolo entre cuadros.
 
 \subsection{Costo y uso en campo}
 
-Una mochila de prototipo con piezas de mostrador en México cuesta 1\,031~MXN con la matriz de $8\times8$ y 1\,532~MXN con la
-de $32\times24$. Un enjambre de veinte cuesta entre 30 y 100 veces menos que un binomio canino o un robot de rescate, pero no
-son sistemas equivalentes: el perro encuentra personas y el biobot todavía no lo ha hecho en campo, y el costo por unidad
-oculta la cría, los permisos y una vida útil corta. El uso previsto es complementario. El perro marca una zona, el rescatista
-coloca un relevo en el boquete y suelta de diez a veinte insectos, y una alerta se confirma con cámara o perro antes de mover
-una losa. Una búsqueda sin alertas no da por vacía una zona.
+Con piezas que se consiguen en tiendas de México, una mochila de prototipo cuesta 1\,031~MXN con la matriz de $8\times8$ y 1\,532~MXN con la
+de $32\times24$. Un enjambre de veinte sale entre 30 y 100 veces más barato que un binomio canino o un robot de rescate. La comparación no
+es del todo justa, porque el perro encuentra personas y el biobot todavía no lo ha hecho en campo, y ese costo no incluye la cría, los
+permisos ni una vida útil corta. Lo vemos como un complemento. El perro marca una zona, el rescatista coloca un relevo en el boquete y
+suelta de diez a veinte insectos, y si hay una alerta se confirma con cámara o perro antes de mover una losa. Que no haya alertas no
+significa que la zona esté vacía.
 
 \subsection{Limitaciones y ética}
 
-Las limitaciones son claras. El sensor y el canal acústico están simulados en la FPGA y la posición de cada mochila se da
-por conocida; el radio es un cable y el alcance, un parámetro. No hubo pruebas con insectos. La detección falla por encima
-de unos 30~\textdegree C de ambiente, y la ley mexicana exige mantener a la especie en confinamiento~\cite{lgvs}: un
-despliegue requeriría una autorización que hoy no existe. Sobre el bienestar del animal no hay
-consenso~\cite{gibbons2022,adamo2016}, y por eso el protocolo propuesto evita la cirugía, limita la carga a 3~g y los
-estímulos a 12 acumulados, y exige declarar bajas y destino. Solo se usarían machos, con doble contención y conteo de entrada
-y salida, y cada mochila debe recuperarse, porque su batería es un residuo de manejo especial.
+Al trabajo le faltan varias cosas. El sensor y el canal acústico están simulados en la FPGA y damos por conocida la posición de cada
+mochila; el radio es un cable y el alcance, un parámetro. No hicimos pruebas con insectos. La detección falla por encima de unos
+30~\textdegree C de ambiente, y la ley mexicana exige mantener a la especie en confinamiento~\cite{lgvs}, así que un despliegue necesitaría
+una autorización que hoy no existe. Sobre el bienestar del animal no hay consenso~\cite{gibbons2022,adamo2016} y preferimos ser precavidos:
+el protocolo que proponemos evita la cirugía, limita la carga a 3~g y los estímulos a 12 acumulados, y pide declarar bajas y destino. Solo se
+usarían machos, con doble contención y conteo de entrada y salida. Además hay que recuperar cada mochila, porque su batería es un residuo de
+manejo especial.
 
 \section{Conclusiones}
 
-El núcleo existe, está verificado y cabe en un chip: 477 elementos lógicos, o 0.050~mm$^2$ y 0.58~mA en SKY130. Tres FPGA
-bastan para detectar, avisar y ubicar sin computadora, con 6.2~cm de error a 31.95~m, y la red resiste el ruido y corta
-exactamente en 32~m. Guiar ayuda, pero depende del colapso, y el enjambre mixto es la configuración recomendada. El trabajo
-que sigue es conectar una matriz térmica y un micrófono reales, estimar la distancia por tonos, bajar el reloj del núcleo,
-enviar el GDS a una corrida compartida~\cite{tinytapeout} y probar en recinto cerrado con la colonia de la universidad.
+Logramos un núcleo que funciona y cabe en un chip, con 477 elementos lógicos, o 0.050~mm$^2$ y 0.58~mA en SKY130. Con tres FPGA se puede
+detectar, avisar y ubicar sin computadora, con 6.2~cm de error a 31.95~m, y la red resiste el ruido y corta exactamente en 32~m. Guiar al
+insecto ayuda, pero no siempre, porque depende del colapso; por eso recomendamos el enjambre mixto. Lo que sigue es conectar una matriz
+térmica y un micrófono reales, estimar la distancia por tonos, bajar el reloj del núcleo, enviar el GDS a una corrida
+compartida~\cite{tinytapeout} y probar en un recinto cerrado con la colonia de la universidad.
 
 El Verilog, los bancos, los proyectos, el layout y los programas de cada figura están en
 \url{https://github.com/AdamPark7014/biobot-rescue-proyecto-final}.
