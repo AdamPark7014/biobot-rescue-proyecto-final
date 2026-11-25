@@ -219,9 +219,9 @@ solo procesa diez cuadros por segundo, así que con un reloj de 1~MHz gastaría 
 frecuencia como parámetro (\sig{CLK\_FREQ}). La caída en la red de alimentación es de 0.42~mV en el peor punto, el 0.02~\%
 de 1.8~V.
 
-\textbf{Frente a la FPGA y a la mochila.} El analizador de Quartus estima, sumando todas las alimentaciones de la
-MAX~10, 63.5~mA para el prototipo del núcleo, 83.8~mA para la mochila de la red y 87.2~mA para el receptor, de los que
-solo 4.4, 24.0 y 27.0~mA son dinámicos del núcleo lógico; la herramienta marca la confianza como baja por no tener
-actividad medida. Con el chip, ese consumo baja unas cien veces. Aun así, en la mochila completa, que gasta unos 30~mW (8.1~mA de una batería
+\textbf{Frente a la FPGA y a la mochila.} Para tener con qué comparar usamos el analizador de Quartus. Sumando todas las alimentaciones
+de la MAX~10, estima 63.5~mA para el prototipo del núcleo, 83.8~mA para la mochila de la red y 87.2~mA para el receptor. De eso, solo
+4.4, 24.0 y 27.0~mA son dinámicos del núcleo lógico. Hay que tomarlo con cuidado, porque la propia herramienta marca la confianza como
+baja al no tener actividad medida. Con el chip, ese consumo baja unas cien veces. Aun así, en la mochila completa, que gasta unos 30~mW (8.1~mA de una batería
 de 3.7~V), el núcleo es apenas cerca del 3~\% de la potencia y lo demás se va sobre todo en el sensor y la radio.
 

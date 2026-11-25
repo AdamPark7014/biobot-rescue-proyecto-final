@@ -3,13 +3,14 @@
 \subsection{Contexto y problema}
 
 Cuando se cae un edificio, las primeras horas son las que más cuentan. En Kobe (1995) salió con vida cerca del 80~\% de las
-personas que se liberaron el primer día, cerca del 30~\% en los días 2 y 3, y casi nadie a partir del
-cuarto~\cite{kawata}. En Italia (1980), el 93~\% de los atrapados que sobrevivieron fue sacado en las primeras
-24~horas~\cite{noji}. De ahí viene la conocida regla de las «72 horas», aunque hay rescates documentados hasta 14 días
-después~\cite{macintyre}. A la mayoría de la gente la sacan sus propios vecinos~\cite{japon2014}, así que a los equipos de
-rescate les toca lo más difícil, que son quienes quedaron en huecos profundos. El tema nos queda cerca: el sismo del 19 de
-septiembre de 2017 (magnitud 7.1, entre Puebla y Morelos~\cite{ssn2017}) dejó 369 muertos, 45 de ellos en el estado de
-Puebla, y 44 edificios colapsados en la Ciudad de México~\cite{galvis2020}.
+personas que se liberaron el primer día, pero en los días 2 y 3 ya solo cerca del 30~\%, y a partir del cuarto casi
+nadie~\cite{kawata}. En Italia (1980) pasó algo parecido, pues el 93~\% de los atrapados que sobrevivieron fue sacado en las
+primeras 24~horas~\cite{noji}. De ahí viene la conocida regla de las «72 horas», aunque hay rescates documentados hasta 14 días
+después~\cite{macintyre}. También nos llamó la atención que a la mayoría de la gente la sacan sus propios
+vecinos~\cite{japon2014}, así que a los equipos de rescate les queda lo más difícil, que son quienes quedaron en huecos
+profundos. Además es un tema que nos queda cerca, porque el sismo del 19 de septiembre de 2017 (magnitud 7.1, entre Puebla y
+Morelos~\cite{ssn2017}) dejó 369 muertos, 45 de ellos en el estado de Puebla, y 44 edificios colapsados en la Ciudad de
+México~\cite{galvis2020}.
 
 Las herramientas que existen no alcanzan a entrar donde está la víctima (tabla~\ref{tab:tecnologias}). Los perros trabajan
 sobre la superficie, una cámara en poste llega a unos 5~m casi en línea recta y el robot más pequeño que se ha usado en
@@ -41,26 +42,24 @@ tiene un presupuesto que limita los estímulos por hora para no provocar habitua
 FPGA de miligramos y que, si dos mochilas detectan a la misma persona, un receptor también en FPGA pueda estimar su
 posición cruzando los dos rumbos.
 
-\textbf{Objetivo general.} Diseñar, describir en Verilog, verificar y probar en la DE10-Lite el sistema
-digital de una mochila de búsqueda para \Gp{} y la red con la que varias mochilas localizan a una
-persona y avisan a un operador; evaluar por simulación cuánto aporta, y llevar el núcleo a un layout
-en un proceso abierto.
+\textbf{Objetivo general.} Queremos diseñar, describir en Verilog, verificar y probar en la DE10-Lite el sistema digital de una
+mochila de búsqueda para \Gp{}, y la red con la que varias mochilas localizan a una persona y le avisan a un operador. También
+queremos saber, por simulación, cuánto ayuda todo esto, y llevar el núcleo a un layout en un proceso abierto.
 
 \needspace{4\baselineskip}
-\textbf{Objetivos específicos.}
+\textbf{Objetivos específicos.} Para llegar ahí nos propusimos lo siguiente:
 \begin{enumerate}
-  \item Fijar, con datos publicados, la carga, la marcha y el estímulo que soporta el insecto, y dimensionar
-        la masa, la energía y el costo de la mochila.
-  \item Diseñar la detección y la política de estímulos, describirlas en Verilog, verificarlas contra un
-        modelo de referencia y sintetizarlas.
-  \item Diseñar una red de tres nodos en FPGA con detección de errores, retransmisión, reconocimiento de
-        vecinos por tonos y triangulación en punto fijo, de modo que la computadora solo muestre resultados.
-  \item Implementar los bloques numéricos de la práctica~5 (CORDIC, filtros FIR e IIR y controlador PID) y
-        medir su error contra el valor exacto.
-  \item Verificar todo con bancos autoverificables, casos límite y de error incluidos, y medir recursos,
-        frecuencia y latencia.
-  \item Simular la misión completa, llevar el núcleo a un layout en SKY130 y analizar costo, practicidad,
-        ética y marco legal.
+  \item Averiguar, con datos publicados, qué carga, qué marcha y qué estímulo soporta el insecto, y con eso calcular la masa, la
+        energía y el costo de la mochila.
+  \item Diseñar la detección y la política de estímulos, pasarlas a Verilog, compararlas con un modelo de referencia y
+        sintetizarlas.
+  \item Armar una red de tres nodos en FPGA que detecte errores, retransmita, reconozca a sus vecinos por tonos y triangule en
+        punto fijo, de modo que la computadora solo muestre resultados.
+  \item Implementar los bloques numéricos de la práctica~5 (CORDIC, filtros FIR e IIR y controlador PID) y medir cuánto se
+        equivocan contra el valor exacto.
+  \item Verificar todo con bancos que se revisan solos, incluyendo casos límite y de error, y medir recursos, frecuencia y
+        latencia.
+  \item Simular la misión completa, llevar el núcleo a un layout en SKY130 y analizar costo, practicidad, ética y marco legal.
 \end{enumerate}
 
 \subsection{Contribuciones y alcance}

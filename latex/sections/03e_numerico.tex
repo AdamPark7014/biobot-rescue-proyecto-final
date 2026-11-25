@@ -54,11 +54,11 @@ de 180\textdegree. Tarda $N+2$ ciclos (figura~\ref{fig:rtlcordic}).
 \label{fig:rtlcordic}
 \end{figure}
 
-Para decidir cuántas iteraciones usar, probamos nueve circuitos iguales, con $N$ de 4 a 20, y les dimos los mismos 360
-vectores y 360 ángulos (figura~\ref{fig:cordiciter} y tabla~\ref{tab:cordiciter}). El error se divide entre cuatro cada dos
-iteraciones hasta $N=14$. De ahí en adelante ya no mejora, porque la tabla de 16 bits no da para más. Con $N=16$ el error
-máximo es de 0.017\textdegree, veinte veces menos que el paso de 0.35\textdegree{} con el que el rumbo viaja por la red.
-Con \sig{tb\_cordic} probamos también los cuatro cuadrantes y 200 divisiones, y salieron bien 248 de 248.
+No sabíamos de antemano cuántas iteraciones convenían, así que lo medimos. Armamos nueve circuitos iguales, con $N$ de 4 a 20, y les
+dimos los mismos 360 vectores y 360 ángulos (figura~\ref{fig:cordiciter} y tabla~\ref{tab:cordiciter}). El error se divide entre
+cuatro cada dos iteraciones hasta $N=14$. De ahí en adelante ya casi no mejora, porque la tabla de 16 bits no da para más. Nos
+quedamos con $N=16$, donde el error máximo es de 0.017\textdegree, veinte veces menos que el paso de 0.35\textdegree{} con el que el
+rumbo viaja por la red. Con \sig{tb\_cordic} probamos también los cuatro cuadrantes y 200 divisiones, y salieron bien 248 de 248.
 
 \begin{figure}[!htb]
 \centering

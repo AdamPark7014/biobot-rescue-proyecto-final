@@ -2,10 +2,10 @@
 \section{Metodología}
 \label{sec:metodologia}
 
-Empezamos por los datos y fuimos avanzando hacia el circuito. Primero buscamos en la literatura qué puede cargar y hacer el
-insecto, y con eso armamos un modelo de la misión para comparar políticas de estímulo por simulación. La política que
-elegimos la describimos en Verilog como el núcleo de la mochila. Después construimos la red de tres FPGA alrededor de ese
-núcleo y, al final, lo llevamos a un layout.
+No empezamos por el circuito. Primero buscamos en la literatura qué puede cargar y hacer el insecto, porque de eso depende todo
+lo demás, y con esos datos armamos un modelo de la misión para comparar políticas de estímulo por simulación. La política que
+elegimos la describimos en Verilog como el núcleo de la mochila. Ya con el núcleo funcionando construimos la red de tres FPGA, y
+al final lo llevamos a un layout.
 
 \subsection{El portador y la mochila}
 \label{sec:portador}
@@ -39,10 +39,10 @@ Energía & 5~mW en reposo, 17 a 31~mW caminando (calculado de~\cite{herreid1981}
 \end{tabularx}
 \end{table}
 
-Esta revisión nos obligó a corregir cuatro cifras de nuestra propuesta inicial. La carga útil bajó de 15~g a 2--3~g y la
-velocidad, de 0.3~m/s a 1.9--5~cm/s. El umbral térmico fijo de 35.5--38.5~\textdegree C tampoco servía, porque corresponde
-a la temperatura central del cuerpo y no a la de la piel. Y el circuito, que habíamos estimado en 60 celdas, resultó de 477
-elementos lógicos.
+Esta revisión nos obligó a corregir cuatro cifras de nuestra propuesta inicial, y algunas por mucho. Habíamos puesto 15~g de
+carga útil y quedó en 2--3~g. La velocidad pasó de 0.3~m/s a 1.9--5~cm/s. El umbral térmico fijo de 35.5--38.5~\textdegree C
+tampoco servía, porque es la temperatura central del cuerpo y lo que ve el sensor es la piel. Y el circuito, que calculábamos en
+60 celdas, resultó de 477 elementos lógicos.
 
 \textbf{Masa y energía.} Elegimos una matriz térmica, un radio de baja potencia, una IMU y una batería de 40~mAh, que
 juntos pesan unos 2.9~g (figura~\ref{fig:presupuestos}). Con el sensor encendido el consumo es de cerca de 30~mW, y de ahí
@@ -117,8 +117,8 @@ Luz ultravioleta~\cite{refat2025,gracidas2026} & No & Sin habituación en 150 en
 \end{tabularx}
 \end{table}
 
-\textbf{Detección.}\phantomsection\label{sec:deteccion} Un sensor de un solo píxel promedia todo su campo
-$\varphi$; un blanco de área $A$ a distancia $d$ llena la fracción $f$ y la lectura es
+\textbf{Detección.}\phantomsection\label{sec:deteccion} Lo primero fue ver si bastaba un sensor de un solo píxel. El problema es que promedia todo su campo $\varphi$. Si el blanco tiene
+un área $A$ y está a una distancia $d$, llena la fracción $f$ y la lectura es
 \begin{equation}
 T_{\text{leída}}=T_f+f\,(T_p-T_f),\qquad f=\min\!\left(1,\ \frac{A}{\pi\,d^2\tan^2(\varphi/2)}\right).
 \end{equation}

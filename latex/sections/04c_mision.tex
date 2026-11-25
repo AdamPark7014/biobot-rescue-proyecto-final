@@ -5,9 +5,9 @@ En cada misión soltamos a los insectos por un boquete de un colapso sintético 
 persona está inmóvil, a un recorrido medio de \distVictima~m. Corrimos cada configuración \numCorridas{} veces en
 \numMapas{} colapsos, es decir, \numMisiones{} misiones de una hora, con un margen de unos $\pm5$ puntos (95~\%).
 
-\textbf{Validación.} En una arena de $1\times1$~m el insecto simulado camina \valAndaNat{} del tiempo sin estímulos
-(publicado: $0.37\pm0.20$), hace pausas de \valPausaNat~s ($36.8\pm24.1$) y suelta la pared con probabilidad
-\valSalidaNat{} (0.005); con comandos, \valAndaCom{} (0.643) y \valSalidaCom{}
+\textbf{Validación.} Antes de creerle al modelo lo comparamos con lo publicado. En una arena de $1\times1$~m, el insecto simulado camina
+\valAndaNat{} del tiempo sin estímulos (publicado: $0.37\pm0.20$), hace pausas de \valPausaNat~s ($36.8\pm24.1$) y suelta la pared con
+probabilidad \valSalidaNat{} (0.005). Con comandos da \valAndaCom{} (0.643) y \valSalidaCom{}
 (0.052)~\cite{dirafzoon2017,tranngoc2024}. Lo único que no coincide es la pausa con comandos, que en nuestro modelo es de \valPausaCom~s y en lo publicado de 5.6~s. Eso vuelve
 conservador al modelo (tabla~\ref{tab:validacion}).
 
@@ -95,11 +95,11 @@ veinte y cuarenta sin guiar, así que usar la política equivale más o menos a 
 \label{fig:mapaenjambre}
 \end{figure}
 
-\textbf{Sensor y habituación.} Con la guiada, la matriz de $8\times8$ detecta en una hora en \senOchoSesenta~\% de las
-misiones y la de $32\times32$ en \senTreintaDosSesenta~\%: la que se consigue en México pierde pocos puntos. En
-misiones de dos horas con pulsos unipolares, estimular sin límite aplica \habEstSinLimite{} estímulos por insecto y
-por hora y deja la respuesta en \habRespSinLimite~\%; con el presupuesto son \habEstDosificado{} y
-\habRespDosificado~\%, con una detección prácticamente igual (\habDetSinLimite{} y \habDetDosificado~\%). Dosificar, entonces, no mejora la búsqueda; lo hacemos por cuidar al animal (figura~\ref{fig:sensorhab}).
+\textbf{Sensor y habituación.} Nos preguntamos si valía la pena un sensor más caro. Con la guiada, la matriz de $8\times8$ detecta en una
+hora en \senOchoSesenta~\% de las misiones y la de $32\times32$ en \senTreintaDosSesenta~\%, es decir, la que se consigue en México pierde
+pocos puntos. También comparamos con y sin presupuesto, en misiones de dos horas con pulsos unipolares. Estimular sin límite aplica
+\habEstSinLimite{} estímulos por insecto y por hora y deja la respuesta en \habRespSinLimite~\%. Con el presupuesto son \habEstDosificado{}
+y \habRespDosificado~\%, y la detección queda prácticamente igual (\habDetSinLimite{} y \habDetDosificado~\%). Dosificar, entonces, no mejora la búsqueda; lo hacemos por cuidar al animal (figura~\ref{fig:sensorhab}).
 
 \begin{figure}[!htb]
 \centering
@@ -110,10 +110,10 @@ sin dosificación, frente a un estímulo que no habitúa.}
 \end{figure}
 
 \textbf{Sensibilidad} (figura~\ref{fig:sensibilidad}). Movimos doce supuestos, uno a la vez, en cuatro colapsos.
-Cuatro cambian el resultado más que el margen de muestreo: el largo del tramo recto (de \sensTramoBajoGuiada{} a
-\sensTramoAltoGuiada~\%), la velocidad que quita la carga (de \sensCargaBajoGuiada{} a \sensCargaAltoGuiada~\% si
-resta 30~\%), la duración de las pausas (de \sensPausaBajoGuiada{} a \sensPausaAltoGuiada~\%) y la velocidad de
-marcha (de \sensVelocidadBajoGuiada{} a \sensVelocidadAltoGuiada~\%). La política aguanta bien que no conozcamos con precisión el estímulo, que es lo que menos se sabe. Lo que de verdad importa es cuánto y
+Solo cuatro cambian el resultado más que el margen de muestreo. Son el largo del tramo recto (de \sensTramoBajoGuiada{} a
+\sensTramoAltoGuiada~\%), la velocidad que quita la carga (de \sensCargaBajoGuiada{} a \sensCargaAltoGuiada~\% si resta 30~\%), la duración
+de las pausas (de \sensPausaBajoGuiada{} a \sensPausaAltoGuiada~\%) y la velocidad de marcha (de \sensVelocidadBajoGuiada{} a
+\sensVelocidadAltoGuiada~\%). La política aguanta bien que no conozcamos con precisión el estímulo, que es lo que menos se sabe. Lo que de verdad importa es cuánto y
 qué tan rápido camina el insecto.
 
 \begin{figure}[!htb]
@@ -123,10 +123,9 @@ qué tan rápido camina el insecto.
 \label{fig:sensibilidad}
 \end{figure}
 
-\textbf{Recuperar a los insectos.}\phantomsection\label{sec:regreso} Tras 45~min de búsqueda se da la orden de
-regreso; en el boquete hay un refugio oscuro que retiene a los que pasan a 30~cm (figura~\ref{fig:regreso}
-y tabla~\ref{tab:regreso}, \regInsectos{} insectos por caso). Con solo el refugio vuelve \regTrampaSesenta~\% en una hora y \regTrampaDos~\% en
-dos. Guiarlo a ciegas resultó peor. Con el rumbo recto o desandando la ruta se recupera \regRumboDos{} y \regRutaDos~\%, porque
+\textbf{Recuperar a los insectos.}\phantomsection\label{sec:regreso} Encontrar a la persona no es todo, también hay que recoger a los insectos. Tras 45~min de búsqueda damos la orden de regreso, y en el
+boquete hay un refugio oscuro que retiene a los que pasan a 30~cm (figura~\ref{fig:regreso} y tabla~\ref{tab:regreso}, \regInsectos{}
+insectos por caso). Con solo el refugio vuelve \regTrampaSesenta~\% en una hora y \regTrampaDos~\% en dos. Guiarlo a ciegas resultó peor. Con el rumbo recto o desandando la ruta se recupera \regRumboDos{} y \regRutaDos~\%, porque
 la cuenta de pasos y giros se desvía con cada metro. Lo que sí cambió el resultado fue poner una señal en la entrada: con un
 faro infrarrojo que se percibe hasta 6~m y dos fotodiodos vuelve \regFaroSesenta~\% en una hora y \regFaroDos~\% en dos, con
 \regEstFaro{} estímulos. Ningún método los recuperó a todos. El faro es un supuesto nuestro, aunque sus dos piezas existen

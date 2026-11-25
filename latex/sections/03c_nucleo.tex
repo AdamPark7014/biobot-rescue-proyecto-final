@@ -70,16 +70,17 @@ periodo 65\,535 y semilla \sig{0xACE1}, que avanza un paso por cuadro. La polít
 cero, o sea una vez cada 512 cuadros (51.2~s) en promedio, y con el bit 9 escoge el lado.
 
 \modulo{fsm\_politica}{hdl/fsm\_politica.v}{181 EL, 64 R}
-Es la parte que toma las decisiones y la que más trabajo tiene. Un bloque combinacional calcula el estado siguiente y si en
-este cuadro sale un estímulo; otro, secuencial, lo registra y actualiza los temporizadores, todos en décimas de segundo:
+Es la parte que toma las decisiones y también la más grande del núcleo. Un bloque combinacional calcula el estado siguiente y si
+en este cuadro sale un estímulo; otro, secuencial, lo registra y actualiza los temporizadores, todos en décimas de segundo. Los
+estados funcionan así:
 \begin{itemize}
-  \item \textbf{REPOSO} espera la orden de arranque. \textbf{EXPLORAR} deja caminar y vigila, en este orden, la
-        mancha de calor, el presupuesto, la quietud y el azar.
-  \item \textbf{REACTIVAR}: tras 15~s quieto manda un pulso de avance y observa 3~s. Si arranca, la espera vuelve a
-        15~s; si no, se duplica hasta 120~s. \textbf{REORIENTAR} gira a un lado al azar y regresa a explorar.
-  \item \textbf{ACERCAR}: con \sig{pre} gira hacia el lado de la mancha, o avanza si está quieto; si la pierde 5~s,
-        vuelve a explorar. \textbf{CONFIRMAR} deja de estimular y espera \sig{confirmado}. \textbf{ALERTAR} es final y
-        emite una baliza cada 5~s. \textbf{DESCANSO} espera a que baje el presupuesto.
+    \item En \textbf{REPOSO} espera la orden de arranque. Luego pasa a \textbf{EXPLORAR}, donde deja caminar al insecto y va
+        revisando, en este orden, si hay una mancha de calor, si queda presupuesto, si está quieto y si toca girar al azar.
+  \item \textbf{REACTIVAR} entra cuando lleva 15~s quieto. Manda un pulso de avance y observa 3~s. Si el insecto arranca, la espera
+        vuelve a 15~s; si no, se duplica hasta 120~s. \textbf{REORIENTAR} gira a un lado al azar y regresa a explorar.
+  \item Con \sig{pre} pasa a \textbf{ACERCAR}, que gira hacia el lado de la mancha, o avanza si el insecto está quieto; si la pierde
+        5~s, vuelve a explorar. En \textbf{CONFIRMAR} ya no estimula y espera \sig{confirmado}. De \textbf{ALERTAR} no se sale, y
+        desde ahí emite una baliza cada 5~s. \textbf{DESCANSO} espera a que baje el presupuesto.
 \end{itemize}
 Entre un estímulo y otro dejamos pasar al menos 10~s. El presupuesto es una cuenta Q8.8 a la que cada estímulo le suma 256
 (1.0) y que cada 23 cuadros pierde $1/256$ de su valor, al menos una cuenta. Eso da una constante de unos 590~s, parecida a lo

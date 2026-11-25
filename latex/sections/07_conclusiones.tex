@@ -11,14 +11,14 @@
 \toprule
 \rowcolor{TableHead} Limitación & Consecuencia y manejo \\
 \midrule
-Sensor térmico y tonos simulados en la FPGA & Los bloques que los procesan son los definitivos; falta medir alcance y falsas alarmas \\
-No hubo pruebas con insectos & La respuesta al estímulo y la marcha vienen de la literatura \\
-El radio es un cable & El alcance de 32~m es un parámetro; la atenuación está calculada, no medida \\
+Sensor térmico y tonos simulados en la FPGA & Los bloques que los procesan son los definitivos, pero nos falta medir alcance y falsas alarmas \\
+No hicimos pruebas con insectos & La respuesta al estímulo y la marcha las tomamos de la literatura \\
+El radio es un cable & El alcance de 32~m es un parámetro; la atenuación la calculamos, no la medimos \\
 Posición conocida de cada mochila & En el sistema real saldría de la navegación inercial y de los tonos \\
 El receptor solo escucha & Si A y B quedan a 32~m o más entre sí, solo el receptor muestra el total \\
 Versión final de la red en tarjetas, en varias corridas & Escenarios 1 a 7 y 9 correctos por JTAG; el 8 (ruido) solo en simulación \\
-Colapsos sintéticos y en dos dimensiones & Sirven para comparar políticas, no para predecir tiempos de rescate \\
-Ambiente caliente y confinamiento legal & Límites del animal y de la ley: definen dónde no debe usarse \\
+Colapsos sintéticos y en dos dimensiones & Sirven para comparar políticas, pero no para predecir tiempos de rescate \\
+Ambiente caliente y confinamiento legal & Son límites del animal y de la ley, y dicen dónde no debe usarse \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -43,9 +43,9 @@ Ambiente caliente y confinamiento legal & Límites del animal y de la ley: defin
         horas y con un faro, \regFaroDos~\%. Ningún método los recuperó a todos.
 \end{enumerate}
 
-\textbf{Sobre la hipótesis.} Se cumplió en parte. La política aumenta la detección sin habituación y cabe en miligramos de
-silicio, pero la mejora depende del colapso. Que dos mochilas bastan para ubicar a la persona se cumplió en simulación y en
-las tarjetas, siempre con el sensor simulado, y falta repetirlo con sensores reales.
+\textbf{Sobre la hipótesis.} Diríamos que se cumplió en parte. La política aumenta la detección sin habituación y cabe en miligramos de
+silicio, pero qué tanto mejora depende del colapso, cosa que la hipótesis no tomaba en cuenta. Que dos mochilas bastan para ubicar a
+la persona sí se cumplió, en simulación y en las tarjetas, aunque siempre con el sensor simulado. Falta repetirlo con sensores reales.
 
 \textbf{Trabajo futuro.} Lo siguiente sería (1) mandar el GDS a una corrida compartida como Tiny Tapeout~\cite{tinytapeout}
 para medirlo en silicio, y llevar al mismo flujo el detector de tonos; (2) conectar una matriz AMG8833 o MLX90640, un

@@ -110,18 +110,18 @@ temperatura de los interruptores y fuera, 22~\textdegree C, con un bit de ruido.
 vinieran del sensor.
 
 \modulo{tri\_mochila}{hdl/tri\_red.v}{3\,605 EL, 2\,027 R}
-Es la mochila completa (figura~\ref{fig:dmochila}) y hace seis cosas a la vez:
+Aquí se junta todo lo anterior. Es la mochila completa (figura~\ref{fig:dmochila}) y hace seis cosas a la vez:
 \begin{itemize}
-  \item \textbf{Cuadros.} Cada 100~ms pide la escena, espera al CORDIC, entrega los 64 píxeles al núcleo, uno por
-        ciclo, y después deja avanzar al insecto.
-  \item \textbf{Rearme.} Si hay alerta y pasan cinco cuadros sin mancha, reinicia el núcleo: la detección sigue al
-        sensor. El botón se marca aparte y dura hasta el reset.
-  \item \textbf{Rumbo.} Suma las columnas de los píxeles calientes, las multiplica por 1\,365 (7.5\textdegree{} en la
-        escala de 16 bits) y un divisor de 20 entre 7 bits da el centroide; restado del rumbo del insecto, es el
-        rumbo hacia el calor. Con el conteo filtrado estima además la distancia, de 12~cm a 1.06~m.
-  \item \textbf{Radio.} Dos receptores aceptan solo tramas de la otra mochila con el emisor dentro del alcance. Manda
-        su trama cada 100~ms y, si oyó una hace menos de 0.5~s con menos de dos saltos, la reenvía.
-  \item \textbf{Vecinos.} Calcula las distancias a la otra mochila y al receptor y escucha los tonos.
+  \item \textbf{Cuadros.} Cada 100~ms pide la escena, espera al CORDIC y le entrega los 64 píxeles al núcleo, uno por ciclo. Después
+        deja avanzar al insecto.
+  \item \textbf{Rearme.} La alerta del núcleo no se apaga sola, así que si pasan cinco cuadros sin mancha lo reiniciamos. Con eso la
+        detección sigue al sensor. El botón se marca aparte y dura hasta el reset.
+  \item \textbf{Rumbo.} Suma las columnas de los píxeles calientes, las multiplica por 1\,365 (7.5\textdegree{} en la escala de 16
+        bits) y con un divisor de 20 entre 7 bits saca el centroide. Al restarlo del rumbo del insecto queda el rumbo hacia el calor.
+        Con el conteo filtrado también estima la distancia, de 12~cm a 1.06~m.
+  \item \textbf{Radio.} Tiene dos receptores que solo aceptan tramas de la otra mochila con el emisor dentro del alcance. Manda su
+        trama cada 100~ms y, si oyó una hace menos de 0.5~s con menos de dos saltos, la reenvía.
+  \item \textbf{Vecinos.} Calcula qué tan lejos están la otra mochila y el receptor, y escucha los tonos.
   \item \textbf{Displays y LED.} Muestra quién es, el conteo, a quién oye y a cuántos metros.
 \end{itemize}
 
