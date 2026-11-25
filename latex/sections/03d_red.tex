@@ -91,7 +91,7 @@ cabecera \sig{0xA6}, el resumen de 35 bytes del receptor (364~EL).
 
 \modulo{tri\_rx\_n}{hdl/tri\_red.v}{370 EL, 305 R}
 Hace lo contrario que el anterior. Espera la cabecera, guarda $N$ bytes mientras va calculando el CRC y al final lo compara con los
-dos últimos. Si coincide entrega la carga con un pulso \sig{listo}; si no, o si pasan 2~ms sin bytes, levanta \sig{mala}. Cada nodo
+dos últimos. Si coincide entrega la carga con un pulso \sig{listo}. Cuando no coincide, o pasan 2~ms sin bytes, levanta \sig{mala}. Cada nodo
 lleva dos, uno por línea de entrada.
 
 \subsubsection{La mochila}
@@ -196,9 +196,9 @@ dirección del rumbo (figura~\ref{fig:rtltri}).
 
 \modulo{tri\_receptor}{hdl/tri\_red.v}{4\,506 EL, 2\,181 R}
 Guarda la última trama de cada mochila y cuatro temporizadores que dicen si llegó directa o por el puente en el último segundo. La
-función \sig{sigue} revisa el número de secuencia. Si salta, suma las que faltan; si se repite, la ignora, y si retrocede, supone que
-la mochila se reinició. Cada 100~ms triangula y escoge con qué estimación quedarse. Si las dos detectan con rumbo válido y sin error,
-usa el cruce; si hay error, el promedio; si solo detecta una, su aproximación, y si fue por el botón, la posición de la mochila.
+función \sig{sigue} revisa el número de secuencia. Un salto son tramas que faltan y las suma; una repetida la ignora, y cuando el número retrocede supone que la mochila se reinició. Cada
+100~ms triangula y escoge con qué estimación quedarse. Lo mejor es el cruce, que usa cuando las dos detectan con rumbo válido y sin error.
+Con error recurre al promedio, y cuando solo detecta una toma su aproximación. Para el botón usa la posición de la mochila.
 Además calcula tres distancias, escucha los tonos, cuenta las personas, arma el resumen para la computadora y maneja cuatro vistas en
 los displays (conteo, posición de la persona, distancia A--B y rumbos) con SW1--SW0 (figura~\ref{fig:dreceptor}).
 

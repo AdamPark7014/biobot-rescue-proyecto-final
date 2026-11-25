@@ -76,10 +76,8 @@ estados funcionan así:
 \begin{itemize}
     \item En \textbf{REPOSO} espera la orden de arranque. Luego pasa a \textbf{EXPLORAR}, donde deja caminar al insecto y va
         revisando, en este orden, si hay una mancha de calor, si queda presupuesto, si está quieto y si toca girar al azar.
-  \item \textbf{REACTIVAR} entra cuando lleva 15~s quieto. Manda un pulso de avance y observa 3~s. Si el insecto arranca, la espera
-        vuelve a 15~s; si no, se duplica hasta 120~s. \textbf{REORIENTAR} gira a un lado al azar y regresa a explorar.
-  \item Con \sig{pre} pasa a \textbf{ACERCAR}, que gira hacia el lado de la mancha, o avanza si el insecto está quieto; si la pierde
-        5~s, vuelve a explorar. En \textbf{CONFIRMAR} ya no estimula y espera \sig{confirmado}. De \textbf{ALERTAR} no se sale, y
+  \item \textbf{REACTIVAR} entra cuando lleva 15~s quieto. Manda un pulso de avance y observa 3~s. Si el insecto arranca, la espera vuelve a 15~s. Cuando no responde se va duplicando hasta 120~s. \textbf{REORIENTAR} gira a un lado al azar y regresa a explorar.
+  \item Con \sig{pre} pasa a \textbf{ACERCAR}, que gira hacia el lado de la mancha, o avanza si el insecto está quieto. Cuando la pierde por 5~s vuelve a explorar. En \textbf{CONFIRMAR} ya no estimula y espera \sig{confirmado}. De \textbf{ALERTAR} no se sale, y
         desde ahí emite una baliza cada 5~s. \textbf{DESCANSO} espera a que baje el presupuesto.
 \end{itemize}
 Entre un estímulo y otro dejamos pasar al menos 10~s. El presupuesto es una cuenta Q8.8 a la que cada estímulo le suma 256
@@ -111,7 +109,7 @@ cómo lo interpreta Quartus.
 
 \modulo{uart\_rx}{hdl/uart\_rx.v}{63 EL, 40 R}
 Es el receptor 8N1 que hicimos en la práctica~4. Dos flip-flops sincronizan la línea. Cuando ve el flanco de bajada espera
-medio bit y revisa que el bit de inicio siga en 0; si ya no está, era ruido y lo descarta. A partir de ahí cuenta bits completos
+medio bit y revisa que el bit de inicio siga en 0. Cuando ya no está es que fue ruido, y lo descarta. A partir de ahí cuenta bits completos
 (5\,208 ciclos a 9\,600 baudios o 434 a 115\,200) y lee cada dato en su centro, empezando por el menos significativo. En el
 centro del bit de paro entrega el byte con un pulso \sig{data\_valid} (figura~\ref{fig:duart}).
 

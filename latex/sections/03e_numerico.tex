@@ -54,7 +54,7 @@ de 180\textdegree. Tarda $N+2$ ciclos (figura~\ref{fig:rtlcordic}).
 \label{fig:rtlcordic}
 \end{figure}
 
-No sabíamos de antemano cuántas iteraciones convenían, así que lo medimos. Armamos nueve circuitos iguales, con $N$ de 4 a 20, y les
+No sabíamos de antemano cuántas iteraciones convenían. Para decidirlo armamos nueve circuitos iguales, con $N$ de 4 a 20, y les
 dimos los mismos 360 vectores y 360 ángulos (figura~\ref{fig:cordiciter} y tabla~\ref{tab:cordiciter}). El error se divide entre
 cuatro cada dos iteraciones hasta $N=14$. De ahí en adelante ya casi no mejora, porque la tabla de 16 bits no da para más. Nos
 quedamos con $N=16$, donde el error máximo es de 0.017\textdegree, veinte veces menos que el paso de 0.35\textdegree{} con el que el
@@ -86,14 +86,12 @@ rumbo viaja por la red. Con \sig{tb\_cordic} probamos también los cuatro cuadra
 \end{table}
 
 \modulo{divisor\_u}{hdl/cordic.v}{84 a 195 EL}
-Funciona como la división a mano. En cada ciclo baja un bit del dividendo al resto y prueba si cabe el divisor; si cabe, lo resta y
-pone un 1 en el cociente (es un divisor con restauración). Tarda un ciclo por bit más uno. Para la triangulación usamos uno de 44
+Funciona como la división a mano. En cada ciclo baja un bit del dividendo al resto y prueba si cabe el divisor. Cuando cabe, lo resta y pone un 1 en el cociente (es un divisor con restauración). Tarda un ciclo por bit más uno. Para la triangulación usamos uno de 44
 entre 32 bits y para el rumbo, uno de 20 entre 7.
 
 \modulo{tri\_distancia}{hdl/tri\_red.v}{87 a 109 EL, 60 R}
 \label{sec:raiz}%
-Calcula $d=\lfloor\sqrt{\Delta x^2+\Delta y^2}\rfloor$ con la raíz dígito por dígito. En cada ciclo baja dos bits del radicando de 22 y prueba si cabe $4q+1$ en el resto; si cabe, lo resta
-y agrega un 1 a la raíz. En 12 ciclos da la parte entera exacta. Para la regla del alcance usamos la misma suma de cuadrados,
+Calcula $d=\lfloor\sqrt{\Delta x^2+\Delta y^2}\rfloor$ con la raíz dígito por dígito. En cada ciclo baja dos bits del radicando de 22 y prueba si cabe $4q+1$ en el resto, en cuyo caso lo resta y le agrega un 1 a la raíz. En 12 ciclos da la parte entera exacta. Para la regla del alcance usamos la misma suma de cuadrados,
 $\Delta x^2+\Delta y^2<(16\times32)^2$, y con eso la distancia que se muestra y el corte de los 32~m nunca se contradicen
 (figura~\ref{fig:rtldist}).
 

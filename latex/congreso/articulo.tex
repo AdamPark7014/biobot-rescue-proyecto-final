@@ -118,22 +118,21 @@ tones are simulated inside the FPGA, and we did not test with insects.
 
 \section{Introducción}
 
-Cuando se cae un edificio, las primeras horas son las que más cuentan. En Kobe (1995) salió con vida cerca del 80~\% de las personas
-que se liberaron el primer día y casi nadie a partir del cuarto~\cite{kawata}. En Italia (1980), el 93~\% de los atrapados que
-sobrevivieron fue sacado en las primeras 24~h~\cite{noji}. El tema nos queda cerca, porque el sismo del 19 de septiembre de 2017,
+En un derrumbe el tiempo para sacar a alguien con vida es corto. De las personas liberadas el primer día en Kobe (1995) sobrevivió cerca
+del 80~\%, y a partir del cuarto día, casi nadie~\cite{kawata}. Los datos de Italia (1980) son parecidos: de los atrapados que
+sobrevivieron, al 93~\% lo sacaron en las primeras 24~h~\cite{noji}. El tema nos queda cerca, porque el sismo del 19 de septiembre de 2017,
 entre Puebla y Morelos, dejó 369 muertos y 44 edificios colapsados en la Ciudad de México~\cite{galvis2020}. Los huecos que se
 exploraron en el World Trade Center eran, por lo general, de menos de 1~m~\cite{murphy2004}, y hasta 2021 ningún robot terrestre
 había encontrado a una persona viva en un desastre~\cite{murphy2021}.
 
-La cucaracha silbadora de Madagascar (\textit{Gromphadorhina portentosa}) mide 6~cm de largo y 1.3~cm de alto, trepa obstáculos de
-su altura y tiende a seguir las paredes. Varios grupos ya la usan como plataforma de sensores~\cite{tranngoc2023,lin2025,refat2025},
-y en 2025 se llevó por primera vez a un desastre, en Myanmar, donde no halló sobrevivientes~\cite{htx2025}. La idea, entonces, no es
-nueva. Lo que no encontramos fue un sistema sin cirugía en el que nadie pilotee a cada insecto, con un circuito que quepa en los 2 a
-3~g que el animal puede cargar y que diga \emph{dónde} está la persona aunque el insecto que la encontró ya no alcance a comunicarse
-por radio.
+La cucaracha silbadora de Madagascar (\textit{Gromphadorhina portentosa}) puede ayudar ahí. Mide 6~cm de largo y 1.3~cm de alto, se trepa a obstáculos de su tamaño y suele ir pegada a las paredes. Ya hay
+grupos que le montan sensores~\cite{tranngoc2023,lin2025,refat2025}, y en 2025 se llevó por primera vez a un desastre, en Myanmar,
+aunque no se halló a nadie con vida~\cite{htx2025}. Nosotros buscábamos algo que no vimos reunido en esos trabajos: que no hubiera cirugía, que
+nadie tuviera que pilotear, que el circuito cupiera en los 2 a 3~g que carga el animal y que el rescatista supiera \emph{dónde} está la
+persona, incluso si el insecto que la encontró ya salió del alcance de la radio.
 
-En la figura~\ref{fig:sistema} está el sistema al que queremos llegar. El insecto explora como lo haría normalmente, la mochila lo
-estimula lo menos posible y solo transmite cuando detecta, un relevo en la entrada acorta el enlace y la estación dice dónde cavar.
+La figura~\ref{fig:sistema} resume la idea. Se deja que el insecto explore a su modo, la mochila lo estimula poco y transmite únicamente
+si detecta algo, y un relevo en la entrada pasa el aviso a la estación, que indica dónde cavar.
 
 \begin{figure}[!tb]
 \centering
@@ -163,10 +162,9 @@ matriz de $32\times32$~\cite{tranngoc2023}, electrodos sin cirugía~\cite{lin202
 robotizado~\cite{lin2025}; con Osaka, un enjambre de veinte insectos coordinado por una computadora~\cite{bai2025}. Refat \textit{et al.}~\cite{refat2025} guían con luz ultravioleta y no vieron habituación en 150 ensayos. En nuestra universidad ya se
 midió que la actividad es máxima cerca de 30~\textdegree C y que esa luz aumenta la locomoción~\cite{gracidas2026}.
 
-En la tabla~\ref{tab:cmp} resumimos las diferencias. La navegación publicada depende de cámaras externas o de una computadora, y no
-encontramos un trabajo que junte las detecciones de dos mochilas para ubicar a la persona, ni uno que use a una como relevo de otra.
-Además, soltar un enjambre que le reporta a un solo operador se llegó a considerar «físicamente impráctico»~\cite{murphy2004}. Por eso
-decidimos que nadie pilotee: cada mochila toma sus decisiones y se comunica solo cuando encuentra algo.
+En la tabla~\ref{tab:cmp} resumimos las diferencias. Casi toda la navegación publicada se apoya en cámaras externas o en una computadora. Tampoco vimos que alguien cruzara lo que detectan dos mochilas
+para ubicar a la persona, o que una le sirviera de relevo a otra. Y manejar un enjambre desde un solo operador ya se había descartado por
+«físicamente impráctico»~\cite{murphy2004}. Nuestra salida fue quitar al piloto y dejar que la mochila decida y avise por su cuenta.
 
 \begin{table}[!tb]
 \centering\tabfont
@@ -228,7 +226,7 @@ presencia y de quietud, generador seudoaleatorio, máquina de estados y generado
 \subsection{Política de estímulo}
 
 La máquina \sig{fsm\_politica} (fig.~\ref{fig:rtl}) avanza una vez por cuadro, diez veces por segundo, por ocho estados:
-reposo, explorar, reactivar, reorientar, acercar, confirmar, alertar y descanso. A diferencia de un control remoto, sigue tres reglas. La primera es una espera que se duplica: tras 15~s quieto da un pulso de avance
+reposo, explorar, reactivar, reorientar, acercar, confirmar, alertar y descanso. No es un control remoto, porque nadie le dice cuándo estimular. La primera de sus tres reglas es una espera que se duplica: tras 15~s quieto da un pulso de avance
 y, si en 3~s no arranca, espera 30, 60 y 120~s. La segunda son giros al azar, que un LFSR de 16~bits dispara cada 51~s en promedio para
 despegar al insecto de las paredes~\cite{dirafzoon2017}. La tercera es un presupuesto. Cada estímulo suma 1 a una cuenta Q8.8 que pierde
 $1/256$ cada 2.3~s ($\tau\approx590$~s, cercana a la recuperación del insecto), y con 12 acumulados deja de estimular. Así acotamos la
@@ -319,8 +317,7 @@ El módulo \sig{tri\_distancia} calcula
 \begin{equation}
 d=\left\lfloor\sqrt{\Delta x^2+\Delta y^2}\right\rfloor
 \end{equation}
-con una raíz dígito por dígito en 12 ciclos. Para la regla del alcance comparamos la misma suma con $(16\cdot32)^2$, y con eso la
-distancia que se muestra y el corte de 32~m nunca se contradicen.
+con una raíz dígito por dígito en 12 ciclos. El alcance se revisa con esa misma suma, contra $(16\cdot32)^2$, y por eso lo que marca el display siempre coincide con el corte de 32~m.
 
 \subsection{Rumbo y triangulación}
 
@@ -353,7 +350,7 @@ de estados (amarilla). Abajo, acercamiento a los productos cruzados y a la prueb
 \end{figure*}
 
 El CORDIC~\cite{volder1959,andraka1998} es secuencial, de 24~bits con 4 de guarda y ángulos de 16~bits; en rotación da
-seno y coseno y en vectorización, ángulo y magnitud. No sabíamos cuántas iteraciones convenían, así que lo medimos con nueve circuitos de $N=4$ a 20 (fig.~\ref{fig:cordic}). El error baja
+seno y coseno y en vectorización, ángulo y magnitud. Para escoger el número de iteraciones comparamos nueve circuitos, de $N=4$ a 20 (fig.~\ref{fig:cordic}). El error baja
 cuatro veces cada dos iteraciones hasta $N=14$, donde la tabla de arcotangentes ya no da para más. Con $N=16$ el error máximo es de
 0.017\textdegree{} en el ángulo y 0.026~\% en seno y coseno.
 
@@ -387,8 +384,8 @@ los tonos que llegan.}
 u[n]=K_p e[n]+K_i\textstyle\sum_{k\le n}e[k]+K_d(e[n]-e[n-1]),
 \end{equation}
 con ganancias Q8.8 e integrador de 32~bits. Si la salida está saturada y el error empuja hacia el mismo lado, congela el acumulador.
-Contra un PID en aritmética real difiere en menos de una cuenta. Ante un escalón que satura el actuador, el sobrepaso es de 0.2~\%,
-mientras que sin esa protección la salida sigue en el tope 400 muestras después (fig.~\ref{fig:pid}). Lo pensamos para el modo de
+Lo corrimos junto a un PID en aritmética real y nunca se separaron una cuenta completa. Con un escalón que satura el actuador, el
+sobrepaso es de 0.2~\%; quitando la protección, la salida se queda en el tope y 400 muestras después sigue ahí (fig.~\ref{fig:pid}). Lo pensamos para el modo de
 regreso, que dejamos como trabajo futuro.
 
 \begin{figure}[!tb]
@@ -544,8 +541,8 @@ de 53.7~\%), de las que 46~\% son compuertas, 29~\% flip-flops y 17~\% búferes 
 La corriente la calculamos con OpenSTA sobre el netlist final y los parásitos del ruteo, con la actividad de una simulación de compuertas
 (VCD) y, como cota alta, con la actividad por omisión (tabla~\ref{tab:corr}). Casi toda se va en el reloj. En espera, la mitad la gasta su
 árbol y la otra mitad los flip-flops que lo reciben. Como el núcleo procesa diez cuadros por segundo, con un reloj de 1~MHz serían unos
-12~$\mu$A. Para el mismo prototipo, la FPGA consume 63.5~mA estimados, unas cien veces más que el chip. Aun así, en una mochila de 30~mW
-(8.1~mA a 3.7~V) el núcleo es apenas cerca del 3~\%, y lo demás se va sobre todo en el sensor y la radio.
+12~$\mu$A. Para el mismo prototipo, la FPGA consume 63.5~mA estimados, unas cien veces más que el chip. De todos modos no es donde más se puede ahorrar: de los 30~mW de una mochila (8.1~mA a 3.7~V), al núcleo le toca cerca del 3~\%, y el
+sensor y la radio se llevan la mayor parte.
 
 \begin{table}[!tb]
 \centering\tabfont
@@ -567,19 +564,17 @@ Potencia en espera (mW) & 0.828 & 1.038 & 1.207 \\
 
 \subsection{Misión simulada}
 
-Simulamos misiones con agentes en ocho colapsos sintéticos de $8\times6$~m, 320 por caso ($\pm5$ puntos al 95~\%). Antes de creerle al
-modelo comparamos la marcha con la publicada~\cite{dirafzoon2017,tranngoc2024}, y cinco de seis medidas coinciden o caen en su dispersión.
+Simulamos misiones con agentes en ocho colapsos sintéticos de $8\times6$~m, 320 por caso ($\pm5$ puntos al 95~\%). Para validar, pusimos la marcha junto a la publicada~\cite{dirafzoon2017,tranngoc2024}: cinco de seis medidas coinciden o caen en su
+dispersión.
 Con diez insectos, la detección en una hora es de 58~\% sin estímulos, 64~\% reactivando al que se detiene, 72~\% con giros al azar y
-73~\% guiando hacia el calor (fig.~\ref{fig:pol}), con unos 61 estímulos por insecto y por hora. Diez guiados rinden como entre veinte y
-cuarenta sin guiar (68 y 77~\%), o sea que usar la política equivale más o menos a duplicar o triplicar el enjambre (fig.~\ref{fig:pol},
-derecha). También movimos doce supuestos, uno a la vez, y solo cuatro cambian el resultado más que el margen: el largo del tramo recto (67
+73~\% guiando hacia el calor (fig.~\ref{fig:pol}), con unos 61 estímulos por insecto y por hora. Con diez guiados se logra lo mismo que con un número de insectos sin guiar entre veinte y cuarenta (68 y 77~\%), el doble o el triple
+(fig.~\ref{fig:pol}, derecha). También movimos doce supuestos, uno a la vez, y solo cuatro cambian el resultado más que el margen: el largo del tramo recto (67
 a 86~\%), la velocidad que quita la carga (80 a 62~\% si resta 30~\%), la duración de las pausas (86 a 73~\%) y la velocidad de marcha (71
 a 81~\%).
 
 El colapso pesa más que la política. La guiada gana en tres de los ocho, empata en cuatro y pierde en uno, donde baja de 98 a 52~\% porque
 ahí basta con seguir la pared para llegar a la persona. Un enjambre mixto, cinco y cinco, conserva el promedio (72~\%) y sube ese caso a
-92~\%. Con pulsos que habitúan, el presupuesto da la misma detección con la tercera parte de los estímulos (42 frente a 121 por hora), así
-que dosificar cuida al animal sin perder rendimiento. También hay que recoger a los insectos. Un refugio en la entrada recupera 76~\% en
+92~\%. Con pulsos que habitúan, el presupuesto da la misma detección con la tercera parte de los estímulos (42 frente a 121 por hora), y en eso se ve que dosificar cuida al animal sin costar detecciones. También hay que recoger a los insectos. Un refugio en la entrada recupera 76~\% en
 dos horas, y un faro que la mochila siga, 91~\%; guiarlos a ciegas resultó peor (66~\%).
 
 \section{Discusión}
@@ -588,9 +583,8 @@ dos horas, y un faro que la mochila siga, 91~\%; guiarlos a ciegas resultó peor
 
 La red no tarda 1.10~s por el cálculo, que toma microsegundos, sino por lo que decidimos esperar: la media móvil, los cuatro cuadros de
 confirmación y las tramas de 100~ms. Algo que nos dejó este trabajo es que conviene medir contra el valor exacto. Una prueba con tolerancia
-de $\pm7$~cm daba por bueno el CORDIC truncado, que fallaba en más de la mitad de las distancias exactas. La política aguanta bien que no
-conozcamos con precisión el estímulo, que es lo que menos se sabe. Lo que más mueve el resultado es cuánto y qué tan rápido camina el
-insecto, y por eso insistimos en una mochila ligera.
+de $\pm7$~cm daba por bueno el CORDIC truncado, que fallaba en más de la mitad de las distancias exactas. Del estímulo es de lo que menos datos hay, y por suerte la política no depende mucho de él. Depende bastante más de cuánto y qué tan
+rápido camina el insecto, y esa es la razón para mantener ligera la mochila.
 
 \subsection{De la FPGA al chip}
 
@@ -598,24 +592,24 @@ Antes de correr el flujo habíamos estimado 0.014~mm$^2$ por conteo de celdas y 
 búferes que cumplen \textit{hold} y transiciones, el árbol de reloj y las celdas de pozo solo aparecen al hacer el layout. El chip tiene 253
 flip-flops y la FPGA 224 registros, porque en la tarjeta algunas salidas no se usan y Quartus elimina sus registros. Con los valores por
 omisión el flujo pasaba DRC y LVS, pero dejaba 140 transiciones lentas en la esquina lenta; al reparar transiciones después del ruteo
-global, con márgenes de 50~\%, quedaron en cero. La caída en la red de alimentación es de 0.42~mV, el 0.02~\% de 1.8~V. En las dos
-tecnologías sobra frecuencia, así que lo que sigue es bajar la corriente, con un reloj más lento o deteniéndolo entre cuadros.
+global, con márgenes de 50~\%, quedaron en cero. La alimentación no es problema (cae 0.42~mV, el 0.02~\% de 1.8~V) y frecuencia sobra en las dos tecnologías. Lo que falta mejorar es la
+corriente, con un reloj más lento o deteniéndolo entre cuadros.
 
 \subsection{Costo y uso en campo}
 
 Con piezas que se consiguen en tiendas de México, una mochila de prototipo cuesta 1\,031~MXN con la matriz de $8\times8$ y 1\,532~MXN con la
-de $32\times24$. Un enjambre de veinte sale entre 30 y 100 veces más barato que un binomio canino o un robot de rescate. La comparación no
-es del todo justa, porque el perro encuentra personas y el biobot todavía no lo ha hecho en campo, y ese costo no incluye la cría, los
-permisos ni una vida útil corta. Lo vemos como un complemento. El perro marca una zona, el rescatista coloca un relevo en el boquete y
-suelta de diez a veinte insectos, y si hay una alerta se confirma con cámara o perro antes de mover una losa. Que no haya alertas no
-significa que la zona esté vacía.
+de $32\times24$. Veinte mochilas salen entre 30 y 100 veces más baratas que un binomio canino o un robot de rescate, pero no se pueden comparar así nada
+más. El perro encuentra personas y el biobot todavía no lo ha hecho en campo, y en ese precio no está la cría, ni los permisos, ni que el
+insecto dura poco. Por eso lo imaginamos como apoyo: el perro marca la zona, el rescatista pone un relevo en el boquete y suelta de diez a
+veinte insectos, y cualquier alerta se revisa con cámara o perro antes de mover una losa. Si no llega ninguna, eso no descarta que haya
+alguien.
 
 \subsection{Limitaciones y ética}
 
 Al trabajo le faltan varias cosas. El sensor y el canal acústico están simulados en la FPGA y damos por conocida la posición de cada
 mochila; el radio es un cable y el alcance, un parámetro. No hicimos pruebas con insectos. La detección falla por encima de unos
-30~\textdegree C de ambiente, y la ley mexicana exige mantener a la especie en confinamiento~\cite{lgvs}, así que un despliegue necesitaría
-una autorización que hoy no existe. Sobre el bienestar del animal no hay consenso~\cite{gibbons2022,adamo2016} y preferimos ser precavidos:
+30~\textdegree C de ambiente, y la ley mexicana exige mantener a la especie en confinamiento~\cite{lgvs}. Para un despliegue haría falta una autorización que hoy no
+existe. Sobre el bienestar del animal no hay consenso~\cite{gibbons2022,adamo2016} y preferimos ser precavidos:
 el protocolo que proponemos evita la cirugía, limita la carga a 3~g y los estímulos a 12 acumulados, y pide declarar bajas y destino. Solo se
 usarían machos, con doble contención y conteo de entrada y salida. Además hay que recuperar cada mochila, porque su batería es un residuo de
 manejo especial.
